@@ -34,7 +34,7 @@ import com.typesafe.sbt.pom.{PomBuild, SbtPomKeys}
 import com.typesafe.tools.mima.plugin.MimaKeys
 import org.scalastyle.sbt.ScalastylePlugin.autoImport._
 import org.scalastyle.sbt.Tasks
-import scalafix.sbt.ScalafixPlugin.autoImport._
+// import scalafix.sbt.ScalafixPlugin.autoImport._
 
 import spray.revolver.RevolverPlugin._
 
@@ -124,7 +124,7 @@ object SparkBuild extends PomBuild {
 
   lazy val sparkGenjavadocSettings: Seq[sbt.Def.Setting[_]] = Seq(
     libraryDependencies += compilerPlugin(
-      "com.typesafe.genjavadoc" %% "genjavadoc-plugin" % unidocGenjavadocVersion.value cross CrossVersion.full),
+      "com.typesafe.genjavadoc" % "genjavadoc-plugin_2.13.0-RC1" % unidocGenjavadocVersion.value),
     scalacOptions ++= Seq(
       "-P:genjavadoc:out=" + (target.value / "java"),
       "-P:genjavadoc:strictVisibility=true" // hide package private types
@@ -213,7 +213,11 @@ object SparkBuild extends PomBuild {
 
   lazy val sharedSettings = sparkGenjavadocSettings ++
       (if (sys.env.contains("NOLINT_ON_COMPILE")) Nil else enableScalaStyle) ++ Seq(
-    addCompilerPlugin(scalafixSemanticdb),
+    // addCompilerPlugin(scalafixSemanticdb),
+    scalaBinaryVersion := "2.12",
+    excludeDependencies += SbtExclusionRule("org.scala-lang.modules", "scala-xml_2.12"),
+    libraryDependencies += "org.scala-lang.modules" % "scala-xml_2.13.0-RC1" % "1.2.0",
+    libraryDependencies += "org.scala-lang.modules" % "scala-parallel-collections_2.13.0-RC1" % "0.2.0",
     exportJars in Compile := true,
     exportJars in Test := false,
     javaHome := sys.env.get("JAVA_HOME")

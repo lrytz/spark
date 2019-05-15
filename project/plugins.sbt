@@ -61,4 +61,4 @@ addSbtPlugin("com.simplytyped" % "sbt-antlr4" % "0.7.13")
 
 addSbtPlugin("org.spark-project" % "sbt-pom-reader" % "1.0.0-spark")
 
-addSbtPlugin("ch.epfl.scala" % "sbt-scalafix" % "0.9.5")
+// addSbtPlugin("ch.epfl.scala" % "sbt-scalafix" % "0.9.5")
