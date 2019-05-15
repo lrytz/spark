@@ -22,6 +22,7 @@ import scala.reflect.ClassTag
 import org.apache.spark._
 import org.apache.spark.annotation.DeveloperApi
 import org.apache.spark.serializer.Serializer
+import scala.{collection => coll}
 
 private[spark] class ShuffledRDDPartition(val idx: Int) extends Partition {
   override val index: Int = idx
@@ -75,7 +76,7 @@ class ShuffledRDD[K: ClassTag, V: ClassTag, C: ClassTag](
     this
   }
 
-  override def getDependencies: Seq[Dependency[_]] = {
+  override def getDependencies: coll.Seq[Dependency[_]] = {
     val serializer = userSpecifiedSerializer.getOrElse {
       val serializerManager = SparkEnv.get.serializerManager
       if (mapSideCombine) {
@@ -93,7 +94,7 @@ class ShuffledRDD[K: ClassTag, V: ClassTag, C: ClassTag](
     Array.tabulate[Partition](part.numPartitions)(i => new ShuffledRDDPartition(i))
   }
 
-  override protected def getPreferredLocations(partition: Partition): Seq[String] = {
+  override protected def getPreferredLocations(partition: Partition): coll.Seq[String] = {
     val tracker = SparkEnv.get.mapOutputTracker.asInstanceOf[MapOutputTrackerMaster]
     val dep = dependencies.head.asInstanceOf[ShuffleDependency[K, V, C]]
     tracker.getPreferredLocationsForShuffle(dep, partition.index)

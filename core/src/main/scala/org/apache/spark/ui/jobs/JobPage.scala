@@ -30,6 +30,7 @@ import org.apache.spark.scheduler._
 import org.apache.spark.status.AppStatusStore
 import org.apache.spark.status.api.v1
 import org.apache.spark.ui._
+import scala.{collection => coll}
 
 /** Page showing statistics and stage list for a given job */
 private[ui] class JobPage(parent: JobsTab, store: AppStatusStore) extends WebUIPage("job") {
@@ -57,7 +58,7 @@ private[ui] class JobPage(parent: JobsTab, store: AppStatusStore) extends WebUIP
       <text x="35px" y="42px">Removed</text>
     </svg></div>.toString.filter(_ != '\n')
 
-  private def makeStageEvent(stageInfos: Seq[v1.StageData]): Seq[String] = {
+  private def makeStageEvent(stageInfos: coll.Seq[v1.StageData]): coll.Seq[String] = {
     stageInfos.map { stage =>
       val stageId = stage.stageId
       val attemptId = stage.attemptId
@@ -95,7 +96,7 @@ private[ui] class JobPage(parent: JobsTab, store: AppStatusStore) extends WebUIP
     }
   }
 
-  def makeExecutorEvent(executors: Seq[v1.ExecutorSummary]): Seq[String] = {
+  def makeExecutorEvent(executors: coll.Seq[v1.ExecutorSummary]): coll.Seq[String] = {
     val events = ListBuffer[String]()
     executors.foreach { e =>
       val addedEvent =
@@ -139,9 +140,9 @@ private[ui] class JobPage(parent: JobsTab, store: AppStatusStore) extends WebUIP
   }
 
   private def makeTimeline(
-      stages: Seq[v1.StageData],
-      executors: Seq[v1.ExecutorSummary],
-      appStartTime: Long): Seq[Node] = {
+      stages: coll.Seq[v1.StageData],
+      executors: coll.Seq[v1.ExecutorSummary],
+      appStartTime: Long): coll.Seq[Node] = {
 
     val stageEventJsonAsStrSeq = makeStageEvent(stages)
     val executorsJsonAsStrSeq = makeExecutorEvent(executors)
@@ -183,7 +184,7 @@ private[ui] class JobPage(parent: JobsTab, store: AppStatusStore) extends WebUIP
     </script>
   }
 
-  def render(request: HttpServletRequest): Seq[Node] = {
+  def render(request: HttpServletRequest): coll.Seq[Node] = {
     val parameterId = request.getParameter("id")
     require(parameterId != null && parameterId.nonEmpty, "Missing id parameter")
 

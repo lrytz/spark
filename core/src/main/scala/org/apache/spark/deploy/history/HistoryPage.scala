@@ -23,10 +23,11 @@ import scala.xml.Node
 
 import org.apache.spark.status.api.v1.ApplicationInfo
 import org.apache.spark.ui.{UIUtils, WebUIPage}
+import scala.{collection => coll}
 
 private[history] class HistoryPage(parent: HistoryServer) extends WebUIPage("") {
 
-  def render(request: HttpServletRequest): Seq[Node] = {
+  def render(request: HttpServletRequest): coll.Seq[Node] = {
     val requestedIncomplete = Option(request.getParameter("showIncomplete"))
       .getOrElse("false").toBoolean
 

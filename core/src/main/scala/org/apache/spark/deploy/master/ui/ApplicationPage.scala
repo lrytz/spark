@@ -26,13 +26,14 @@ import org.apache.spark.deploy.ExecutorState
 import org.apache.spark.deploy.master.ExecutorDesc
 import org.apache.spark.ui.{ToolTips, UIUtils, WebUIPage}
 import org.apache.spark.util.Utils
+import scala.{collection => coll}
 
 private[ui] class ApplicationPage(parent: MasterWebUI) extends WebUIPage("app") {
 
   private val master = parent.masterEndpointRef
 
   /** Executor details for a particular application */
-  def render(request: HttpServletRequest): Seq[Node] = {
+  def render(request: HttpServletRequest): coll.Seq[Node] = {
     val appId = request.getParameter("appId")
     val state = master.askSync[MasterStateResponse](RequestMasterState)
     val app = state.activeApps.find(_.id == appId)
@@ -129,7 +130,7 @@ private[ui] class ApplicationPage(parent: MasterWebUI) extends WebUIPage("app") 
     UIUtils.basicSparkPage(request, content, "Application: " + app.desc.name)
   }
 
-  private def executorRow(executor: ExecutorDesc): Seq[Node] = {
+  private def executorRow(executor: ExecutorDesc): coll.Seq[Node] = {
     val workerUrlRef = UIUtils.makeHref(parent.master.reverseProxy,
       executor.worker.id, executor.worker.webUiAddress)
     <tr>

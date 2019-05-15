@@ -25,13 +25,14 @@ import org.apache.spark.SparkConf
 import org.apache.spark.status.AppStatusStore
 import org.apache.spark.ui._
 import org.apache.spark.util.Utils
+import scala.{collection => coll}
 
 private[ui] class EnvironmentPage(
     parent: EnvironmentTab,
     conf: SparkConf,
     store: AppStatusStore) extends WebUIPage("") {
 
-  def render(request: HttpServletRequest): Seq[Node] = {
+  def render(request: HttpServletRequest): coll.Seq[Node] = {
     val appEnv = store.environmentInfo()
     val jvmInformation = Map(
       "Java Version" -> appEnv.runtime.javaVersion,

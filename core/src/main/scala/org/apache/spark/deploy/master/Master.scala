@@ -41,6 +41,7 @@ import org.apache.spark.metrics.{MetricsSystem, MetricsSystemInstances}
 import org.apache.spark.rpc._
 import org.apache.spark.serializer.{JavaSerializer, Serializer}
 import org.apache.spark.util.{SparkUncaughtExceptionHandler, ThreadUtils, Utils}
+import scala.{collection => coll}
 
 private[deploy] class Master(
     override val rpcEnv: RpcEnv,
@@ -519,8 +520,8 @@ private[deploy] class Master(
     workers.count(_.state == WorkerState.UNKNOWN) == 0 &&
       apps.count(_.state == ApplicationState.UNKNOWN) == 0
 
-  private def beginRecovery(storedApps: Seq[ApplicationInfo], storedDrivers: Seq[DriverInfo],
-      storedWorkers: Seq[WorkerInfo]) {
+  private def beginRecovery(storedApps: coll.Seq[ApplicationInfo], storedDrivers: coll.Seq[DriverInfo],
+      storedWorkers: coll.Seq[WorkerInfo]) {
     for (app <- storedApps) {
       logInfo("Trying to recover app: " + app.id)
       try {
@@ -929,7 +930,7 @@ private[deploy] class Master(
    *
    * @return whether the application has previously registered with this Master.
    */
-  private def handleKillExecutors(appId: String, executorIds: Seq[Int]): Boolean = {
+  private def handleKillExecutors(appId: String, executorIds: coll.Seq[Int]): Boolean = {
     idToApp.get(appId) match {
       case Some(appInfo) =>
         logInfo(s"Application $appId requests to kill executors: " + executorIds.mkString(", "))
@@ -958,7 +959,7 @@ private[deploy] class Master(
    * the kill interface on the driver side accepts arbitrary strings, so we need to
    * handle non-integer executor IDs just to be safe.
    */
-  private def formatExecutorIds(executorIds: Seq[String]): Seq[Int] = {
+  private def formatExecutorIds(executorIds: coll.Seq[String]): coll.Seq[Int] = {
     executorIds.flatMap { executorId =>
       try {
         Some(executorId.toInt)

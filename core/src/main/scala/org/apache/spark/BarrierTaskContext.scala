@@ -29,6 +29,7 @@ import org.apache.spark.metrics.source.Source
 import org.apache.spark.rpc.{RpcEndpointRef, RpcTimeout}
 import org.apache.spark.shuffle.FetchFailedException
 import org.apache.spark.util._
+import scala.{collection => coll}
 
 /**
  * :: Experimental ::
@@ -181,7 +182,7 @@ class BarrierTaskContext private[spark] (
 
   override def taskMetrics(): TaskMetrics = taskContext.taskMetrics()
 
-  override def getMetricsSources(sourceName: String): Seq[Source] = {
+  override def getMetricsSources(sourceName: String): coll.Seq[Source] = {
     taskContext.getMetricsSources(sourceName)
   }
 

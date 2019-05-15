@@ -44,6 +44,7 @@ import org.apache.spark.serializer.{JavaSerializer, Serializer, SerializerManage
 import org.apache.spark.shuffle.ShuffleManager
 import org.apache.spark.storage._
 import org.apache.spark.util.{RpcUtils, Utils}
+import scala.{collection => coll}
 
 /**
  * :: DeveloperApi ::
@@ -402,8 +403,8 @@ object SparkEnv extends Logging {
       conf: SparkConf,
       hadoopConf: Configuration,
       schedulingMode: String,
-      addedJars: Seq[String],
-      addedFiles: Seq[String]): Map[String, Seq[(String, String)]] = {
+      addedJars: coll.Seq[String],
+      addedFiles: coll.Seq[String]): Map[String, coll.Seq[(String, String)]] = {
 
     import Properties._
     val jvmInformation = Seq(
@@ -440,7 +441,7 @@ object SparkEnv extends Logging {
     // conf starting with "spark.hadoop" may overwrite it.
     val hadoopProperties = hadoopConf.asScala
       .map(entry => (entry.getKey, entry.getValue)).toSeq.sorted
-    Map[String, Seq[(String, String)]](
+    Map[String, coll.Seq[(String, String)]](
       "JVM Information" -> jvmInformation,
       "Spark Properties" -> sparkProperties,
       "Hadoop Properties" -> hadoopProperties,

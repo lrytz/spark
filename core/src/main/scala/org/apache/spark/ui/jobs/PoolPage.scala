@@ -24,11 +24,12 @@ import scala.xml.Node
 import org.apache.spark.status.PoolData
 import org.apache.spark.status.api.v1._
 import org.apache.spark.ui.{UIUtils, WebUIPage}
+import scala.{collection => coll}
 
 /** Page showing specific pool details */
 private[ui] class PoolPage(parent: StagesTab) extends WebUIPage("pool") {
 
-  def render(request: HttpServletRequest): Seq[Node] = {
+  def render(request: HttpServletRequest): coll.Seq[Node] = {
     val poolName = Option(request.getParameter("poolname")).map { poolname =>
       UIUtils.decodeURLParameter(poolname)
     }.getOrElse {

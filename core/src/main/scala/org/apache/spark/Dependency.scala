@@ -23,6 +23,7 @@ import org.apache.spark.annotation.DeveloperApi
 import org.apache.spark.rdd.RDD
 import org.apache.spark.serializer.Serializer
 import org.apache.spark.shuffle.{ShuffleHandle, ShuffleWriteProcessor}
+import scala.{collection => coll}
 
 /**
  * :: DeveloperApi ::
@@ -46,7 +47,7 @@ abstract class NarrowDependency[T](_rdd: RDD[T]) extends Dependency[T] {
    * @param partitionId a partition of the child RDD
    * @return the partitions of the parent RDD that the child partition depends upon
    */
-  def getParents(partitionId: Int): Seq[Int]
+  def getParents(partitionId: Int): coll.Seq[Int]
 
   override def rdd: RDD[T] = _rdd
 }

@@ -42,6 +42,7 @@ import org.apache.spark.{SecurityManager, SparkConf, SSLOptions}
 import org.apache.spark.internal.Logging
 import org.apache.spark.internal.config.UI._
 import org.apache.spark.util.Utils
+import scala.{collection => coll}
 
 /**
  * Utilities for launching a web server using Jetty's HTTP Server class
@@ -63,8 +64,8 @@ private[spark] object JettyUtils extends Logging {
   implicit def jsonResponderToServlet(responder: Responder[JValue]): ServletParams[JValue] =
     new ServletParams(responder, "text/json", (in: JValue) => pretty(render(in)))
 
-  implicit def htmlResponderToServlet(responder: Responder[Seq[Node]]): ServletParams[Seq[Node]] =
-    new ServletParams(responder, "text/html", (in: Seq[Node]) => "<!DOCTYPE html>" + in.toString)
+  implicit def htmlResponderToServlet(responder: Responder[coll.Seq[Node]]): ServletParams[coll.Seq[Node]] =
+    new ServletParams(responder, "text/html", (in: coll.Seq[Node]) => "<!DOCTYPE html>" + in.toString)
 
   implicit def textResponderToServlet(responder: Responder[String]): ServletParams[String] =
     new ServletParams(responder, "text/plain")

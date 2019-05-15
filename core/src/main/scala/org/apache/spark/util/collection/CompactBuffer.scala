@@ -20,6 +20,7 @@ package org.apache.spark.util.collection
 import scala.reflect.ClassTag
 
 import org.apache.spark.unsafe.array.ByteArrayMethods
+import scala.{collection => coll}
 
 /**
  * An append-only buffer similar to ArrayBuffer, but more memory-efficient for small buffers.
@@ -29,7 +30,7 @@ import org.apache.spark.unsafe.array.ByteArrayMethods
  * entries than that. This makes it more efficient for operations like groupBy where we expect
  * some keys to have very few elements.
  */
-private[spark] class CompactBuffer[T: ClassTag] extends Seq[T] with Serializable {
+private[spark] class CompactBuffer[T: ClassTag] extends coll.Seq[T] with Serializable {
   // First two elements
   private var element0: T = _
   private var element1: T = _

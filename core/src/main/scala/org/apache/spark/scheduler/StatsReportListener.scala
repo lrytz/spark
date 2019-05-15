@@ -23,6 +23,7 @@ import org.apache.spark.annotation.DeveloperApi
 import org.apache.spark.executor.TaskMetrics
 import org.apache.spark.internal.Logging
 import org.apache.spark.util.{Distribution, Utils}
+import scala.{collection => coll}
 
 
 /**
@@ -94,14 +95,14 @@ private[spark] object StatsReportListener extends Logging {
   val percentilesHeader = "\t" + percentiles.mkString("%\t") + "%"
 
   def extractDoubleDistribution(
-    taskInfoMetrics: Seq[(TaskInfo, TaskMetrics)],
+    taskInfoMetrics: coll.Seq[(TaskInfo, TaskMetrics)],
     getMetric: (TaskInfo, TaskMetrics) => Double): Option[Distribution] = {
     Distribution(taskInfoMetrics.map { case (info, metric) => getMetric(info, metric) })
   }
 
   // Is there some way to setup the types that I can get rid of this completely?
   def extractLongDistribution(
-    taskInfoMetrics: Seq[(TaskInfo, TaskMetrics)],
+    taskInfoMetrics: coll.Seq[(TaskInfo, TaskMetrics)],
     getMetric: (TaskInfo, TaskMetrics) => Long): Option[Distribution] = {
     extractDoubleDistribution(
       taskInfoMetrics,
@@ -132,14 +133,14 @@ private[spark] object StatsReportListener extends Logging {
       heading: String,
       format: String,
       getMetric: (TaskInfo, TaskMetrics) => Double,
-      taskInfoMetrics: Seq[(TaskInfo, TaskMetrics)]) {
+      taskInfoMetrics: coll.Seq[(TaskInfo, TaskMetrics)]) {
     showDistribution(heading, extractDoubleDistribution(taskInfoMetrics, getMetric), format)
   }
 
   def showBytesDistribution(
       heading: String,
       getMetric: (TaskInfo, TaskMetrics) => Long,
-      taskInfoMetrics: Seq[(TaskInfo, TaskMetrics)]) {
+      taskInfoMetrics: coll.Seq[(TaskInfo, TaskMetrics)]) {
     showBytesDistribution(heading, extractLongDistribution(taskInfoMetrics, getMetric))
   }
 
@@ -159,7 +160,7 @@ private[spark] object StatsReportListener extends Logging {
   def showMillisDistribution(
       heading: String,
       getMetric: (TaskInfo, TaskMetrics) => Long,
-      taskInfoMetrics: Seq[(TaskInfo, TaskMetrics)]) {
+      taskInfoMetrics: coll.Seq[(TaskInfo, TaskMetrics)]) {
     showMillisDistribution(heading, extractLongDistribution(taskInfoMetrics, getMetric))
   }
 

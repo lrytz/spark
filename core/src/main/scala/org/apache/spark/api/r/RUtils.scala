@@ -23,6 +23,7 @@ import java.util.Arrays
 import org.apache.spark.{SparkEnv, SparkException}
 import org.apache.spark.api.java.JavaSparkContext
 import org.apache.spark.internal.config._
+import scala.{collection => coll}
 
 private[spark] object RUtils {
   // Local path where R binary packages built from R source code contained in the spark
@@ -57,7 +58,7 @@ private[spark] object RUtils {
    * This assumes that Spark properties `spark.master` and `spark.submit.deployMode`
    * and environment variable `SPARK_HOME` are set.
    */
-  def sparkRPackagePath(isDriver: Boolean): Seq[String] = {
+  def sparkRPackagePath(isDriver: Boolean): coll.Seq[String] = {
     val (master, deployMode) =
       if (isDriver) {
         (sys.props("spark.master"), sys.props("spark.submit.deployMode"))

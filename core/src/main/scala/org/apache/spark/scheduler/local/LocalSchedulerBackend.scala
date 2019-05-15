@@ -29,6 +29,7 @@ import org.apache.spark.launcher.{LauncherBackend, SparkAppHandle}
 import org.apache.spark.rpc.{RpcCallContext, RpcEndpointRef, RpcEnv, ThreadSafeRpcEndpoint}
 import org.apache.spark.scheduler._
 import org.apache.spark.scheduler.cluster.ExecutorInfo
+import scala.{collection => coll}
 
 private case class ReviveOffers()
 
@@ -45,7 +46,7 @@ private case class StopExecutor()
  */
 private[spark] class LocalEndpoint(
     override val rpcEnv: RpcEnv,
-    userClassPath: Seq[URL],
+    userClassPath: coll.Seq[URL],
     scheduler: TaskSchedulerImpl,
     executorBackend: LocalSchedulerBackend,
     private val totalCores: Int)
@@ -115,7 +116,7 @@ private[spark] class LocalSchedulerBackend(
    *
    * @param conf Spark configuration.
    */
-  def getUserClasspath(conf: SparkConf): Seq[URL] = {
+  def getUserClasspath(conf: SparkConf): coll.Seq[URL] = {
     val userClassPathStr = conf.get(config.EXECUTOR_CLASS_PATH)
     userClassPathStr.map(_.split(File.pathSeparator)).toSeq.flatten.map(new File(_).toURI.toURL)
   }

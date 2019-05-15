@@ -26,13 +26,14 @@ import org.apache.spark.SparkEnv
 import org.apache.spark.executor.ProcfsMetricsGetter
 import org.apache.spark.internal.{config, Logging}
 import org.apache.spark.memory.MemoryManager
+import scala.{collection => coll}
 
 /**
  * Executor metric types for executor-level metrics stored in ExecutorMetrics.
  */
 sealed trait ExecutorMetricType {
   private[spark] def getMetricValues(memoryManager: MemoryManager): Array[Long]
-  private[spark] def names: Seq[String]
+  private[spark] def names: coll.Seq[String]
 }
 
 sealed trait SingleValueExecutorMetricType extends ExecutorMetricType {
@@ -103,7 +104,7 @@ case object ProcessTreeMetrics extends ExecutorMetricType {
 }
 
 case object GarbageCollectionMetrics extends ExecutorMetricType with Logging {
-  private var nonBuiltInCollectors: Seq[String] = Nil
+  private var nonBuiltInCollectors: coll.Seq[String] = Nil
 
   override val names = Seq(
     "MinorGCCount",
@@ -127,11 +128,11 @@ case object GarbageCollectionMetrics extends ExecutorMetricType with Logging {
     "G1 Old Generation"
   )
 
-  private lazy val youngGenerationGarbageCollector: Seq[String] = {
+  private lazy val youngGenerationGarbageCollector: coll.Seq[String] = {
     SparkEnv.get.conf.get(config.EVENT_LOG_GC_METRICS_YOUNG_GENERATION_GARBAGE_COLLECTORS)
   }
 
-  private lazy val oldGenerationGarbageCollector: Seq[String] = {
+  private lazy val oldGenerationGarbageCollector: coll.Seq[String] = {
     SparkEnv.get.conf.get(config.EVENT_LOG_GC_METRICS_OLD_GENERATION_GARBAGE_COLLECTORS)
   }
 

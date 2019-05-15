@@ -38,6 +38,7 @@ import org.apache.spark.scheduler._
 import org.apache.spark.scheduler.cluster.CoarseGrainedClusterMessages._
 import org.apache.spark.scheduler.cluster.CoarseGrainedSchedulerBackend.ENDPOINT_NAME
 import org.apache.spark.util.{RpcUtils, SerializableBuffer, ThreadUtils, Utils}
+import scala.{collection => coll}
 
 /**
  * A scheduler backend that waits for coarse-grained executors to connect.
@@ -305,7 +306,7 @@ class CoarseGrainedSchedulerBackend(scheduler: TaskSchedulerImpl, val rpcEnv: Rp
     }
 
     // Launch tasks returned by a set of resource offers
-    private def launchTasks(tasks: Seq[Seq[TaskDescription]]) {
+    private def launchTasks(tasks: coll.Seq[coll.Seq[TaskDescription]]) {
       for (task <- tasks.flatten) {
         val serializedTask = TaskDescription.encode(task)
         if (serializedTask.limit() >= maxRpcMessageSize) {
@@ -514,7 +515,7 @@ class CoarseGrainedSchedulerBackend(scheduler: TaskSchedulerImpl, val rpcEnv: Rp
    */
   private def numExistingExecutors: Int = executorDataMap.size
 
-  override def getExecutorIds(): Seq[String] = {
+  override def getExecutorIds(): coll.Seq[String] = {
     executorDataMap.keySet.toSeq
   }
 
@@ -623,10 +624,10 @@ class CoarseGrainedSchedulerBackend(scheduler: TaskSchedulerImpl, val rpcEnv: Rp
    * @return the ids of the executors acknowledged by the cluster manager to be removed.
    */
   final override def killExecutors(
-      executorIds: Seq[String],
+      executorIds: coll.Seq[String],
       adjustTargetNumExecutors: Boolean,
       countFailures: Boolean,
-      force: Boolean): Seq[String] = {
+      force: Boolean): coll.Seq[String] = {
     logInfo(s"Requesting to kill executor(s) ${executorIds.mkString(", ")}")
 
     val response = withLock {
@@ -687,7 +688,7 @@ class CoarseGrainedSchedulerBackend(scheduler: TaskSchedulerImpl, val rpcEnv: Rp
    * Kill the given list of executors through the cluster manager.
    * @return whether the kill request is acknowledged.
    */
-  protected def doKillExecutors(executorIds: Seq[String]): Future[Boolean] =
+  protected def doKillExecutors(executorIds: coll.Seq[String]): Future[Boolean] =
     Future.successful(false)
 
   /**

@@ -21,6 +21,7 @@ import scala.reflect.ClassTag
 
 import org.apache.spark.annotation.DeveloperApi
 import org.apache.spark.rpc.RpcEnv
+import scala.{collection => coll}
 
 /**
  * Allows Master to persist any state that is necessary in order to recover from a failure.
@@ -51,7 +52,7 @@ abstract class PersistenceEngine {
    * Gives all objects, matching a prefix. This defines how objects are
    * read/deserialized back.
    */
-  def read[T: ClassTag](prefix: String): Seq[T]
+  def read[T: ClassTag](prefix: String): coll.Seq[T]
 
   final def addApplication(app: ApplicationInfo): Unit = {
     persist("app_" + app.id, app)
@@ -82,7 +83,7 @@ abstract class PersistenceEngine {
    * sorted by time of creation).
    */
   final def readPersistedData(
-      rpcEnv: RpcEnv): (Seq[ApplicationInfo], Seq[DriverInfo], Seq[WorkerInfo]) = {
+      rpcEnv: RpcEnv): (coll.Seq[ApplicationInfo], coll.Seq[DriverInfo], coll.Seq[WorkerInfo]) = {
     rpcEnv.deserialize { () =>
       (read[ApplicationInfo]("app_"), read[DriverInfo]("driver_"), read[WorkerInfo]("worker_"))
     }
@@ -97,6 +98,6 @@ private[master] class BlackHolePersistenceEngine extends PersistenceEngine {
 
   override def unpersist(name: String): Unit = {}
 
-  override def read[T: ClassTag](name: String): Seq[T] = Nil
+  override def read[T: ClassTag](name: String): coll.Seq[T] = Nil
 
 }

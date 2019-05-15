@@ -21,6 +21,7 @@ import scala.reflect.ClassTag
 
 import org.apache.spark._
 import org.apache.spark.storage.{BlockId, BlockManager}
+import scala.{collection => coll}
 
 private[spark] class BlockRDDPartition(val blockId: BlockId, idx: Int) extends Partition {
   val index = idx
@@ -51,7 +52,7 @@ class BlockRDD[T: ClassTag](sc: SparkContext, @transient val blockIds: Array[Blo
     }
   }
 
-  override def getPreferredLocations(split: Partition): Seq[String] = {
+  override def getPreferredLocations(split: Partition): coll.Seq[String] = {
     assertValid()
     _locations(split.asInstanceOf[BlockRDDPartition].blockId)
   }
@@ -84,7 +85,7 @@ class BlockRDD[T: ClassTag](sc: SparkContext, @transient val blockIds: Array[Blo
     }
   }
 
-  protected def getBlockIdLocations(): Map[BlockId, Seq[String]] = {
+  protected def getBlockIdLocations(): Map[BlockId, coll.Seq[String]] = {
     _locations
   }
 }

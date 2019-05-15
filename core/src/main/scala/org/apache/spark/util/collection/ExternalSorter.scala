@@ -30,6 +30,7 @@ import org.apache.spark.executor.ShuffleWriteMetrics
 import org.apache.spark.internal.{config, Logging}
 import org.apache.spark.serializer._
 import org.apache.spark.storage.{BlockId, DiskBlockObjectWriter}
+import scala.{collection => coll}
 
 /**
  * Sorts and potentially merges a number of key-value pairs of type (K, V) to produce key-combiner
@@ -336,7 +337,7 @@ private[spark] class ExternalSorter[K, V, C](
    * in order (you can't "skip ahead" to one partition without reading the previous one).
    * Guaranteed to return a key-value pair for each partition, in order of partition ID.
    */
-  private def merge(spills: Seq[SpilledFile], inMemory: Iterator[((Int, K), C)])
+  private def merge(spills: coll.Seq[SpilledFile], inMemory: Iterator[((Int, K), C)])
       : Iterator[(Int, Iterator[Product2[K, C]])] = {
     val readers = spills.map(new SpillReader(_))
     val inMemBuffered = inMemory.buffered
@@ -360,7 +361,7 @@ private[spark] class ExternalSorter[K, V, C](
   /**
    * Merge-sort a sequence of (K, C) iterators using a given a comparator for the keys.
    */
-  private def mergeSort(iterators: Seq[Iterator[Product2[K, C]]], comparator: Comparator[K])
+  private def mergeSort(iterators: coll.Seq[Iterator[Product2[K, C]]], comparator: Comparator[K])
       : Iterator[Product2[K, C]] = {
     val bufferedIters = iterators.filter(_.hasNext).map(_.buffered)
     type Iter = BufferedIterator[Product2[K, C]]
@@ -392,7 +393,7 @@ private[spark] class ExternalSorter[K, V, C](
    * they're not), we still merge them by doing equality tests for all keys that compare as equal.
    */
   private def mergeWithAggregation(
-      iterators: Seq[Iterator[Product2[K, C]]],
+      iterators: coll.Seq[Iterator[Product2[K, C]]],
       mergeCombiners: (C, C) => C,
       comparator: Comparator[K],
       totalOrder: Boolean)

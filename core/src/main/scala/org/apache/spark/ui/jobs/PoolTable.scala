@@ -25,11 +25,12 @@ import scala.xml.Node
 import org.apache.spark.scheduler.Schedulable
 import org.apache.spark.status.PoolData
 import org.apache.spark.ui.UIUtils
+import scala.{collection => coll}
 
 /** Table showing list of pools */
 private[ui] class PoolTable(pools: Map[Schedulable, PoolData], parent: StagesTab) {
 
-  def toNodeSeq(request: HttpServletRequest): Seq[Node] = {
+  def toNodeSeq(request: HttpServletRequest): coll.Seq[Node] = {
     <table class="table table-bordered table-striped table-condensed sortable table-fixed">
       <thead>
         <th>Pool Name</th>
@@ -45,7 +46,7 @@ private[ui] class PoolTable(pools: Map[Schedulable, PoolData], parent: StagesTab
     </table>
   }
 
-  private def poolRow(request: HttpServletRequest, s: Schedulable, p: PoolData): Seq[Node] = {
+  private def poolRow(request: HttpServletRequest, s: Schedulable, p: PoolData): coll.Seq[Node] = {
     val activeStages = p.stageIds.size
     val href = "%s/stages/pool?poolname=%s"
       .format(UIUtils.prependBaseUri(request, parent.basePath), URLEncoder.encode(p.name, "UTF-8"))

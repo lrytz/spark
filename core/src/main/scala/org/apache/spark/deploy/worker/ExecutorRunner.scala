@@ -32,6 +32,7 @@ import org.apache.spark.internal.config.UI._
 import org.apache.spark.rpc.RpcEndpointRef
 import org.apache.spark.util.{ShutdownHookManager, Utils}
 import org.apache.spark.util.logging.FileAppender
+import scala.{collection => coll}
 
 /**
  * Manages the execution of one executor process.
@@ -53,7 +54,7 @@ private[deploy] class ExecutorRunner(
     val executorDir: File,
     val workerUrl: String,
     conf: SparkConf,
-    val appLocalDirs: Seq[String],
+    val appLocalDirs: coll.Seq[String],
     @volatile var state: ExecutorState.Value)
   extends Logging {
 

@@ -32,6 +32,7 @@ import org.apache.spark.rpc.{RpcCallContext, RpcEndpointRef, RpcEnv, ThreadSafeR
 import org.apache.spark.scheduler._
 import org.apache.spark.storage.BlockManagerMessages._
 import org.apache.spark.util.{ThreadUtils, Utils}
+import scala.{collection => coll}
 
 /**
  * BlockManagerMasterEndpoint is an [[ThreadSafeRpcEndpoint]] on the master node to track statuses
@@ -145,7 +146,7 @@ class BlockManagerMasterEndpoint(
       }
   }
 
-  private def removeRdd(rddId: Int): Future[Seq[Int]] = {
+  private def removeRdd(rddId: Int): Future[coll.Seq[Int]] = {
     // First remove the metadata for the given RDD, and then asynchronously remove the blocks
     // from the slaves.
 
@@ -174,7 +175,7 @@ class BlockManagerMasterEndpoint(
     Future.sequence(futures)
   }
 
-  private def removeShuffle(shuffleId: Int): Future[Seq[Boolean]] = {
+  private def removeShuffle(shuffleId: Int): Future[coll.Seq[Boolean]] = {
     // Nothing to do in the BlockManagerMasterEndpoint data structures
     val removeMsg = RemoveShuffle(shuffleId)
     Future.sequence(
@@ -189,7 +190,7 @@ class BlockManagerMasterEndpoint(
    * of all broadcast blocks. If removeFromDriver is false, broadcast blocks are only removed
    * from the executors, but not from the driver.
    */
-  private def removeBroadcast(broadcastId: Long, removeFromDriver: Boolean): Future[Seq[Int]] = {
+  private def removeBroadcast(broadcastId: Long, removeFromDriver: Boolean): Future[coll.Seq[Int]] = {
     val removeMsg = RemoveBroadcast(broadcastId, removeFromDriver)
     val requiredBlockManagers = blockManagerInfo.values.filter { info =>
       removeFromDriver || !info.blockManagerId.isDriver
@@ -335,13 +336,13 @@ class BlockManagerMasterEndpoint(
    */
   private def getMatchingBlockIds(
       filter: BlockId => Boolean,
-      askSlaves: Boolean): Future[Seq[BlockId]] = {
+      askSlaves: Boolean): Future[coll.Seq[BlockId]] = {
     val getMatchingBlockIds = GetMatchingBlockIds(filter)
     Future.sequence(
       blockManagerInfo.values.map { info =>
         val future =
           if (askSlaves) {
-            info.slaveEndpoint.ask[Seq[BlockId]](getMatchingBlockIds)
+            info.slaveEndpoint.ask[coll.Seq[BlockId]](getMatchingBlockIds)
           } else {
             Future { info.blocks.asScala.keys.filter(filter).toSeq }
           }
@@ -434,7 +435,7 @@ class BlockManagerMasterEndpoint(
     true
   }
 
-  private def getLocations(blockId: BlockId): Seq[BlockManagerId] = {
+  private def getLocations(blockId: BlockId): coll.Seq[BlockManagerId] = {
     if (blockLocations.containsKey(blockId)) blockLocations.get(blockId).toSeq else Seq.empty
   }
 
@@ -450,12 +451,12 @@ class BlockManagerMasterEndpoint(
   }
 
   private def getLocationsMultipleBlockIds(
-      blockIds: Array[BlockId]): IndexedSeq[Seq[BlockManagerId]] = {
+      blockIds: Array[BlockId]): IndexedSeq[coll.Seq[BlockManagerId]] = {
     blockIds.map(blockId => getLocations(blockId))
   }
 
   /** Get the list of the peers of the given block manager */
-  private def getPeers(blockManagerId: BlockManagerId): Seq[BlockManagerId] = {
+  private def getPeers(blockManagerId: BlockManagerId): coll.Seq[BlockManagerId] = {
     val blockManagerIds = blockManagerInfo.keySet
     if (blockManagerIds.contains(blockManagerId)) {
       blockManagerIds.filterNot { _.isDriver }.filterNot { _ == blockManagerId }.toSeq

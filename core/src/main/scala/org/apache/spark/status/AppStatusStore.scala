@@ -27,6 +27,7 @@ import org.apache.spark.status.api.v1
 import org.apache.spark.ui.scope._
 import org.apache.spark.util.{Distribution, Utils}
 import org.apache.spark.util.kvstore.{InMemoryStore, KVStore}
+import scala.{collection => coll}
 
 /**
  * A wrapper around a KVStore that provides methods for accessing the API data stored within.
@@ -44,7 +45,7 @@ private[spark] class AppStatusStore(
     store.read(klass, klass.getName()).info
   }
 
-  def jobsList(statuses: JList[JobExecutionStatus]): Seq[v1.JobData] = {
+  def jobsList(statuses: JList[JobExecutionStatus]): coll.Seq[v1.JobData] = {
     val it = store.view(classOf[JobDataWrapper]).reverse().asScala.map(_.info)
     if (statuses != null && !statuses.isEmpty()) {
       it.filter { job => statuses.contains(job.status) }.toSeq
@@ -64,7 +65,7 @@ private[spark] class AppStatusStore(
     (data.info, data.sqlExecutionId)
   }
 
-  def executorList(activeOnly: Boolean): Seq[v1.ExecutorSummary] = {
+  def executorList(activeOnly: Boolean): coll.Seq[v1.ExecutorSummary] = {
     val base = store.view(classOf[ExecutorSummaryWrapper])
     val filtered = if (activeOnly) {
       base.index("active").reverse().first(true).last(true)
@@ -82,11 +83,11 @@ private[spark] class AppStatusStore(
    * This is used by ConsoleProgressBar to quickly fetch active stages for drawing the progress
    * bar. It will only return anything useful when called from a live application.
    */
-  def activeStages(): Seq[v1.StageData] = {
+  def activeStages(): coll.Seq[v1.StageData] = {
     listener.map(_.activeStages()).getOrElse(Nil)
   }
 
-  def stageList(statuses: JList[v1.StageStatus]): Seq[v1.StageData] = {
+  def stageList(statuses: JList[v1.StageStatus]): coll.Seq[v1.StageData] = {
     val it = store.view(classOf[StageDataWrapper]).reverse().asScala.map(_.info)
     if (statuses != null && !statuses.isEmpty()) {
       it.filter { s => statuses.contains(s.status) }.toSeq
@@ -95,7 +96,7 @@ private[spark] class AppStatusStore(
     }
   }
 
-  def stageData(stageId: Int, details: Boolean = false): Seq[v1.StageData] = {
+  def stageData(stageId: Int, details: Boolean = false): coll.Seq[v1.StageData] = {
     store.view(classOf[StageDataWrapper]).index("stageId").first(stageId).last(stageId)
       .asScala.map { s =>
         if (details) stageWithDetails(s.info) else s.info
@@ -121,7 +122,7 @@ private[spark] class AppStatusStore(
   }
 
   def stageAttempt(stageId: Int, stageAttemptId: Int,
-      details: Boolean = false): (v1.StageData, Seq[Int]) = {
+      details: Boolean = false): (v1.StageData, coll.Seq[Int]) = {
     val stageKey = Array(stageId, stageAttemptId)
     val stageDataWrapper = store.read(classOf[StageDataWrapper], stageKey)
     val stage = if (details) stageWithDetails(stageDataWrapper.info) else stageDataWrapper.info
@@ -385,7 +386,7 @@ private[spark] class AppStatusStore(
 
   private def quantileToString(q: Double): String = math.round(q * 100).toString
 
-  def taskList(stageId: Int, stageAttemptId: Int, maxTasks: Int): Seq[v1.TaskData] = {
+  def taskList(stageId: Int, stageAttemptId: Int, maxTasks: Int): coll.Seq[v1.TaskData] = {
     val stageKey = Array(stageId, stageAttemptId)
     val taskDataWrapperIter = store.view(classOf[TaskDataWrapper]).index("stage")
       .first(stageKey).last(stageKey).reverse().max(maxTasks).asScala
@@ -397,7 +398,7 @@ private[spark] class AppStatusStore(
       stageAttemptId: Int,
       offset: Int,
       length: Int,
-      sortBy: v1.TaskSorting): Seq[v1.TaskData] = {
+      sortBy: v1.TaskSorting): coll.Seq[v1.TaskData] = {
     val (indexName, ascending) = sortBy match {
       case v1.TaskSorting.ID =>
         (None, true)
@@ -415,7 +416,7 @@ private[spark] class AppStatusStore(
       offset: Int,
       length: Int,
       sortBy: Option[String],
-      ascending: Boolean): Seq[v1.TaskData] = {
+      ascending: Boolean): coll.Seq[v1.TaskData] = {
     val stageKey = Array(stageId, stageAttemptId)
     val base = store.view(classOf[TaskDataWrapper])
     val indexed = sortBy match {
@@ -438,7 +439,7 @@ private[spark] class AppStatusStore(
       .asScala.map { exec => (exec.executorId -> exec.info) }.toMap
   }
 
-  def rddList(cachedOnly: Boolean = true): Seq[v1.RDDStorageInfo] = {
+  def rddList(cachedOnly: Boolean = true): coll.Seq[v1.RDDStorageInfo] = {
     store.view(classOf[RDDStorageInfoWrapper]).asScala.map(_.info).filter { rdd =>
       !cachedOnly || rdd.numCachedPartitions > 0
     }.toSeq
@@ -502,7 +503,7 @@ private[spark] class AppStatusStore(
     store.read(classOf[RDDStorageInfoWrapper], rddId).info
   }
 
-  def streamBlocksList(): Seq[StreamBlockData] = {
+  def streamBlocksList(): coll.Seq[StreamBlockData] = {
     store.view(classOf[StreamBlockData]).asScala.toSeq
   }
 
@@ -510,7 +511,7 @@ private[spark] class AppStatusStore(
     store.read(classOf[RDDOperationGraphWrapper], stageId).toRDDOperationGraph()
   }
 
-  def operationGraphForJob(jobId: Int): Seq[RDDOperationGraph] = {
+  def operationGraphForJob(jobId: Int): coll.Seq[RDDOperationGraph] = {
     val job = store.read(classOf[JobDataWrapper], jobId)
     val stages = job.info.stageIds.sorted
 
@@ -535,7 +536,7 @@ private[spark] class AppStatusStore(
     store.close()
   }
 
-  def constructTaskDataList(taskDataWrapperIter: Iterable[TaskDataWrapper]): Seq[v1.TaskData] = {
+  def constructTaskDataList(taskDataWrapperIter: Iterable[TaskDataWrapper]): coll.Seq[v1.TaskData] = {
     val executorIdToLogs = new HashMap[String, Map[String, String]]()
     taskDataWrapperIter.map { taskDataWrapper =>
       val taskDataOld: v1.TaskData = taskDataWrapper.toApi

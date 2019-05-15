@@ -24,6 +24,7 @@ import org.apache.spark.internal.config.History._
 import org.apache.spark.status.AppStatusStore
 import org.apache.spark.status.api.v1
 import org.apache.spark.util.kvstore.KVStore
+import scala.{collection => coll}
 
 private[spark] class HistoryAppStatusStore(
     conf: SparkConf,
@@ -42,7 +43,7 @@ private[spark] class HistoryAppStatusStore(
 
   private val logUrlHandler = new ExecutorLogUrlHandler(logUrlPattern)
 
-  override def executorList(activeOnly: Boolean): Seq[v1.ExecutorSummary] = {
+  override def executorList(activeOnly: Boolean): coll.Seq[v1.ExecutorSummary] = {
     val execList = super.executorList(activeOnly)
     logUrlPattern match {
       case Some(pattern) => execList.map(replaceLogUrls(_, pattern))

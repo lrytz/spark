@@ -27,6 +27,7 @@ import org.apache.spark.SparkConf
 import org.apache.spark.internal.config.Status._
 import org.apache.spark.util.{ThreadUtils, Utils}
 import org.apache.spark.util.kvstore._
+import scala.{collection => coll}
 
 /**
  * A KVStore wrapper that allows tracking the number of elements of specific types, and triggering
@@ -46,7 +47,7 @@ import org.apache.spark.util.kvstore._
  */
 private[spark] class ElementTrackingStore(store: KVStore, conf: SparkConf) extends KVStore {
 
-  private val triggers = new HashMap[Class[_], Seq[Trigger[_]]]()
+  private val triggers = new HashMap[Class[_], coll.Seq[Trigger[_]]]()
   private val flushTriggers = new ListBuffer[() => Unit]()
   private val executor = if (conf.get(ASYNC_TRACKING_ENABLED)) {
     ThreadUtils.newDaemonSingleThreadExecutor("element-tracking-store-worker")

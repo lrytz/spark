@@ -34,6 +34,7 @@ import org.apache.spark.network.shuffle._
 import org.apache.spark.network.util.TransportConf
 import org.apache.spark.shuffle.{FetchFailedException, ShuffleReadMetricsReporter}
 import org.apache.spark.util.{CompletionIterator, TaskCompletionListener, Utils}
+import scala.{collection => coll}
 
 /**
  * An iterator that fetches multiple blocks. For local blocks, it fetches from the local block
@@ -67,7 +68,7 @@ final class ShuffleBlockFetcherIterator(
     context: TaskContext,
     shuffleClient: ShuffleClient,
     blockManager: BlockManager,
-    blocksByAddress: Iterator[(BlockManagerId, Seq[(BlockId, Long)])],
+    blocksByAddress: Iterator[(BlockManagerId, coll.Seq[(BlockId, Long)])],
     streamWrapper: (BlockId, InputStream) => InputStream,
     maxBytesInFlight: Long,
     maxReqsInFlight: Int,
@@ -694,7 +695,7 @@ object ShuffleBlockFetcherIterator {
    * @param blocks Sequence of tuple, where the first element is the block id,
    *               and the second element is the estimated size, used to calculate bytesInFlight.
    */
-  case class FetchRequest(address: BlockManagerId, blocks: Seq[(BlockId, Long)]) {
+  case class FetchRequest(address: BlockManagerId, blocks: coll.Seq[(BlockId, Long)]) {
     val size = blocks.map(_._2).sum
   }
 

@@ -45,6 +45,7 @@ import org.apache.spark.scheduler.{CompressedMapStatus, HighlyCompressedMapStatu
 import org.apache.spark.storage._
 import org.apache.spark.util.{BoundedPriorityQueue, ByteBufferInputStream, SerializableConfiguration, SerializableJobConf, Utils}
 import org.apache.spark.util.collection.CompactBuffer
+import scala.{collection => coll}
 
 /**
  * A Spark serializer that uses the <a href="https://code.google.com/p/kryo/">
@@ -483,7 +484,7 @@ trait KryoRegistrator {
 
 private[serializer] object KryoSerializer {
   // Commonly used classes.
-  private val toRegister: Seq[Class[_]] = Seq(
+  private val toRegister: coll.Seq[Class[_]] = Seq(
     ByteBuffer.allocate(1).getClass,
     classOf[StorageLevel],
     classOf[CompressedMapStatus],

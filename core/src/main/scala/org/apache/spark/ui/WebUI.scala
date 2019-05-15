@@ -33,6 +33,7 @@ import org.apache.spark.internal.Logging
 import org.apache.spark.internal.config._
 import org.apache.spark.ui.JettyUtils._
 import org.apache.spark.util.Utils
+import scala.{collection => coll}
 
 /**
  * The top level component of the UI hierarchy that contains the server.
@@ -58,10 +59,10 @@ private[spark] abstract class WebUI(
   private val className = Utils.getFormattedClassName(this)
 
   def getBasePath: String = basePath
-  def getTabs: Seq[WebUITab] = tabs
-  def getHandlers: Seq[ServletContextHandler] = handlers
+  def getTabs: coll.Seq[WebUITab] = tabs
+  def getHandlers: coll.Seq[ServletContextHandler] = handlers
 
-  def getDelegatingHandlers: Seq[DelegatingServletContextHandler] = {
+  def getDelegatingHandlers: coll.Seq[DelegatingServletContextHandler] = {
     handlers.map(new DelegatingServletContextHandler(_))
   }
 
@@ -189,7 +190,7 @@ private[spark] abstract class WebUITab(parent: WebUI, val prefix: String) {
   }
 
   /** Get a list of header tabs from the parent UI. */
-  def headerTabs: Seq[WebUITab] = parent.getTabs
+  def headerTabs: coll.Seq[WebUITab] = parent.getTabs
 
   def basePath: String = parent.getBasePath
 }
@@ -204,7 +205,7 @@ private[spark] abstract class WebUITab(parent: WebUI, val prefix: String) {
  * to form a relative path. The prefix must not contain slashes.
  */
 private[spark] abstract class WebUIPage(var prefix: String) {
-  def render(request: HttpServletRequest): Seq[Node]
+  def render(request: HttpServletRequest): coll.Seq[Node]
   def renderJson(request: HttpServletRequest): JValue = JNothing
 }
 

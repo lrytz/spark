@@ -22,6 +22,7 @@ import scala.collection.mutable.HashMap
 import org.apache.spark.annotation.DeveloperApi
 import org.apache.spark.executor.TaskMetrics
 import org.apache.spark.storage.RDDInfo
+import scala.{collection => coll}
 
 /**
  * :: DeveloperApi ::
@@ -33,11 +34,11 @@ class StageInfo(
     private val attemptId: Int,
     val name: String,
     val numTasks: Int,
-    val rddInfos: Seq[RDDInfo],
-    val parentIds: Seq[Int],
+    val rddInfos: coll.Seq[RDDInfo],
+    val parentIds: coll.Seq[Int],
     val details: String,
     val taskMetrics: TaskMetrics = null,
-    private[spark] val taskLocalityPreferences: Seq[Seq[TaskLocation]] = Seq.empty) {
+    private[spark] val taskLocalityPreferences: coll.Seq[coll.Seq[TaskLocation]] = Seq.empty) {
   /** When this stage was submitted from the DAGScheduler to a TaskScheduler. */
   var submissionTime: Option[Long] = None
   /** Time when all tasks in the stage completed or when the stage was cancelled. */
@@ -86,7 +87,7 @@ private[spark] object StageInfo {
       attemptId: Int,
       numTasks: Option[Int] = None,
       taskMetrics: TaskMetrics = null,
-      taskLocalityPreferences: Seq[Seq[TaskLocation]] = Seq.empty
+      taskLocalityPreferences: coll.Seq[coll.Seq[TaskLocation]] = Seq.empty
     ): StageInfo = {
     val ancestorRddInfos = stage.rdd.getNarrowAncestors.map(RDDInfo.fromRdd)
     val rddInfos = Seq(RDDInfo.fromRdd(stage.rdd)) ++ ancestorRddInfos

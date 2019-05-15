@@ -23,6 +23,7 @@ import scala.reflect.ClassTag
 
 import org.apache.spark.{OneToOneDependency, Partition, SparkContext, TaskContext}
 import org.apache.spark.util.Utils
+import scala.{collection => coll}
 
 /**
  * Class representing partitions of PartitionerAwareUnionRDD, which maintains the list of
@@ -30,7 +31,7 @@ import org.apache.spark.util.Utils
  */
 private[spark]
 class PartitionerAwareUnionRDDPartition(
-    @transient val rdds: Seq[RDD[_]],
+    @transient val rdds: coll.Seq[RDD[_]],
     override val index: Int
   ) extends Partition {
   var parents = rdds.map(_.partitions(index)).toArray
@@ -58,7 +59,7 @@ class PartitionerAwareUnionRDDPartition(
 private[spark]
 class PartitionerAwareUnionRDD[T: ClassTag](
     sc: SparkContext,
-    var rdds: Seq[RDD[T]]
+    var rdds: coll.Seq[RDD[T]]
   ) extends RDD[T](sc, rdds.map(x => new OneToOneDependency(x))) {
   require(rdds.nonEmpty)
   require(rdds.forall(_.partitioner.isDefined))
@@ -75,7 +76,7 @@ class PartitionerAwareUnionRDD[T: ClassTag](
   }
 
   // Get the location where most of the partitions of parent RDDs are located
-  override def getPreferredLocations(s: Partition): Seq[String] = {
+  override def getPreferredLocations(s: Partition): coll.Seq[String] = {
     logDebug("Finding preferred location for " + this + ", partition " + s.index)
     val parentPartitions = s.asInstanceOf[PartitionerAwareUnionRDDPartition].parents
     val locations = rdds.zip(parentPartitions).flatMap {
@@ -107,7 +108,7 @@ class PartitionerAwareUnionRDD[T: ClassTag](
   }
 
   // Get the *current* preferred locations from the DAGScheduler (as opposed to the static ones)
-  private def currPrefLocs(rdd: RDD[_], part: Partition): Seq[String] = {
+  private def currPrefLocs(rdd: RDD[_], part: Partition): coll.Seq[String] = {
     rdd.context.getPreferredLocs(rdd, part.index).map(tl => tl.host)
   }
 }

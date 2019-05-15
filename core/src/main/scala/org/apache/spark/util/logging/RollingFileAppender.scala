@@ -25,6 +25,7 @@ import org.apache.commons.io.IOUtils
 
 import org.apache.spark.SparkConf
 import org.apache.spark.internal.config
+import scala.{collection => coll}
 
 /**
  * Continuously appends data from input stream into the given file, and rolls
@@ -173,7 +174,7 @@ private[spark] object RollingFileAppender {
    * name has the latest logs. So it sorts all the rolled over logs (that are
    * prefixed with `activeFileName`) and appends the active file
    */
-  def getSortedRolledOverFiles(directory: String, activeFileName: String): Seq[File] = {
+  def getSortedRolledOverFiles(directory: String, activeFileName: String): coll.Seq[File] = {
     val rolledOverFiles = new File(directory).getAbsoluteFile.listFiles.filter { file =>
       val fileName = file.getName
       fileName.startsWith(activeFileName) && fileName != activeFileName

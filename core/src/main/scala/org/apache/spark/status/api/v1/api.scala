@@ -30,6 +30,7 @@ import com.fasterxml.jackson.databind.annotation.{JsonDeserialize, JsonSerialize
 import org.apache.spark.JobExecutionStatus
 import org.apache.spark.executor.ExecutorMetrics
 import org.apache.spark.metrics.ExecutorMetricType
+import scala.{collection => coll}
 
 case class ApplicationInfo private[spark](
     id: String,
@@ -38,7 +39,7 @@ case class ApplicationInfo private[spark](
     maxCores: Option[Int],
     coresPerExecutor: Option[Int],
     memoryPerExecutorMB: Option[Int],
-    attempts: Seq[ApplicationAttemptInfo])
+    attempts: coll.Seq[ApplicationAttemptInfo])
 
 @JsonIgnoreProperties(
   value = Array("startTimeEpoch", "endTimeEpoch", "lastUpdatedEpoch"),
@@ -151,7 +152,7 @@ class JobData private[spark](
     val description: Option[String],
     val submissionTime: Option[Date],
     val completionTime: Option[Date],
-    val stageIds: Seq[Int],
+    val stageIds: coll.Seq[Int],
     val jobGroup: Option[String],
     val status: JobExecutionStatus,
     val numTasks: Int,
@@ -175,8 +176,8 @@ class RDDStorageInfo private[spark](
     val storageLevel: String,
     val memoryUsed: Long,
     val diskUsed: Long,
-    val dataDistribution: Option[Seq[RDDDataDistribution]],
-    val partitions: Option[Seq[RDDPartitionInfo]])
+    val dataDistribution: Option[coll.Seq[RDDDataDistribution]],
+    val partitions: Option[coll.Seq[RDDPartitionInfo]])
 
 class RDDDataDistribution private[spark](
     val address: String,
@@ -197,7 +198,7 @@ class RDDPartitionInfo private[spark](
     val storageLevel: String,
     val memoryUsed: Long,
     val diskUsed: Long,
-    val executors: Seq[String])
+    val executors: coll.Seq[String])
 
 class StageData private[spark](
     val status: StageStatus,
@@ -233,8 +234,8 @@ class StageData private[spark](
     val details: String,
     val schedulingPool: String,
 
-    val rddIds: Seq[Int],
-    val accumulatorUpdates: Seq[AccumulableInfo],
+    val rddIds: coll.Seq[Int],
+    val accumulatorUpdates: coll.Seq[AccumulableInfo],
     val tasks: Option[Map[Long, TaskData]],
     val executorSummary: Option[Map[String, ExecutorStageSummary]],
     val killedTasksSummary: Map[String, Int])
@@ -252,7 +253,7 @@ class TaskData private[spark](
     val status: String,
     val taskLocality: String,
     val speculative: Boolean,
-    val accumulatorUpdates: Seq[AccumulableInfo],
+    val accumulatorUpdates: coll.Seq[AccumulableInfo],
     val errorMessage: Option[String] = None,
     val taskMetrics: Option[TaskMetrics] = None,
     val executorLogs: Map[String, String],
@@ -352,17 +353,17 @@ class VersionInfo private[spark](
 
 class ApplicationEnvironmentInfo private[spark] (
     val runtime: RuntimeInfo,
-    val sparkProperties: Seq[(String, String)],
-    val hadoopProperties: Seq[(String, String)],
-    val systemProperties: Seq[(String, String)],
-    val classpathEntries: Seq[(String, String)])
+    val sparkProperties: coll.Seq[(String, String)],
+    val hadoopProperties: coll.Seq[(String, String)],
+    val systemProperties: coll.Seq[(String, String)],
+    val classpathEntries: coll.Seq[(String, String)])
 
 class RuntimeInfo private[spark](
     val javaVersion: String,
     val javaHome: String,
     val scalaVersion: String)
 
-case class StackTrace(elems: Seq[String]) {
+case class StackTrace(elems: coll.Seq[String]) {
   override def toString: String = elems.mkString
 
   def html: NodeSeq = {
@@ -389,4 +390,4 @@ case class ThreadStackTrace(
     val stackTrace: StackTrace,
     val blockedByThreadId: Option[Long],
     val blockedByLock: String,
-    val holdingLocks: Seq[String])
+    val holdingLocks: coll.Seq[String])

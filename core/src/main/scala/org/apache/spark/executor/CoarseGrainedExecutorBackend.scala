@@ -37,6 +37,7 @@ import org.apache.spark.scheduler.{ExecutorLossReason, TaskDescription}
 import org.apache.spark.scheduler.cluster.CoarseGrainedClusterMessages._
 import org.apache.spark.serializer.SerializerInstance
 import org.apache.spark.util.{ThreadUtils, Utils}
+import scala.{collection => coll}
 
 private[spark] class CoarseGrainedExecutorBackend(
     override val rpcEnv: RpcEnv,
@@ -44,7 +45,7 @@ private[spark] class CoarseGrainedExecutorBackend(
     executorId: String,
     hostname: String,
     cores: Int,
-    userClassPath: Seq[URL],
+    userClassPath: coll.Seq[URL],
     env: SparkEnv)
   extends ThreadSafeRpcEndpoint with ExecutorBackend with Logging {
 

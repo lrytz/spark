@@ -29,6 +29,7 @@ import org.apache.spark.api.java.JavaFutureAction
 import org.apache.spark.rdd.RDD
 import org.apache.spark.scheduler.JobWaiter
 import org.apache.spark.util.ThreadUtils
+import scala.{collection => coll}
 
 
 /**
@@ -101,7 +102,7 @@ trait FutureAction[T] extends Future[T] {
    * This returns the current snapshot of the job list. Certain operations may run multiple
    * jobs, so multiple calls to this method may return different lists.
    */
-  def jobIds: Seq[Int]
+  def jobIds: coll.Seq[Int]
 
 }
 
@@ -143,7 +144,7 @@ class SimpleFutureAction[T] private[spark](jobWaiter: JobWaiter[_], resultFunc: 
   override def value: Option[Try[T]] =
     jobWaiter.completionFuture.value.map {res => res.map(_ => resultFunc)}
 
-  def jobIds: Seq[Int] = Seq(jobWaiter.jobId)
+  def jobIds: coll.Seq[Int] = Seq(jobWaiter.jobId)
 
   override def transform[S](f: (Try[T]) => Try[S])(implicit e: ExecutionContext): Future[S] =
     jobWaiter.completionFuture.transform((u: Try[Unit]) => f(u.map(_ => resultFunc)))
@@ -167,7 +168,7 @@ trait JobSubmitter {
   def submitJob[T, U, R](
     rdd: RDD[T],
     processPartition: Iterator[T] => U,
-    partitions: Seq[Int],
+    partitions: coll.Seq[Int],
     resultHandler: (Int, U) => Unit,
     resultFunc: => R): FutureAction[R]
 }
@@ -199,7 +200,7 @@ class ComplexFutureAction[T](run : JobSubmitter => Future[T])
     def submitJob[T, U, R](
       rdd: RDD[T],
       processPartition: Iterator[T] => U,
-      partitions: Seq[Int],
+      partitions: coll.Seq[Int],
       resultHandler: (Int, U) => Unit,
       resultFunc: => R): FutureAction[R] = self.synchronized {
       // If the action hasn't been cancelled yet, submit the job. The check and the submitJob
@@ -241,7 +242,7 @@ class ComplexFutureAction[T](run : JobSubmitter => Future[T])
 
   override def value: Option[Try[T]] = p.future.value
 
-  def jobIds: Seq[Int] = subActions.flatMap(_.jobIds)
+  def jobIds: coll.Seq[Int] = subActions.flatMap(_.jobIds)
 
   override def transform[S](f: (Try[T]) => Try[S])(implicit e: ExecutionContext): Future[S] =
     p.future.transform(f)

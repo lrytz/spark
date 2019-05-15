@@ -21,6 +21,7 @@ import java.util.EventListener
 
 import org.apache.spark.TaskContext
 import org.apache.spark.annotation.DeveloperApi
+import scala.{collection => coll}
 
 /**
  * :: DeveloperApi ::
@@ -50,7 +51,7 @@ trait TaskFailureListener extends EventListener {
  */
 private[spark]
 class TaskCompletionListenerException(
-    errorMessages: Seq[String],
+    errorMessages: coll.Seq[String],
     val previousError: Option[Throwable] = None)
   extends RuntimeException {
 

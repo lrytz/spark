@@ -24,6 +24,7 @@ import scala.reflect.ClassTag
 import org.apache.spark.{Partition, TaskContext}
 import org.apache.spark.util.Utils
 import org.apache.spark.util.random.RandomSampler
+import scala.{collection => coll}
 
 private[spark]
 class PartitionwiseSampledRDDPartition(val prev: Partition, val seed: Long)
@@ -58,7 +59,7 @@ private[spark] class PartitionwiseSampledRDD[T: ClassTag, U: ClassTag](
     firstParent[T].partitions.map(x => new PartitionwiseSampledRDDPartition(x, random.nextLong()))
   }
 
-  override def getPreferredLocations(split: Partition): Seq[String] =
+  override def getPreferredLocations(split: Partition): coll.Seq[String] =
     firstParent[T].preferredLocations(split.asInstanceOf[PartitionwiseSampledRDDPartition].prev)
 
   override def compute(splitIn: Partition, context: TaskContext): Iterator[U] = {

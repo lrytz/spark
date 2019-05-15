@@ -25,6 +25,7 @@ import scala.collection.mutable.ArrayBuffer
 
 import org.apache.spark.SparkContext
 import org.apache.spark.api.java.{JavaRDD, JavaSparkContext}
+import scala.{collection => coll}
 
 private[spark] object PythonUtils {
   /** Get the PYTHONPATH for PySpark, either from SPARK_HOME, if it is set, or from our JAR */
@@ -51,7 +52,7 @@ private[spark] object PythonUtils {
   /**
    * Convert list of T into seq of T (for calling API with varargs)
    */
-  def toSeq[T](vs: JList[T]): Seq[T] = {
+  def toSeq[T](vs: JList[T]): coll.Seq[T] = {
     vs.asScala
   }
 

@@ -28,6 +28,7 @@ import org.apache.spark.deploy.JsonProtocol
 import org.apache.spark.deploy.master._
 import org.apache.spark.ui.{UIUtils, WebUIPage}
 import org.apache.spark.util.Utils
+import scala.{collection => coll}
 
 private[ui] class MasterPage(parent: MasterWebUI) extends WebUIPage("") {
   private val master = parent.masterEndpointRef
@@ -68,7 +69,7 @@ private[ui] class MasterPage(parent: MasterWebUI) extends WebUIPage("") {
   }
 
   /** Index view listing applications and executors */
-  def render(request: HttpServletRequest): Seq[Node] = {
+  def render(request: HttpServletRequest): coll.Seq[Node] = {
     val state = getMasterState
 
     val workerHeaders = Seq("Worker Id", "Address", "State", "Cores", "Memory")
@@ -216,7 +217,7 @@ private[ui] class MasterPage(parent: MasterWebUI) extends WebUIPage("") {
     UIUtils.basicSparkPage(request, content, "Spark Master at " + state.uri)
   }
 
-  private def workerRow(worker: WorkerInfo): Seq[Node] = {
+  private def workerRow(worker: WorkerInfo): coll.Seq[Node] = {
     <tr>
       <td>
         {
@@ -239,7 +240,7 @@ private[ui] class MasterPage(parent: MasterWebUI) extends WebUIPage("") {
     </tr>
   }
 
-  private def appRow(app: ApplicationInfo): Seq[Node] = {
+  private def appRow(app: ApplicationInfo): coll.Seq[Node] = {
     val killLink = if (parent.killEnabled &&
       (app.state == ApplicationState.RUNNING || app.state == ApplicationState.WAITING)) {
       val confirm =
@@ -279,7 +280,7 @@ private[ui] class MasterPage(parent: MasterWebUI) extends WebUIPage("") {
     </tr>
   }
 
-  private def driverRow(driver: DriverInfo): Seq[Node] = {
+  private def driverRow(driver: DriverInfo): coll.Seq[Node] = {
     val killLink = if (parent.killEnabled &&
       (driver.state == DriverState.RUNNING ||
         driver.state == DriverState.SUBMITTED ||

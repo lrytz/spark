@@ -23,16 +23,17 @@ import scala.reflect.ClassTag
 
 import org.apache.spark.{OneToOneDependency, Partition, SparkContext, TaskContext}
 import org.apache.spark.util.Utils
+import scala.{collection => coll}
 
 private[spark] class ZippedPartitionsPartition(
     idx: Int,
-    @transient private val rdds: Seq[RDD[_]],
-    @transient val preferredLocations: Seq[String])
+    @transient private val rdds: coll.Seq[RDD[_]],
+    @transient val preferredLocations: coll.Seq[String])
   extends Partition {
 
   override val index: Int = idx
   var partitionValues = rdds.map(rdd => rdd.partitions(idx))
-  def partitions: Seq[Partition] = partitionValues
+  def partitions: coll.Seq[Partition] = partitionValues
 
   @throws(classOf[IOException])
   private def writeObject(oos: ObjectOutputStream): Unit = Utils.tryOrIOException {
@@ -44,7 +45,7 @@ private[spark] class ZippedPartitionsPartition(
 
 private[spark] abstract class ZippedPartitionsBaseRDD[V: ClassTag](
     sc: SparkContext,
-    var rdds: Seq[RDD[_]],
+    var rdds: coll.Seq[RDD[_]],
     preservesPartitioning: Boolean = false)
   extends RDD[V](sc, rdds.map(x => new OneToOneDependency(x))) {
 
@@ -66,7 +67,7 @@ private[spark] abstract class ZippedPartitionsBaseRDD[V: ClassTag](
     }
   }
 
-  override def getPreferredLocations(s: Partition): Seq[String] = {
+  override def getPreferredLocations(s: Partition): coll.Seq[String] = {
     s.asInstanceOf[ZippedPartitionsPartition].preferredLocations
   }
 

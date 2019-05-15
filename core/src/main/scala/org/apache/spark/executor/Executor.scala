@@ -45,6 +45,7 @@ import org.apache.spark.shuffle.FetchFailedException
 import org.apache.spark.storage.{StorageLevel, TaskResultBlockId}
 import org.apache.spark.util._
 import org.apache.spark.util.io.ChunkedByteBuffer
+import scala.{collection => coll}
 
 /**
  * Spark executor, backed by a threadpool to run tasks.
@@ -57,7 +58,7 @@ private[spark] class Executor(
     executorId: String,
     executorHostname: String,
     env: SparkEnv,
-    userClassPath: Seq[URL] = Nil,
+    userClassPath: coll.Seq[URL] = Nil,
     isLocal: Boolean = false,
     uncaughtExceptionHandler: UncaughtExceptionHandler = new SparkUncaughtExceptionHandler)
   extends Logging {
@@ -136,13 +137,13 @@ private[spark] class Executor(
   // for fetching remote cached RDD blocks, so need to make sure it uses the right classloader too.
   env.serializerManager.setDefaultClassLoader(replClassLoader)
 
-  private val executorPlugins: Seq[ExecutorPlugin] = {
+  private val executorPlugins: coll.Seq[ExecutorPlugin] = {
     val pluginNames = conf.get(EXECUTOR_PLUGINS)
     if (pluginNames.nonEmpty) {
       logDebug(s"Initializing the following plugins: ${pluginNames.mkString(", ")}")
 
       // Plugins need to load using a class loader that includes the executor's user classpath
-      val pluginList: Seq[ExecutorPlugin] =
+      val pluginList: coll.Seq[ExecutorPlugin] =
         Utils.withContextClassLoader(replClassLoader) {
           val plugins = Utils.loadExtensions(classOf[ExecutorPlugin], pluginNames, conf)
           plugins.foreach { plugin =>
@@ -356,7 +357,7 @@ private[spark] class Executor(
       })
 
       // Collect latest accumulator values to report back to the driver
-      val accums: Seq[AccumulatorV2[_, _]] =
+      val accums: coll.Seq[AccumulatorV2[_, _]] =
         Option(task).map(_.collectAccumulatorUpdates(taskFailed = true)).getOrElse(Seq.empty)
       val accUpdates = accums.map(acc => acc.toInfo(Some(acc.value), None))
 
@@ -843,7 +844,7 @@ private[spark] class Executor(
   /** Reports heartbeat and metrics for active tasks to the driver. */
   private def reportHeartBeat(): Unit = {
     // list of (task id, accumUpdates) to send back to the driver
-    val accumUpdates = new ArrayBuffer[(Long, Seq[AccumulatorV2[_, _]])]()
+    val accumUpdates = new ArrayBuffer[(Long, coll.Seq[AccumulatorV2[_, _]])]()
     val curGCTime = computeTotalGcTime()
 
     // get executor level memory metrics

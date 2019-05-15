@@ -34,6 +34,7 @@ import org.apache.spark.status.AppStatusStore
 import org.apache.spark.status.api.v1
 import org.apache.spark.ui._
 import org.apache.spark.util.Utils
+import scala.{collection => coll}
 
 /** Page showing list of all ongoing and recently finished jobs */
 private[ui] class AllJobsPage(parent: JobsTab, store: AppStatusStore) extends WebUIPage("") {
@@ -63,7 +64,7 @@ private[ui] class AllJobsPage(parent: JobsTab, store: AppStatusStore) extends We
       <text x="35px" y="42px">Removed</text>
     </svg></div>.toString.filter(_ != '\n')
 
-  private def makeJobEvent(jobs: Seq[v1.JobData]): Seq[String] = {
+  private def makeJobEvent(jobs: coll.Seq[v1.JobData]): coll.Seq[String] = {
     jobs.filter { job =>
       job.status != JobExecutionStatus.UNKNOWN && job.submissionTime.isDefined
     }.map { job =>
@@ -111,8 +112,8 @@ private[ui] class AllJobsPage(parent: JobsTab, store: AppStatusStore) extends We
     }
   }
 
-  private def makeExecutorEvent(executors: Seq[v1.ExecutorSummary]):
-      Seq[String] = {
+  private def makeExecutorEvent(executors: coll.Seq[v1.ExecutorSummary]):
+      coll.Seq[String] = {
     val events = ListBuffer[String]()
     executors.foreach { e =>
       val addedEvent =
@@ -156,9 +157,9 @@ private[ui] class AllJobsPage(parent: JobsTab, store: AppStatusStore) extends We
   }
 
   private def makeTimeline(
-      jobs: Seq[v1.JobData],
-      executors: Seq[v1.ExecutorSummary],
-      startTime: Long): Seq[Node] = {
+      jobs: coll.Seq[v1.JobData],
+      executors: coll.Seq[v1.ExecutorSummary],
+      startTime: Long): coll.Seq[Node] = {
 
     val jobEventJsonAsStrSeq = makeJobEvent(jobs)
     val executorEventJsonAsStrSeq = makeExecutorEvent(executors)
@@ -204,8 +205,8 @@ private[ui] class AllJobsPage(parent: JobsTab, store: AppStatusStore) extends We
       request: HttpServletRequest,
       tableHeaderId: String,
       jobTag: String,
-      jobs: Seq[v1.JobData],
-      killEnabled: Boolean): Seq[Node] = {
+      jobs: coll.Seq[v1.JobData],
+      killEnabled: Boolean): coll.Seq[Node] = {
     val parameterOtherTable = request.getParameterMap().asScala
       .filterNot(_._1.startsWith(jobTag))
       .map(para => para._1 + "=" + para._2(0))
@@ -257,7 +258,7 @@ private[ui] class AllJobsPage(parent: JobsTab, store: AppStatusStore) extends We
     }
   }
 
-  def render(request: HttpServletRequest): Seq[Node] = {
+  def render(request: HttpServletRequest): coll.Seq[Node] = {
     val appInfo = store.applicationInfo()
     val startTime = appInfo.attempts.head.startTime.getTime()
     val endTime = appInfo.attempts.head.endTime.getTime()
@@ -413,7 +414,7 @@ private[ui] class JobTableRowData(
 
 private[ui] class JobDataSource(
     store: AppStatusStore,
-    jobs: Seq[v1.JobData],
+    jobs: coll.Seq[v1.JobData],
     basePath: String,
     currentTime: Long,
     pageSize: Int,
@@ -430,7 +431,7 @@ private[ui] class JobDataSource(
 
   override def dataSize: Int = data.size
 
-  override def sliceData(from: Int, to: Int): Seq[JobTableRowData] = {
+  override def sliceData(from: Int, to: Int): coll.Seq[JobTableRowData] = {
     val r = data.slice(from, to)
     _slicedJobIds = r.map(_.jobData.jobId).toSet
     r
@@ -489,7 +490,7 @@ private[ui] class JobDataSource(
 
 private[ui] class JobPagedTable(
     store: AppStatusStore,
-    data: Seq[v1.JobData],
+    data: coll.Seq[v1.JobData],
     tableHeaderId: String,
     jobTag: String,
     basePath: String,
@@ -538,9 +539,9 @@ private[ui] class JobPagedTable(
     s"$parameterPath&$jobTag.sort=$encodedSortColumn&$jobTag.desc=$desc#$tableHeaderId"
   }
 
-  override def headers: Seq[Node] = {
+  override def headers: coll.Seq[Node] = {
     // Information for each header: title, cssClass, and sortable
-    val jobHeadersAndCssClasses: Seq[(String, String, Boolean)] =
+    val jobHeadersAndCssClasses: coll.Seq[(String, String, Boolean)] =
       Seq(
         (jobIdTitle, "", true),
         ("Description", "", true), ("Submitted", "", true), ("Duration", "", true),
@@ -552,7 +553,7 @@ private[ui] class JobPagedTable(
       throw new IllegalArgumentException(s"Unknown column: $sortColumn")
     }
 
-    val headerRow: Seq[Node] = {
+    val headerRow: coll.Seq[Node] = {
       jobHeadersAndCssClasses.map { case (header, cssClass, sortable) =>
         if (header == sortColumn) {
           val headerLink = Unparsed(
@@ -594,7 +595,7 @@ private[ui] class JobPagedTable(
     <thead>{headerRow}</thead>
   }
 
-  override def row(jobTableRow: JobTableRowData): Seq[Node] = {
+  override def row(jobTableRow: JobTableRowData): coll.Seq[Node] = {
     val job = jobTableRow.jobData
 
     val killLink = if (killEnabled) {

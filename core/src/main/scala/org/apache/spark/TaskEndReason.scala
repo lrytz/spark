@@ -24,6 +24,7 @@ import org.apache.spark.internal.Logging
 import org.apache.spark.scheduler.AccumulableInfo
 import org.apache.spark.storage.BlockManagerId
 import org.apache.spark.util.{AccumulatorV2, Utils}
+import scala.{collection => coll}
 
 // ==============================================================================================
 // NOTE: new task end reasons MUST be accompanied with serialization logic in util.JsonProtocol!
@@ -127,8 +128,8 @@ case class ExceptionFailure(
     stackTrace: Array[StackTraceElement],
     fullStackTrace: String,
     private val exceptionWrapper: Option[ThrowableSerializationWrapper],
-    accumUpdates: Seq[AccumulableInfo] = Seq.empty,
-    private[spark] var accums: Seq[AccumulatorV2[_, _]] = Nil)
+    accumUpdates: coll.Seq[AccumulableInfo] = Seq.empty,
+    private[spark] var accums: coll.Seq[AccumulatorV2[_, _]] = Nil)
   extends TaskFailedReason {
 
   /**
@@ -138,17 +139,17 @@ case class ExceptionFailure(
    */
   private[spark] def this(
       e: Throwable,
-      accumUpdates: Seq[AccumulableInfo],
+      accumUpdates: coll.Seq[AccumulableInfo],
       preserveCause: Boolean) {
     this(e.getClass.getName, e.getMessage, e.getStackTrace, Utils.exceptionString(e),
       if (preserveCause) Some(new ThrowableSerializationWrapper(e)) else None, accumUpdates)
   }
 
-  private[spark] def this(e: Throwable, accumUpdates: Seq[AccumulableInfo]) {
+  private[spark] def this(e: Throwable, accumUpdates: coll.Seq[AccumulableInfo]) {
     this(e, accumUpdates, preserveCause = true)
   }
 
-  private[spark] def withAccums(accums: Seq[AccumulatorV2[_, _]]): ExceptionFailure = {
+  private[spark] def withAccums(accums: coll.Seq[AccumulatorV2[_, _]]): ExceptionFailure = {
     this.accums = accums
     this
   }
@@ -214,8 +215,8 @@ case object TaskResultLost extends TaskFailedReason {
 @DeveloperApi
 case class TaskKilled(
     reason: String,
-    accumUpdates: Seq[AccumulableInfo] = Seq.empty,
-    private[spark] val accums: Seq[AccumulatorV2[_, _]] = Nil)
+    accumUpdates: coll.Seq[AccumulableInfo] = Seq.empty,
+    private[spark] val accums: coll.Seq[AccumulatorV2[_, _]] = Nil)
   extends TaskFailedReason {
 
   override def toErrorString: String = s"TaskKilled ($reason)"

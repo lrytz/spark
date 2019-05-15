@@ -32,6 +32,7 @@ import org.apache.spark.internal.config.{BUFFER_SIZE, EXECUTOR_CORES}
 import org.apache.spark.internal.config.Python._
 import org.apache.spark.security.SocketAuthHelper
 import org.apache.spark.util._
+import scala.{collection => coll}
 
 
 /**
@@ -64,7 +65,7 @@ private[spark] object PythonEvalType {
  * functions (from bottom to top).
  */
 private[spark] abstract class BasePythonRunner[IN, OUT](
-    funcs: Seq[ChainedPythonFunctions],
+    funcs: coll.Seq[ChainedPythonFunctions],
     evalType: Int,
     argOffsets: Array[Array[Int]])
   extends Logging {
@@ -539,7 +540,7 @@ private[spark] object PythonRunner {
 /**
  * A helper class to run Python mapPartition in Spark.
  */
-private[spark] class PythonRunner(funcs: Seq[ChainedPythonFunctions])
+private[spark] class PythonRunner(funcs: coll.Seq[ChainedPythonFunctions])
   extends BasePythonRunner[Array[Byte], Array[Byte]](
     funcs, PythonEvalType.NON_UDF, Array(Array(0))) {
 

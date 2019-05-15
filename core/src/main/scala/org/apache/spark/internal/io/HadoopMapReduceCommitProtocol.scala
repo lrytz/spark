@@ -30,6 +30,7 @@ import org.apache.hadoop.mapreduce.task.TaskAttemptContextImpl
 
 import org.apache.spark.internal.Logging
 import org.apache.spark.mapred.SparkHadoopMapRedUtil
+import scala.{collection => coll}
 
 /**
  * An [[FileCommitProtocol]] implementation backed by an underlying Hadoop OutputCommitter
@@ -162,7 +163,7 @@ class HadoopMapReduceCommitProtocol(
     committer.setupJob(jobContext)
   }
 
-  override def commitJob(jobContext: JobContext, taskCommits: Seq[TaskCommitMessage]): Unit = {
+  override def commitJob(jobContext: JobContext, taskCommits: coll.Seq[TaskCommitMessage]): Unit = {
     committer.commitJob(jobContext)
 
     if (hasValidPath) {

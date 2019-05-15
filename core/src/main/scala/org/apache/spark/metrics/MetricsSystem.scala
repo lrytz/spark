@@ -31,6 +31,7 @@ import org.apache.spark.internal.config._
 import org.apache.spark.metrics.sink.{MetricsServlet, Sink}
 import org.apache.spark.metrics.source.{Source, StaticSources}
 import org.apache.spark.util.Utils
+import scala.{collection => coll}
 
 /**
  * Spark Metrics System, created by a specific "instance", combined by source,
@@ -152,7 +153,7 @@ private[spark] class MetricsSystem private (
     } else { defaultName }
   }
 
-  def getSourcesByName(sourceName: String): Seq[Source] =
+  def getSourcesByName(sourceName: String): coll.Seq[Source] =
     sources.filter(_.sourceName == sourceName)
 
   def registerSource(source: Source) {

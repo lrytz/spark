@@ -21,11 +21,12 @@ package org.apache.spark
  * A client that communicates with the cluster manager to request or kill executors.
  * This is currently supported only in YARN mode.
  */
+import scala.{collection => coll}
 private[spark] trait ExecutorAllocationClient {
 
 
   /** Get the list of currently active executors */
-  private[spark] def getExecutorIds(): Seq[String]
+  private[spark] def getExecutorIds(): coll.Seq[String]
 
   /**
    * Update the cluster manager on our scheduling needs. Three bits of information are included
@@ -64,10 +65,10 @@ private[spark] trait ExecutorAllocationClient {
    * @return the ids of the executors acknowledged by the cluster manager to be removed.
    */
   def killExecutors(
-    executorIds: Seq[String],
+    executorIds: coll.Seq[String],
     adjustTargetNumExecutors: Boolean,
     countFailures: Boolean,
-    force: Boolean = false): Seq[String]
+    force: Boolean = false): coll.Seq[String]
 
   /**
    * Request that the cluster manager kill every executor on the specified host.

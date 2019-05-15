@@ -25,6 +25,7 @@ import org.apache.spark._
 import org.apache.spark.broadcast.Broadcast
 import org.apache.spark.internal.Logging
 import org.apache.spark.rdd.RDD
+import scala.{collection => coll}
 
 /**
  * A ShuffleMapTask divides the elements of an RDD into multiple buckets (based on a partitioner
@@ -54,7 +55,7 @@ private[spark] class ShuffleMapTask(
     stageAttemptId: Int,
     taskBinary: Broadcast[Array[Byte]],
     partition: Partition,
-    @transient private var locs: Seq[TaskLocation],
+    @transient private var locs: coll.Seq[TaskLocation],
     localProperties: Properties,
     serializedTaskMetrics: Array[Byte],
     jobId: Option[Int] = None,
@@ -70,7 +71,7 @@ private[spark] class ShuffleMapTask(
     this(0, 0, null, new Partition { override def index: Int = 0 }, null, new Properties, null)
   }
 
-  @transient private val preferredLocs: Seq[TaskLocation] = {
+  @transient private val preferredLocs: coll.Seq[TaskLocation] = {
     if (locs == null) Nil else locs.toSet.toSeq
   }
 
@@ -94,7 +95,7 @@ private[spark] class ShuffleMapTask(
     dep.shuffleWriterProcessor.write(rdd, dep, partitionId, context, partition)
   }
 
-  override def preferredLocations: Seq[TaskLocation] = preferredLocs
+  override def preferredLocations: coll.Seq[TaskLocation] = preferredLocs
 
   override def toString: String = "ShuffleMapTask(%d, %d)".format(stageId, partitionId)
 }

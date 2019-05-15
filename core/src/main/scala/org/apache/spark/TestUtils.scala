@@ -40,6 +40,7 @@ import org.apache.log4j.PropertyConfigurator
 import org.apache.spark.executor.TaskMetrics
 import org.apache.spark.scheduler._
 import org.apache.spark.util.Utils
+import scala.{collection => coll}
 
 /**
  * Utilities for tests. Included in main codebase since it's used by multiple
@@ -57,10 +58,10 @@ private[spark] object TestUtils {
    * in order to avoid interference between tests.
    */
   def createJarWithClasses(
-      classNames: Seq[String],
+      classNames: coll.Seq[String],
       toStringValue: String = "",
-      classNamesWithBase: Seq[(String, String)] = Seq.empty,
-      classpathUrls: Seq[URL] = Seq.empty): URL = {
+      classNamesWithBase: coll.Seq[(String, String)] = Seq.empty,
+      classpathUrls: coll.Seq[URL] = Seq.empty): URL = {
     val tempDir = Utils.createTempDir()
     val files1 = for (name <- classNames) yield {
       createCompiledClass(name, tempDir, toStringValue, classpathUrls = classpathUrls)
@@ -93,7 +94,7 @@ private[spark] object TestUtils {
    * Create a jar file that contains this set of files. All files will be located in the specified
    * directory or at the root of the jar.
    */
-  def createJar(files: Seq[File], jarFile: File, directoryPrefix: Option[String] = None): URL = {
+  def createJar(files: coll.Seq[File], jarFile: File, directoryPrefix: Option[String] = None): URL = {
     val jarFileStream = new FileOutputStream(jarFile)
     val jarStream = new JarOutputStream(jarFileStream, new java.util.jar.Manifest())
 
@@ -130,7 +131,7 @@ private[spark] object TestUtils {
       className: String,
       destDir: File,
       sourceFile: JavaSourceFromString,
-      classpathUrls: Seq[URL]): File = {
+      classpathUrls: coll.Seq[URL]): File = {
     val compiler = ToolProvider.getSystemJavaCompiler
 
     // Calling this outputs a class file in pwd. It's easier to just rename the files than
@@ -161,7 +162,7 @@ private[spark] object TestUtils {
       destDir: File,
       toStringValue: String = "",
       baseClass: String = null,
-      classpathUrls: Seq[URL] = Seq.empty): File = {
+      classpathUrls: coll.Seq[URL] = Seq.empty): File = {
     val extendsText = Option(baseClass).map { c => s" extends ${c}" }.getOrElse("")
     val sourceFile = new JavaSourceFromString(className,
       "public class " + className + extendsText + " implements java.io.Serializable {" +
@@ -220,7 +221,7 @@ private[spark] object TestUtils {
   def httpResponseCode(
       url: URL,
       method: String = "GET",
-      headers: Seq[(String, String)] = Nil): Int = {
+      headers: coll.Seq[(String, String)] = Nil): Int = {
     val connection = url.openConnection().asInstanceOf[HttpURLConnection]
     connection.setRequestMethod(method)
     headers.foreach { case (k, v) => connection.setRequestProperty(k, v) }

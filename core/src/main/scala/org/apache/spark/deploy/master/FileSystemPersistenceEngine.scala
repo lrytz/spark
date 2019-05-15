@@ -24,6 +24,7 @@ import scala.reflect.ClassTag
 import org.apache.spark.internal.Logging
 import org.apache.spark.serializer.{DeserializationStream, SerializationStream, Serializer}
 import org.apache.spark.util.Utils
+import scala.{collection => coll}
 
 
 /**
@@ -51,7 +52,7 @@ private[master] class FileSystemPersistenceEngine(
     }
   }
 
-  override def read[T: ClassTag](prefix: String): Seq[T] = {
+  override def read[T: ClassTag](prefix: String): coll.Seq[T] = {
     val files = new File(dir).listFiles().filter(_.getName.startsWith(prefix))
     files.map(deserializeFromFile[T])
   }

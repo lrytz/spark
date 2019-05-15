@@ -32,6 +32,7 @@ import org.apache.spark.metrics.source.Source
 import org.apache.spark.scheduler._
 import org.apache.spark.storage.BlockManagerMaster
 import org.apache.spark.util.{Clock, SystemClock, ThreadUtils, Utils}
+import scala.{collection => coll}
 
 /**
  * An agent that dynamically allocates and removes executors based on the workload.
@@ -451,7 +452,7 @@ private[spark] class ExecutorAllocationManager(
    * Request the cluster manager to remove the given executors.
    * Returns the list of executors which are removed.
    */
-  private def removeExecutors(executors: Seq[String]): Seq[String] = synchronized {
+  private def removeExecutors(executors: coll.Seq[String]): coll.Seq[String] = synchronized {
     val executorIdsToBeRemoved = new ArrayBuffer[String]
 
     logInfo("Request to remove executorIds: " + executors.mkString(", "))

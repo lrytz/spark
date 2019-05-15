@@ -36,6 +36,7 @@ import org.apache.spark.rdd.RDDOperationScope
 import org.apache.spark.scheduler._
 import org.apache.spark.scheduler.cluster.ExecutorInfo
 import org.apache.spark.storage._
+import scala.{collection => coll}
 
 /**
  * Serializes SparkListener events to/from JSON.  This protocol provides strong backwards-
@@ -640,7 +641,7 @@ private[spark] object JsonProtocol {
     val properties = propertiesFromJson(json \ "Properties")
     // The "Stage Infos" field was added in Spark 1.2.0
     val stageInfos = jsonOption(json \ "Stage Infos")
-      .map(_.extract[Seq[JValue]].map(stageInfoFromJson)).getOrElse {
+      .map(_.extract[coll.Seq[JValue]].map(stageInfoFromJson)).getOrElse {
         stageIds.map { id =>
           new StageInfo(id, 0, "unknown", 0, Seq.empty, Seq.empty, "unknown")
         }
@@ -660,7 +661,7 @@ private[spark] object JsonProtocol {
     // For compatible with previous event logs
     val hadoopProperties = jsonOption(json \ "Hadoop Properties").map(mapFromJson(_).toSeq)
       .getOrElse(Seq.empty)
-    val environmentDetails = Map[String, Seq[(String, String)]](
+    val environmentDetails = Map[String, coll.Seq[(String, String)]](
       "JVM Information" -> mapFromJson(json \ "JVM Information").toSeq,
       "Spark Properties" -> mapFromJson(json \ "Spark Properties").toSeq,
       "Hadoop Properties" -> hadoopProperties,
@@ -800,7 +801,7 @@ private[spark] object JsonProtocol {
     val finishTime = (json \ "Finish Time").extract[Long]
     val failed = (json \ "Failed").extract[Boolean]
     val killed = jsonOption(json \ "Killed").exists(_.extract[Boolean])
-    val accumulables = jsonOption(json \ "Accumulables").map(_.extract[Seq[JValue]]) match {
+    val accumulables = jsonOption(json \ "Accumulables").map(_.extract[coll.Seq[JValue]]) match {
       case Some(values) => values.map(accumulableInfoFromJson)
       case None => Seq.empty[AccumulableInfo]
     }

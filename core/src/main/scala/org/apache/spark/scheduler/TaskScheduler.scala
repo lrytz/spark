@@ -21,6 +21,7 @@ import org.apache.spark.executor.ExecutorMetrics
 import org.apache.spark.scheduler.SchedulingMode.SchedulingMode
 import org.apache.spark.storage.BlockManagerId
 import org.apache.spark.util.AccumulatorV2
+import scala.{collection => coll}
 
 /**
  * Low-level task scheduler interface, currently implemented exclusively by
@@ -85,7 +86,7 @@ private[spark] trait TaskScheduler {
    */
   def executorHeartbeatReceived(
       execId: String,
-      accumUpdates: Array[(Long, Seq[AccumulatorV2[_, _]])],
+      accumUpdates: Array[(Long, coll.Seq[AccumulatorV2[_, _]])],
       blockManagerId: BlockManagerId,
       executorUpdates: ExecutorMetrics): Boolean
 

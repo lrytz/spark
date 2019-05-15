@@ -40,6 +40,7 @@ import org.apache.spark.{SparkConf, SparkException}
 import org.apache.spark.internal.Logging
 import org.apache.spark.internal.config.BUFFER_SIZE
 import org.apache.spark.util.Utils
+import scala.{collection => coll}
 
 /**
  * Contains util methods to interact with Hadoop from Spark.
@@ -196,7 +197,7 @@ private[spark] class SparkHadoopUtil extends Logging {
    * given path points to a file, return a single-element collection containing [[FileStatus]] of
    * that file.
    */
-  def listLeafStatuses(fs: FileSystem, basePath: Path): Seq[FileStatus] = {
+  def listLeafStatuses(fs: FileSystem, basePath: Path): coll.Seq[FileStatus] = {
     listLeafStatuses(fs, fs.getFileStatus(basePath))
   }
 
@@ -205,8 +206,8 @@ private[spark] class SparkHadoopUtil extends Logging {
    * given path points to a file, return a single-element collection containing [[FileStatus]] of
    * that file.
    */
-  def listLeafStatuses(fs: FileSystem, baseStatus: FileStatus): Seq[FileStatus] = {
-    def recurse(status: FileStatus): Seq[FileStatus] = {
+  def listLeafStatuses(fs: FileSystem, baseStatus: FileStatus): coll.Seq[FileStatus] = {
+    def recurse(status: FileStatus): coll.Seq[FileStatus] = {
       val (directories, leaves) = fs.listStatus(status.getPath).partition(_.isDirectory)
       leaves ++ directories.flatMap(f => listLeafStatuses(fs, f))
     }
@@ -214,12 +215,12 @@ private[spark] class SparkHadoopUtil extends Logging {
     if (baseStatus.isDirectory) recurse(baseStatus) else Seq(baseStatus)
   }
 
-  def listLeafDirStatuses(fs: FileSystem, basePath: Path): Seq[FileStatus] = {
+  def listLeafDirStatuses(fs: FileSystem, basePath: Path): coll.Seq[FileStatus] = {
     listLeafDirStatuses(fs, fs.getFileStatus(basePath))
   }
 
-  def listLeafDirStatuses(fs: FileSystem, baseStatus: FileStatus): Seq[FileStatus] = {
-    def recurse(status: FileStatus): Seq[FileStatus] = {
+  def listLeafDirStatuses(fs: FileSystem, baseStatus: FileStatus): coll.Seq[FileStatus] = {
+    def recurse(status: FileStatus): coll.Seq[FileStatus] = {
       val (directories, files) = fs.listStatus(status.getPath).partition(_.isDirectory)
       val leaves = if (directories.isEmpty) Seq(status) else Seq.empty[FileStatus]
       leaves ++ directories.flatMap(dir => listLeafDirStatuses(fs, dir))
@@ -233,22 +234,22 @@ private[spark] class SparkHadoopUtil extends Logging {
     pattern.toString.exists("{}[]*?\\".toSet.contains)
   }
 
-  def globPath(pattern: Path): Seq[Path] = {
+  def globPath(pattern: Path): coll.Seq[Path] = {
     val fs = pattern.getFileSystem(conf)
     globPath(fs, pattern)
   }
 
-  def globPath(fs: FileSystem, pattern: Path): Seq[Path] = {
+  def globPath(fs: FileSystem, pattern: Path): coll.Seq[Path] = {
     Option(fs.globStatus(pattern)).map { statuses =>
       statuses.map(_.getPath.makeQualified(fs.getUri, fs.getWorkingDirectory)).toSeq
     }.getOrElse(Seq.empty[Path])
   }
 
-  def globPathIfNecessary(pattern: Path): Seq[Path] = {
+  def globPathIfNecessary(pattern: Path): coll.Seq[Path] = {
     if (isGlobPath(pattern)) globPath(pattern) else Seq(pattern)
   }
 
-  def globPathIfNecessary(fs: FileSystem, pattern: Path): Seq[Path] = {
+  def globPathIfNecessary(fs: FileSystem, pattern: Path): coll.Seq[Path] = {
     if (isGlobPath(pattern)) globPath(fs, pattern) else Seq(pattern)
   }
 

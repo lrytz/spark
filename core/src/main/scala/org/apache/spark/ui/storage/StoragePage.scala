@@ -26,11 +26,12 @@ import org.apache.spark.status.{AppStatusStore, StreamBlockData}
 import org.apache.spark.status.api.v1
 import org.apache.spark.ui._
 import org.apache.spark.util.Utils
+import scala.{collection => coll}
 
 /** Page showing list of RDD's currently stored in the cluster */
 private[ui] class StoragePage(parent: SparkUITab, store: AppStatusStore) extends WebUIPage("") {
 
-  def render(request: HttpServletRequest): Seq[Node] = {
+  def render(request: HttpServletRequest): coll.Seq[Node] = {
     val content = rddTable(request, store.rddList()) ++
       receiverBlockTables(store.streamBlocksList())
     UIUtils.headerSparkPage(request, "Storage", content, parent)
@@ -38,7 +39,7 @@ private[ui] class StoragePage(parent: SparkUITab, store: AppStatusStore) extends
 
   private[storage] def rddTable(
       request: HttpServletRequest,
-      rdds: Seq[v1.RDDStorageInfo]): Seq[Node] = {
+      rdds: coll.Seq[v1.RDDStorageInfo]): coll.Seq[Node] = {
     if (rdds.isEmpty) {
       // Don't show the rdd table if there is no RDD persisted.
       Nil
@@ -73,7 +74,7 @@ private[ui] class StoragePage(parent: SparkUITab, store: AppStatusStore) extends
     "Size on Disk")
 
   /** Render an HTML row representing an RDD */
-  private def rddRow(request: HttpServletRequest, rdd: v1.RDDStorageInfo): Seq[Node] = {
+  private def rddRow(request: HttpServletRequest, rdd: v1.RDDStorageInfo): coll.Seq[Node] = {
     // scalastyle:off
     <tr>
       <td>{rdd.id}</td>
@@ -93,7 +94,7 @@ private[ui] class StoragePage(parent: SparkUITab, store: AppStatusStore) extends
     // scalastyle:on
   }
 
-  private[storage] def receiverBlockTables(blocks: Seq[StreamBlockData]): Seq[Node] = {
+  private[storage] def receiverBlockTables(blocks: coll.Seq[StreamBlockData]): coll.Seq[Node] = {
     if (blocks.isEmpty) {
       // Don't show the tables if there is no stream block
       Nil
@@ -108,7 +109,7 @@ private[ui] class StoragePage(parent: SparkUITab, store: AppStatusStore) extends
     }
   }
 
-  private def executorMetricsTable(blocks: Seq[StreamBlockData]): Seq[Node] = {
+  private def executorMetricsTable(blocks: coll.Seq[StreamBlockData]): coll.Seq[Node] = {
     val blockManagers = SortedMap(blocks.groupBy(_.executorId).toSeq: _*)
       .map { case (id, blocks) =>
         new ExecutorStreamSummary(blocks)
@@ -128,7 +129,7 @@ private[ui] class StoragePage(parent: SparkUITab, store: AppStatusStore) extends
     "Total Size on Disk",
     "Stream Blocks")
 
-  private def executorMetricsTableRow(status: ExecutorStreamSummary): Seq[Node] = {
+  private def executorMetricsTableRow(status: ExecutorStreamSummary): coll.Seq[Node] = {
     <tr>
       <td>
         {status.executorId}
@@ -148,7 +149,7 @@ private[ui] class StoragePage(parent: SparkUITab, store: AppStatusStore) extends
     </tr>
   }
 
-  private def streamBlockTable(blocks: Seq[(String, Seq[StreamBlockData])]): Seq[Node] = {
+  private def streamBlockTable(blocks: coll.Seq[(String, coll.Seq[StreamBlockData])]): coll.Seq[Node] = {
     if (blocks.isEmpty) {
       Nil
     } else {
@@ -172,7 +173,7 @@ private[ui] class StoragePage(parent: SparkUITab, store: AppStatusStore) extends
     "Size")
 
   /** Render a stream block */
-  private def streamBlockTableRow(block: (String, Seq[StreamBlockData])): Seq[Node] = {
+  private def streamBlockTableRow(block: (String, coll.Seq[StreamBlockData])): coll.Seq[Node] = {
     val replications = block._2
     assert(replications.nonEmpty) // This must be true because it's the result of "groupBy"
     if (replications.size == 1) {
@@ -187,7 +188,7 @@ private[ui] class StoragePage(parent: SparkUITab, store: AppStatusStore) extends
       blockId: String,
       block: StreamBlockData,
       replication: Int,
-      firstSubrow: Boolean): Seq[Node] = {
+      firstSubrow: Boolean): coll.Seq[Node] = {
     val (storageLevel, size) = streamBlockStorageLevelDescriptionAndSize(block)
 
     <tr>
@@ -222,7 +223,7 @@ private[ui] class StoragePage(parent: SparkUITab, store: AppStatusStore) extends
 
 }
 
-private class ExecutorStreamSummary(blocks: Seq[StreamBlockData]) {
+private class ExecutorStreamSummary(blocks: coll.Seq[StreamBlockData]) {
 
   def executorId: String = blocks.head.executorId
 

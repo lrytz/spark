@@ -29,6 +29,7 @@ import org.apache.spark.rdd.{PartitionPruningRDD, RDD}
 import org.apache.spark.serializer.JavaSerializer
 import org.apache.spark.util.{CollectionsUtils, Utils}
 import org.apache.spark.util.random.SamplingUtils
+import scala.{collection => coll}
 
 /**
  * An object that defines how the elements in a key-value pair RDD are partitioned by key.
@@ -95,7 +96,7 @@ object Partitioner {
    */
   private def isEligiblePartitioner(
      hasMaxPartitioner: RDD[_],
-     rdds: Seq[RDD[_]]): Boolean = {
+     rdds: coll.Seq[RDD[_]]): Boolean = {
     val maxPartitions = rdds.map(_.partitions.length).max
     log10(maxPartitions) - log10(hasMaxPartitioner.getNumPartitions) < 1
   }

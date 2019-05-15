@@ -41,6 +41,7 @@ import org.apache.spark.rdd.HadoopRDD.HadoopMapPartitionsWithSplitRDD
 import org.apache.spark.scheduler.{HDFSCacheTaskLocation, HostTaskLocation}
 import org.apache.spark.storage.StorageLevel
 import org.apache.spark.util.{NextIterator, SerializableConfiguration, ShutdownHookManager}
+import scala.{collection => coll}
 
 /**
  * A Spark split class that wraps around a Hadoop InputSplit.
@@ -350,7 +351,7 @@ class HadoopRDD[K, V](
     new HadoopMapPartitionsWithSplitRDD(this, f, preservesPartitioning)
   }
 
-  override def getPreferredLocations(split: Partition): Seq[String] = {
+  override def getPreferredLocations(split: Partition): coll.Seq[String] = {
     val hsplit = split.asInstanceOf[HadoopPartition].inputSplit.value
     val locs = hsplit match {
       case lsplit: InputSplitWithLocationInfo =>
@@ -430,7 +431,7 @@ private[spark] object HadoopRDD extends Logging {
   }
 
   private[spark] def convertSplitLocationInfo(
-       infos: Array[SplitLocationInfo]): Option[Seq[String]] = {
+       infos: Array[SplitLocationInfo]): Option[coll.Seq[String]] = {
     Option(infos).map(_.flatMap { loc =>
       val locationStr = loc.getLocation
       if (locationStr != "localhost") {

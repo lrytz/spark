@@ -25,6 +25,7 @@ import java.util.Properties
 import org.apache.spark._
 import org.apache.spark.broadcast.Broadcast
 import org.apache.spark.rdd.RDD
+import scala.{collection => coll}
 
 /**
  * A task that sends back the output to the driver application.
@@ -56,7 +57,7 @@ private[spark] class ResultTask[T, U](
     stageAttemptId: Int,
     taskBinary: Broadcast[Array[Byte]],
     partition: Partition,
-    locs: Seq[TaskLocation],
+    locs: coll.Seq[TaskLocation],
     val outputId: Int,
     localProperties: Properties,
     serializedTaskMetrics: Array[Byte],
@@ -68,7 +69,7 @@ private[spark] class ResultTask[T, U](
     jobId, appId, appAttemptId, isBarrier)
   with Serializable {
 
-  @transient private[this] val preferredLocs: Seq[TaskLocation] = {
+  @transient private[this] val preferredLocs: coll.Seq[TaskLocation] = {
     if (locs == null) Nil else locs.toSet.toSeq
   }
 
@@ -91,7 +92,7 @@ private[spark] class ResultTask[T, U](
   }
 
   // This is only callable on the driver side.
-  override def preferredLocations: Seq[TaskLocation] = preferredLocs
+  override def preferredLocations: coll.Seq[TaskLocation] = preferredLocs
 
   override def toString: String = "ResultTask(" + stageId + ", " + partitionId + ")"
 }

@@ -33,6 +33,7 @@ import org.apache.spark.internal.Logging
 import org.apache.spark.internal.config._
 import org.apache.spark.metrics.MetricsSystem
 import org.apache.spark.metrics.source.Source
+import scala.{collection => coll}
 
 /**
  * Asynchronously passes SparkListenerEvents to registered SparkListeners.
@@ -222,7 +223,7 @@ private[spark] class LiveListenerBus(conf: SparkConf) {
   }
 
   // For testing only.
-  private[spark] def findListenersByClass[T <: SparkListenerInterface : ClassTag](): Seq[T] = {
+  private[spark] def findListenersByClass[T <: SparkListenerInterface : ClassTag](): coll.Seq[T] = {
     queues.asScala.flatMap { queue => queue.findListenersByClass[T]() }
   }
 

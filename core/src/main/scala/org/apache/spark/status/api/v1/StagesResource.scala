@@ -26,12 +26,13 @@ import org.apache.spark.status.api.v1.StageStatus._
 import org.apache.spark.status.api.v1.TaskSorting._
 import org.apache.spark.ui.SparkUI
 import org.apache.spark.ui.jobs.ApiHelper._
+import scala.{collection => coll}
 
 @Produces(Array(MediaType.APPLICATION_JSON))
 private[v1] class StagesResource extends BaseAppResource {
 
   @GET
-  def stageList(@QueryParam("status") statuses: JList[StageStatus]): Seq[StageData] = {
+  def stageList(@QueryParam("status") statuses: JList[StageStatus]): coll.Seq[StageData] = {
     withUI(_.store.stageList(statuses))
   }
 
@@ -39,7 +40,7 @@ private[v1] class StagesResource extends BaseAppResource {
   @Path("{stageId: \\d+}")
   def stageData(
       @PathParam("stageId") stageId: Int,
-      @QueryParam("details") @DefaultValue("true") details: Boolean): Seq[StageData] = {
+      @QueryParam("details") @DefaultValue("true") details: Boolean): coll.Seq[StageData] = {
     withUI { ui =>
       val ret = ui.store.stageData(stageId, details = details)
       if (ret.nonEmpty) {
@@ -99,7 +100,7 @@ private[v1] class StagesResource extends BaseAppResource {
       @PathParam("stageAttemptId") stageAttemptId: Int,
       @DefaultValue("0") @QueryParam("offset") offset: Int,
       @DefaultValue("20") @QueryParam("length") length: Int,
-      @DefaultValue("ID") @QueryParam("sortBy") sortBy: TaskSorting): Seq[TaskData] = {
+      @DefaultValue("ID") @QueryParam("sortBy") sortBy: TaskSorting): coll.Seq[TaskData] = {
     withUI(_.store.taskList(stageId, stageAttemptId, offset, length, sortBy))
   }
 
@@ -128,7 +129,7 @@ private[v1] class StagesResource extends BaseAppResource {
         isSearch = true
         searchValue = uriQueryParameters.getFirst("search[value]")
       }
-      val _tasksToShow: Seq[TaskData] = doPagination(uriQueryParameters, stageId, stageAttemptId,
+      val _tasksToShow: coll.Seq[TaskData] = doPagination(uriQueryParameters, stageId, stageAttemptId,
         isSearch, totalRecords.toInt)
       val ret = new HashMap[String, Object]()
       if (_tasksToShow.nonEmpty) {
@@ -158,7 +159,7 @@ private[v1] class StagesResource extends BaseAppResource {
 
   // Performs pagination on the server side
   def doPagination(queryParameters: MultivaluedMap[String, String], stageId: Int,
-    stageAttemptId: Int, isSearch: Boolean, totalRecords: Int): Seq[TaskData] = {
+    stageAttemptId: Int, isSearch: Boolean, totalRecords: Int): coll.Seq[TaskData] = {
     var columnNameToSort = queryParameters.getFirst("columnNameToSort")
     // Sorting on Logs column will default to Index column sort
     if (columnNameToSort.equalsIgnoreCase("Logs")) {
@@ -180,8 +181,8 @@ private[v1] class StagesResource extends BaseAppResource {
 
   // Filters task list based on search parameter
   def filterTaskList(
-    taskDataList: Seq[TaskData],
-    searchValue: String): Seq[TaskData] = {
+    taskDataList: coll.Seq[TaskData],
+    searchValue: String): coll.Seq[TaskData] = {
     val defaultOptionString: String = "d"
     val searchValueLowerCase = searchValue.toLowerCase(Locale.ROOT)
     val containsValue = (taskDataParams: Any) => taskDataParams.toString.toLowerCase(
@@ -206,7 +207,7 @@ private[v1] class StagesResource extends BaseAppResource {
         || containsValue(task.taskMetrics.get.shuffleWriteMetrics.recordsWritten)
         || containsValue(task.taskMetrics.get.shuffleWriteMetrics.writeTime))
     }
-    val filteredTaskDataSequence: Seq[TaskData] = taskDataList.filter(f =>
+    val filteredTaskDataSequence: coll.Seq[TaskData] = taskDataList.filter(f =>
       (containsValue(f.taskId) || containsValue(f.index) || containsValue(f.attempt)
         || containsValue(f.launchTime)
         || containsValue(f.resultFetchStart.getOrElse(defaultOptionString))

@@ -20,6 +20,7 @@ package org.apache.spark.status
 import org.apache.spark.SparkConf
 import org.apache.spark.scheduler.SparkListener
 import org.apache.spark.ui.SparkUI
+import scala.{collection => coll}
 
 /**
  * An interface for creating history listeners(to replay event logs) defined in other modules like
@@ -29,7 +30,7 @@ private[spark] trait AppHistoryServerPlugin {
   /**
    * Creates listeners to replay the event logs.
    */
-  def createListeners(conf: SparkConf, store: ElementTrackingStore): Seq[SparkListener]
+  def createListeners(conf: SparkConf, store: ElementTrackingStore): coll.Seq[SparkListener]
 
   /**
    * Sets up UI of this plugin to rebuild the history UI.

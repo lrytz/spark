@@ -48,6 +48,7 @@ import org.apache.spark.util.collection.{ExternalAppendOnlyMap, OpenHashMap,
   Utils => collectionUtils}
 import org.apache.spark.util.random.{BernoulliCellSampler, BernoulliSampler, PoissonSampler,
   SamplingUtils}
+import scala.{collection => coll}
 
 /**
  * A Resilient Distributed Dataset (RDD), the basic abstraction in Spark. Represents an immutable,
@@ -79,7 +80,7 @@ import org.apache.spark.util.random.{BernoulliCellSampler, BernoulliSampler, Poi
  */
 abstract class RDD[T: ClassTag](
     @transient private var _sc: SparkContext,
-    @transient private var deps: Seq[Dependency[_]]
+    @transient private var deps: coll.Seq[Dependency[_]]
   ) extends Serializable with Logging {
 
   if (classOf[RDD[_]].isAssignableFrom(elementClassTag.runtimeClass)) {
@@ -132,12 +133,12 @@ abstract class RDD[T: ClassTag](
    * Implemented by subclasses to return how this RDD depends on parent RDDs. This method will only
    * be called once, so it is safe to implement a time-consuming computation in it.
    */
-  protected def getDependencies: Seq[Dependency[_]] = deps
+  protected def getDependencies: coll.Seq[Dependency[_]] = deps
 
   /**
    * Optionally overridden by subclasses to specify placement preferences.
    */
-  protected def getPreferredLocations(split: Partition): Seq[String] = Nil
+  protected def getPreferredLocations(split: Partition): coll.Seq[String] = Nil
 
   /** Optionally overridden by subclasses to specify how they are partitioned. */
   @transient val partitioner: Option[Partitioner] = None
@@ -227,7 +228,7 @@ abstract class RDD[T: ClassTag](
 
   // Our dependencies and partitions will be gotten by calling subclass's methods below, and will
   // be overwritten when we're checkpointed
-  private var dependencies_ : Seq[Dependency[_]] = _
+  private var dependencies_ : coll.Seq[Dependency[_]] = _
   @transient private var partitions_ : Array[Partition] = _
 
   /** An Option holding our checkpoint RDD, if we are checkpointed */
@@ -237,7 +238,7 @@ abstract class RDD[T: ClassTag](
    * Get the list of dependencies of this RDD, taking into account whether the
    * RDD is checkpointed or not.
    */
-  final def dependencies: Seq[Dependency[_]] = {
+  final def dependencies: coll.Seq[Dependency[_]] = {
     checkpointRDD.map(r => List(new OneToOneDependency(r))).getOrElse {
       if (dependencies_ == null) {
         dependencies_ = getDependencies
@@ -273,7 +274,7 @@ abstract class RDD[T: ClassTag](
    * Get the preferred locations of a partition, taking into account whether the
    * RDD is checkpointed.
    */
-  final def preferredLocations(split: Partition): Seq[String] = {
+  final def preferredLocations(split: Partition): coll.Seq[String] = {
     checkpointRDD.map(_.getPreferredLocations(split)).getOrElse {
       getPreferredLocations(split)
     }
@@ -297,7 +298,7 @@ abstract class RDD[T: ClassTag](
    * narrow dependencies. This traverses the given RDD's dependency tree using DFS, but maintains
    * no ordering on the RDDs returned.
    */
-  private[spark] def getNarrowAncestors: Seq[RDD[_]] = {
+  private[spark] def getNarrowAncestors: coll.Seq[RDD[_]] = {
     val ancestors = new mutable.HashSet[RDD[_]]
 
     def visit(rdd: RDD[_]): Unit = {
@@ -787,7 +788,7 @@ abstract class RDD[T: ClassTag](
    * @return the result RDD
    */
   def pipe(
-      command: Seq[String],
+      command: coll.Seq[String],
       env: Map[String, String] = Map(),
       printPipeContext: (String => Unit) => Unit = null,
       printRDDElement: (T, String => Unit) => Unit = null,
@@ -1786,7 +1787,7 @@ abstract class RDD[T: ClassTag](
   /** A description of this RDD and its recursive dependencies for debugging. */
   def toDebugString: String = {
     // Get a debug description of an rdd without its children
-    def debugSelf(rdd: RDD[_]): Seq[String] = {
+    def debugSelf(rdd: RDD[_]): coll.Seq[String] = {
       import Utils.bytesToString
 
       val persistence = if (storageLevel != StorageLevel.NONE) storageLevel.description else ""
@@ -1799,7 +1800,7 @@ abstract class RDD[T: ClassTag](
     }
 
     // Apply a different rule to the last child
-    def debugChildren(rdd: RDD[_], prefix: String): Seq[String] = {
+    def debugChildren(rdd: RDD[_], prefix: String): coll.Seq[String] = {
       val len = rdd.dependencies.length
       len match {
         case 0 => Seq.empty
@@ -1819,7 +1820,7 @@ abstract class RDD[T: ClassTag](
       }
     }
     // The first RDD in the dependency stack has no parents, so no need for a +-
-    def firstDebugString(rdd: RDD[_]): Seq[String] = {
+    def firstDebugString(rdd: RDD[_]): coll.Seq[String] = {
       val partitionStr = "(" + rdd.partitions.length + ")"
       val leftOffset = (partitionStr.length - 1) / 2
       val nextPrefix = (" " * leftOffset) + "|" + (" " * (partitionStr.length - leftOffset))
@@ -1829,7 +1830,7 @@ abstract class RDD[T: ClassTag](
         case (desc: String, _) => s"$nextPrefix $desc"
       } ++ debugChildren(rdd, nextPrefix)
     }
-    def shuffleDebugString(rdd: RDD[_], prefix: String = "", isLastChild: Boolean): Seq[String] = {
+    def shuffleDebugString(rdd: RDD[_], prefix: String = "", isLastChild: Boolean): coll.Seq[String] = {
       val partitionStr = "(" + rdd.partitions.length + ")"
       val leftOffset = (partitionStr.length - 1) / 2
       val thisPrefix = prefix.replaceAll("\\|\\s+$", "")
@@ -1847,7 +1848,7 @@ abstract class RDD[T: ClassTag](
         rdd: RDD[_],
         prefix: String = "",
         isShuffle: Boolean = true,
-        isLastChild: Boolean = false): Seq[String] = {
+        isLastChild: Boolean = false): coll.Seq[String] = {
       if (isShuffle) {
         shuffleDebugString(rdd, prefix, isLastChild)
       } else {

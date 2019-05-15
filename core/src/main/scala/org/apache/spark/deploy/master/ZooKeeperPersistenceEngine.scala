@@ -30,6 +30,7 @@ import org.apache.spark.deploy.SparkCuratorUtil
 import org.apache.spark.internal.Logging
 import org.apache.spark.internal.config.Deploy._
 import org.apache.spark.serializer.Serializer
+import scala.{collection => coll}
 
 
 private[master] class ZooKeeperPersistenceEngine(conf: SparkConf, val serializer: Serializer)
@@ -50,7 +51,7 @@ private[master] class ZooKeeperPersistenceEngine(conf: SparkConf, val serializer
     zk.delete().forPath(workingDir + "/" + name)
   }
 
-  override def read[T: ClassTag](prefix: String): Seq[T] = {
+  override def read[T: ClassTag](prefix: String): coll.Seq[T] = {
     zk.getChildren.forPath(workingDir).asScala
       .filter(_.startsWith(prefix)).flatMap(deserializeFromFile[T])
   }

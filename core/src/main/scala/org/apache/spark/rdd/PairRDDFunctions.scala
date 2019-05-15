@@ -43,6 +43,7 @@ import org.apache.spark.serializer.Serializer
 import org.apache.spark.util.{SerializableConfiguration, SerializableJobConf, Utils}
 import org.apache.spark.util.collection.CompactBuffer
 import org.apache.spark.util.random.StratifiedSamplingUtils
+import scala.{collection => coll}
 
 /**
  * Extra functions available on RDDs of (key, value) pairs through an implicit conversion.
@@ -932,7 +933,7 @@ class PairRDDFunctions[K, V](self: RDD[(K, V)])
    * Return the list of values in the RDD for key `key`. This operation is done efficiently if the
    * RDD has a known partitioner by only searching the partition that the key maps to.
    */
-  def lookup(key: K): Seq[V] = self.withScope {
+  def lookup(key: K): coll.Seq[V] = self.withScope {
     self.partitioner match {
       case Some(p) =>
         val index = p.getPartition(key)
@@ -942,7 +943,7 @@ class PairRDDFunctions[K, V](self: RDD[(K, V)])
             buf += pair._2
           }
           buf
-        } : Seq[V]
+        } : coll.Seq[V]
         val res = self.context.runJob(self, process, Array(index))
         res(0)
       case None =>

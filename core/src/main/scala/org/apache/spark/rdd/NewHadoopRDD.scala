@@ -39,6 +39,7 @@ import org.apache.spark.internal.config._
 import org.apache.spark.rdd.NewHadoopRDD.NewHadoopMapPartitionsWithSplitRDD
 import org.apache.spark.storage.StorageLevel
 import org.apache.spark.util.{SerializableConfiguration, ShutdownHookManager}
+import scala.{collection => coll}
 
 private[spark] class NewHadoopPartition(
     rddId: Int,
@@ -305,7 +306,7 @@ class NewHadoopRDD[K, V](
     new NewHadoopMapPartitionsWithSplitRDD(this, f, preservesPartitioning)
   }
 
-  override def getPreferredLocations(hsplit: Partition): Seq[String] = {
+  override def getPreferredLocations(hsplit: Partition): coll.Seq[String] = {
     val split = hsplit.asInstanceOf[NewHadoopPartition].serializableHadoopSplit.value
     val locs = HadoopRDD.convertSplitLocationInfo(split.getLocationInfo)
     locs.getOrElse(split.getLocations.filter(_ != "localhost"))

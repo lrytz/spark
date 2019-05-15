@@ -25,6 +25,7 @@ import scala.xml.Node
 import org.apache.spark.SparkException
 import org.apache.spark.status.api.v1.ApplicationInfo
 import org.apache.spark.ui.SparkUI
+import scala.{collection => coll}
 
 /**
  * A loaded UI for a Spark application.
@@ -137,7 +138,7 @@ private[history] abstract class ApplicationHistoryProvider {
   /**
    * @return html text to display when the application list is empty
    */
-  def getEmptyListingHtml(): Seq[Node] = Seq.empty
+  def getEmptyListingHtml(): coll.Seq[Node] = Seq.empty
 
   /**
    * Called when an application UI is unloaded from the history server.

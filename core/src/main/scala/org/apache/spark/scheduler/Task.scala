@@ -26,6 +26,7 @@ import org.apache.spark.internal.config.APP_CALLER_CONTEXT
 import org.apache.spark.memory.{MemoryMode, TaskMemoryManager}
 import org.apache.spark.metrics.MetricsSystem
 import org.apache.spark.util._
+import scala.{collection => coll}
 
 /**
  * A unit of execution. We have two kinds of Task's in Spark:
@@ -167,7 +168,7 @@ private[spark] abstract class Task[T](
 
   def runTask(context: TaskContext): T
 
-  def preferredLocations: Seq[TaskLocation] = Nil
+  def preferredLocations: coll.Seq[TaskLocation] = Nil
 
   // Map output tracker epoch. Will be set by TaskSetManager.
   var epoch: Long = -1
@@ -200,7 +201,7 @@ private[spark] abstract class Task[T](
    * Collect the latest values of accumulators used in this task. If the task failed,
    * filter out the accumulators whose values should not be included on failures.
    */
-  def collectAccumulatorUpdates(taskFailed: Boolean = false): Seq[AccumulatorV2[_, _]] = {
+  def collectAccumulatorUpdates(taskFailed: Boolean = false): coll.Seq[AccumulatorV2[_, _]] = {
     if (context != null) {
       // Note: internal accumulators representing task metrics always count failed values
       context.taskMetrics.nonZeroInternalAccums() ++

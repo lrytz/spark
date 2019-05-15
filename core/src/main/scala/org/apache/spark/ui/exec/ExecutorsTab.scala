@@ -23,6 +23,7 @@ import scala.xml.Node
 
 import org.apache.spark.internal.config.UI._
 import org.apache.spark.ui.{SparkUI, SparkUITab, UIUtils, WebUIPage}
+import scala.{collection => coll}
 
 private[ui] class ExecutorsTab(parent: SparkUI) extends SparkUITab(parent, "executors") {
 
@@ -45,7 +46,7 @@ private[ui] class ExecutorsPage(
     threadDumpEnabled: Boolean)
   extends WebUIPage("") {
 
-  def render(request: HttpServletRequest): Seq[Node] = {
+  def render(request: HttpServletRequest): coll.Seq[Node] = {
     val content =
       <div>
         {

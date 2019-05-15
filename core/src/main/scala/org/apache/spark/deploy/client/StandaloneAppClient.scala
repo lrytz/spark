@@ -32,6 +32,7 @@ import org.apache.spark.deploy.master.Master
 import org.apache.spark.internal.Logging
 import org.apache.spark.rpc._
 import org.apache.spark.util.{RpcUtils, ThreadUtils}
+import scala.{collection => coll}
 
 /**
  * Interface allowing applications to speak with a Spark standalone cluster manager.
@@ -308,7 +309,7 @@ private[spark] class StandaloneAppClient(
    * Kill the given list of executors through the Master.
    * @return whether the kill request is acknowledged.
    */
-  def killExecutors(executorIds: Seq[String]): Future[Boolean] = {
+  def killExecutors(executorIds: coll.Seq[String]): Future[Boolean] = {
     if (endpoint.get != null && appId.get != null) {
       endpoint.get.ask[Boolean](KillExecutors(appId.get, executorIds))
     } else {

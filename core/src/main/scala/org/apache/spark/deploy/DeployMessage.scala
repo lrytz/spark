@@ -26,6 +26,7 @@ import org.apache.spark.deploy.master.RecoveryState.MasterState
 import org.apache.spark.deploy.worker.{DriverRunner, ExecutorRunner}
 import org.apache.spark.rpc.{RpcAddress, RpcEndpointRef}
 import org.apache.spark.util.Utils
+import scala.{collection => coll}
 
 private[deploy] sealed trait DeployMessage extends Serializable
 
@@ -73,7 +74,7 @@ private[deploy] object DeployMessages {
     extends DeployMessage
 
   case class WorkerSchedulerStateResponse(id: String, executors: List[ExecutorDescription],
-     driverIds: Seq[String])
+     driverIds: coll.Seq[String])
 
   /**
    * A worker will send this message to the master when it registers with the master. Then the
@@ -82,8 +83,8 @@ private[deploy] object DeployMessages {
    */
   case class WorkerLatestState(
       id: String,
-      executors: Seq[ExecutorDescription],
-      driverIds: Seq[String]) extends DeployMessage
+      executors: coll.Seq[ExecutorDescription],
+      driverIds: coll.Seq[String]) extends DeployMessage
 
   case class Heartbeat(workerId: String, worker: RpcEndpointRef) extends DeployMessage
 
@@ -142,7 +143,7 @@ private[deploy] object DeployMessages {
 
   case class RequestExecutors(appId: String, requestedTotal: Int)
 
-  case class KillExecutors(appId: String, executorIds: Seq[String])
+  case class KillExecutors(appId: String, executorIds: coll.Seq[String])
 
   // Master to AppClient
 

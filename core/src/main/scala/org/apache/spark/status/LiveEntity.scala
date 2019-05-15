@@ -33,6 +33,7 @@ import org.apache.spark.storage.RDDInfo
 import org.apache.spark.ui.SparkUI
 import org.apache.spark.util.AccumulatorContext
 import org.apache.spark.util.collection.OpenHashSet
+import scala.{collection => coll}
 
 /**
  * A mutable representation of a live entity in Spark (jobs, stages, tasks, et al). Every live
@@ -62,7 +63,7 @@ private class LiveJob(
     val jobId: Int,
     name: String,
     val submissionTime: Option[Date],
-    val stageIds: Seq[Int],
+    val stageIds: coll.Seq[Int],
     jobGroup: Option[String],
     numTasks: Int,
     sqlExecutionId: Option[Long]) extends LiveEntity {
@@ -451,14 +452,14 @@ private class LiveRDDPartition(val blockName: String) {
 
   var value: v1.RDDPartitionInfo = null
 
-  def executors: Seq[String] = value.executors
+  def executors: coll.Seq[String] = value.executors
 
   def memoryUsed: Long = value.memoryUsed
 
   def diskUsed: Long = value.diskUsed
 
   def update(
-      executors: Seq[String],
+      executors: coll.Seq[String],
       storageLevel: String,
       memoryUsed: Long,
       diskUsed: Long): Unit = {
@@ -587,7 +588,7 @@ private object LiveEntityHelpers {
   private val stringInterner = Interners.newWeakInterner[String]()
 
 
-  def newAccumulatorInfos(accums: Iterable[AccumulableInfo]): Seq[v1.AccumulableInfo] = {
+  def newAccumulatorInfos(accums: Iterable[AccumulableInfo]): coll.Seq[v1.AccumulableInfo] = {
     accums
       .filter { acc =>
         // We don't need to store internal or SQL accumulables as their values will be shown in
@@ -722,7 +723,7 @@ private object LiveEntityHelpers {
  * Internally, the sequence is mutable, and elements can modify the data they expose. Additions and
  * removals are O(1). It is not safe to do multiple writes concurrently.
  */
-private class RDDPartitionSeq extends Seq[v1.RDDPartitionInfo] {
+private class RDDPartitionSeq extends coll.Seq[v1.RDDPartitionInfo] {
 
   @volatile private var _head: LiveRDDPartition = null
   @volatile private var _tail: LiveRDDPartition = null

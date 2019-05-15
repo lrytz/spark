@@ -22,6 +22,7 @@ import org.apache.spark.annotation.DeveloperApi
 import org.apache.spark.internal.config._
 import org.apache.spark.rdd.{RDD, RDDOperationScope}
 import org.apache.spark.util.Utils
+import scala.{collection => coll}
 
 @DeveloperApi
 class RDDInfo(
@@ -29,7 +30,7 @@ class RDDInfo(
     var name: String,
     val numPartitions: Int,
     var storageLevel: StorageLevel,
-    val parentIds: Seq[Int],
+    val parentIds: coll.Seq[Int],
     val callSite: String = "",
     val scope: Option[RDDOperationScope] = None)
   extends Ordered[RDDInfo] {

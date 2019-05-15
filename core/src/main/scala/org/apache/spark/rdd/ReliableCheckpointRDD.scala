@@ -31,6 +31,7 @@ import org.apache.spark.internal.Logging
 import org.apache.spark.internal.config.{BUFFER_SIZE, CHECKPOINT_COMPRESS}
 import org.apache.spark.io.CompressionCodec
 import org.apache.spark.util.{SerializableConfiguration, Utils}
+import scala.{collection => coll}
 
 /**
  * An RDD that reads from checkpoint files previously written to reliable storage.
@@ -85,7 +86,7 @@ private[spark] class ReliableCheckpointRDD[T: ClassTag](
   /**
    * Return the locations of the checkpoint file associated with the given partition.
    */
-  protected override def getPreferredLocations(split: Partition): Seq[String] = {
+  protected override def getPreferredLocations(split: Partition): coll.Seq[String] = {
     val status = fs.getFileStatus(
       new Path(checkpointPath, ReliableCheckpointRDD.checkpointFileName(split.index)))
     val locations = fs.getFileBlockLocations(status, 0, status.getLen)

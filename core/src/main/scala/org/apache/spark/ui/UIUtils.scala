@@ -29,6 +29,7 @@ import scala.xml.transform.{RewriteRule, RuleTransformer}
 
 import org.apache.spark.internal.Logging
 import org.apache.spark.ui.scope.RDDOperationGraph
+import scala.{collection => coll}
 
 /** Utility functions for generating XML pages with spark content. */
 private[spark] object UIUtils extends Logging {
@@ -163,7 +164,7 @@ private[spark] object UIUtils extends Logging {
     uiRoot(request) + basePath + resource
   }
 
-  def commonHeaderNodes(request: HttpServletRequest): Seq[Node] = {
+  def commonHeaderNodes(request: HttpServletRequest): coll.Seq[Node] = {
     <meta http-equiv="Content-type" content="text/html; charset=utf-8" />
     <link rel="stylesheet"
           href={prependBaseUri(request, "/static/bootstrap.min.css")} type="text/css"/>
@@ -184,7 +185,7 @@ private[spark] object UIUtils extends Logging {
     <script>setUIRoot('{UIUtils.uiRoot(request)}')</script>
   }
 
-  def vizHeaderNodes(request: HttpServletRequest): Seq[Node] = {
+  def vizHeaderNodes(request: HttpServletRequest): coll.Seq[Node] = {
     <link rel="stylesheet"
           href={prependBaseUri(request, "/static/spark-dag-viz.css")} type="text/css" />
     <script src={prependBaseUri(request, "/static/d3.min.js")}></script>
@@ -193,7 +194,7 @@ private[spark] object UIUtils extends Logging {
     <script src={prependBaseUri(request, "/static/spark-dag-viz.js")}></script>
   }
 
-  def dataTablesHeaderNodes(request: HttpServletRequest): Seq[Node] = {
+  def dataTablesHeaderNodes(request: HttpServletRequest): coll.Seq[Node] = {
     <link rel="stylesheet" href={prependBaseUri(request,
       "/static/jquery.dataTables.1.10.18.min.css")} type="text/css"/>
     <link rel="stylesheet"
@@ -214,11 +215,11 @@ private[spark] object UIUtils extends Logging {
   def headerSparkPage(
       request: HttpServletRequest,
       title: String,
-      content: => Seq[Node],
+      content: => coll.Seq[Node],
       activeTab: SparkUITab,
       helpText: Option[String] = None,
       showVisualization: Boolean = false,
-      useDataTables: Boolean = false): Seq[Node] = {
+      useDataTables: Boolean = false): coll.Seq[Node] = {
 
     val appName = activeTab.appName
     val shortAppName = if (appName.length < 36) appName else appName.take(32) + "..."
@@ -227,7 +228,7 @@ private[spark] object UIUtils extends Logging {
         <a href={prependBaseUri(request, activeTab.basePath, "/" + tab.prefix + "/")}>{tab.name}</a>
       </li>
     }
-    val helpButton: Seq[Node] = helpText.map(tooltip(_, "bottom")).getOrElse(Seq.empty)
+    val helpButton: coll.Seq[Node] = helpText.map(tooltip(_, "bottom")).getOrElse(Seq.empty)
 
     <html>
       <head>
@@ -271,9 +272,9 @@ private[spark] object UIUtils extends Logging {
   /** Returns a page with the spark css/js and a simple format. Used for scheduler UI. */
   def basicSparkPage(
       request: HttpServletRequest,
-      content: => Seq[Node],
+      content: => coll.Seq[Node],
       title: String,
-      useDataTables: Boolean = false): Seq[Node] = {
+      useDataTables: Boolean = false): coll.Seq[Node] = {
     <html>
       <head>
         {commonHeaderNodes(request)}
@@ -304,14 +305,14 @@ private[spark] object UIUtils extends Logging {
 
   /** Returns an HTML table constructed by generating a row for each object in a sequence. */
   def listingTable[T](
-      headers: Seq[String],
-      generateDataRow: T => Seq[Node],
+      headers: coll.Seq[String],
+      generateDataRow: T => coll.Seq[Node],
       data: Iterable[T],
       fixedWidth: Boolean = false,
       id: Option[String] = None,
-      headerClasses: Seq[String] = Seq.empty,
+      headerClasses: coll.Seq[String] = Seq.empty,
       stripeRowsWithCss: Boolean = true,
-      sortable: Boolean = true): Seq[Node] = {
+      sortable: Boolean = true): coll.Seq[Node] = {
 
     val listingTableClass = {
       val _tableClass = if (stripeRowsWithCss) TABLE_CLASS_STRIPED else TABLE_CLASS_NOT_STRIPED
@@ -333,7 +334,7 @@ private[spark] object UIUtils extends Logging {
     }
 
     val newlinesInHeader = headers.exists(_.contains("\n"))
-    def getHeaderContent(header: String): Seq[Node] = {
+    def getHeaderContent(header: String): coll.Seq[Node] = {
       if (newlinesInHeader) {
         <ul class="unstyled">
           { header.split("\n").map(t => <li> {t} </li>) }
@@ -343,7 +344,7 @@ private[spark] object UIUtils extends Logging {
       }
     }
 
-    val headerRow: Seq[Node] = {
+    val headerRow: coll.Seq[Node] = {
       headers.view.zipWithIndex.map { x =>
         <th width={colWidthAttr} class={getClass(x._2)}>{getHeaderContent(x._1)}</th>
       }
@@ -362,7 +363,7 @@ private[spark] object UIUtils extends Logging {
       failed: Int,
       skipped: Int,
       reasonToNumKilled: Map[String, Int],
-      total: Int): Seq[Node] = {
+      total: Int): coll.Seq[Node] = {
     val ratio = if (total == 0) 100.0 else (completed.toDouble/total)*100
     val completeWidth = "width: %s%%".format(ratio)
     // started + completed can be > total when there are speculative tasks
@@ -386,12 +387,12 @@ private[spark] object UIUtils extends Logging {
   }
 
   /** Return a "DAG visualization" DOM element that expands into a visualization for a stage. */
-  def showDagVizForStage(stageId: Int, graph: Option[RDDOperationGraph]): Seq[Node] = {
+  def showDagVizForStage(stageId: Int, graph: Option[RDDOperationGraph]): coll.Seq[Node] = {
     showDagViz(graph.toSeq, forJob = false)
   }
 
   /** Return a "DAG visualization" DOM element that expands into a visualization for a job. */
-  def showDagVizForJob(jobId: Int, graphs: Seq[RDDOperationGraph]): Seq[Node] = {
+  def showDagVizForJob(jobId: Int, graphs: coll.Seq[RDDOperationGraph]): coll.Seq[Node] = {
     showDagViz(graphs, forJob = true)
   }
 
@@ -402,7 +403,7 @@ private[spark] object UIUtils extends Logging {
    * a format that is expected by spark-dag-viz.js. Any changes in the format here must be
    * reflected there.
    */
-  private def showDagViz(graphs: Seq[RDDOperationGraph], forJob: Boolean): Seq[Node] = {
+  private def showDagViz(graphs: coll.Seq[RDDOperationGraph], forJob: Boolean): coll.Seq[Node] = {
     <div>
       <span id={if (forJob) "job-dag-viz" else "stage-dag-viz"}
             class="expand-dag-viz" onclick={s"toggleDagViz($forJob);"}>
@@ -434,7 +435,7 @@ private[spark] object UIUtils extends Logging {
     </div>
   }
 
-  def tooltip(text: String, position: String): Seq[Node] = {
+  def tooltip(text: String, position: String): coll.Seq[Node] = {
     <sup>
       (<a data-toggle="tooltip" data-placement={position} title={text}>?</a>)
     </sup>
@@ -486,7 +487,7 @@ private[spark] object UIUtils extends Logging {
         if (plainText) {
           // Remove all tags, retaining only their texts
           new RewriteRule() {
-            override def transform(n: Node): Seq[Node] = {
+            override def transform(n: Node): coll.Seq[Node] = {
               n match {
                 case e: Elem if e.child.isEmpty => Text(e.text)
                 case e: Elem => Text(e.child.flatMap(transform).text)
@@ -498,7 +499,7 @@ private[spark] object UIUtils extends Logging {
         else {
           // Prepend the relative links with basePathUri
           new RewriteRule() {
-            override def transform(n: Node): Seq[Node] = {
+            override def transform(n: Node): coll.Seq[Node] = {
               n match {
                 case e: Elem if (e \ "@href").nonEmpty =>
                   val relativePath = e.attribute("href").get.toString

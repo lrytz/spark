@@ -34,6 +34,7 @@ import scala.reflect.ClassTag
 
 import org.apache.spark.{Partition, SparkEnv, TaskContext}
 import org.apache.spark.util.Utils
+import scala.{collection => coll}
 
 
 /**
@@ -42,7 +43,7 @@ import org.apache.spark.util.Utils
  */
 private[spark] class PipedRDD[T: ClassTag](
     prev: RDD[T],
-    command: Seq[String],
+    command: coll.Seq[String],
     envVars: Map[String, String],
     printPipeContext: (String => Unit) => Unit,
     printRDDElement: (T, String => Unit) => Unit,
@@ -233,7 +234,7 @@ private[spark] class PipedRDD[T: ClassTag](
 
 private object PipedRDD {
   // Split a string into words using a standard StringTokenizer
-  def tokenize(command: String): Seq[String] = {
+  def tokenize(command: String): coll.Seq[String] = {
     val buf = new ArrayBuffer[String]
     val tok = new StringTokenizer(command)
     while(tok.hasMoreElements) {

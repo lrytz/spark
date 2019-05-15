@@ -25,6 +25,7 @@ import scala.collection.mutable.ListBuffer
 import org.apache.log4j.Level
 
 import org.apache.spark.util.{IntParam, MemoryParam, Utils}
+import scala.{collection => coll}
 
 /**
  * Command-line parser for the driver client.
@@ -43,7 +44,7 @@ private[deploy] class ClientArguments(args: Array[String]) {
   var memory: Int = DEFAULT_MEMORY
   var cores: Int = DEFAULT_CORES
   private var _driverOptions = ListBuffer[String]()
-  def driverOptions: Seq[String] = _driverOptions.toSeq
+  def driverOptions: coll.Seq[String] = _driverOptions.toSeq
 
   // kill parameters
   var driverId: String = ""

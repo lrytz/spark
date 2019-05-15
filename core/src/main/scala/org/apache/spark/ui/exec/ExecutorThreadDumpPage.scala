@@ -23,12 +23,13 @@ import scala.xml.{Node, Text}
 
 import org.apache.spark.SparkContext
 import org.apache.spark.ui.{SparkUITab, UIUtils, WebUIPage}
+import scala.{collection => coll}
 
 private[ui] class ExecutorThreadDumpPage(
     parent: SparkUITab,
     sc: Option[SparkContext]) extends WebUIPage("threadDump") {
 
-  def render(request: HttpServletRequest): Seq[Node] = {
+  def render(request: HttpServletRequest): coll.Seq[Node] = {
     val executorId = Option(request.getParameter("executorId")).map { executorId =>
       UIUtils.decodeURLParameter(executorId)
     }.getOrElse {

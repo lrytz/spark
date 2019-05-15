@@ -25,6 +25,7 @@ import org.apache.spark.scheduler.Schedulable
 import org.apache.spark.status.{AppSummary, PoolData}
 import org.apache.spark.status.api.v1.{StageData, StageStatus}
 import org.apache.spark.ui.{UIUtils, WebUIPage}
+import scala.{collection => coll}
 
 /** Page showing list of all ongoing and recently finished stages and pools */
 private[ui] class AllStagesPage(parent: StagesTab) extends WebUIPage("") {
@@ -32,7 +33,7 @@ private[ui] class AllStagesPage(parent: StagesTab) extends WebUIPage("") {
   private val subPath = "stages"
   private def isFairScheduler = parent.isFairScheduler
 
-  def render(request: HttpServletRequest): Seq[Node] = {
+  def render(request: HttpServletRequest): coll.Seq[Node] = {
     // For now, pool information is only accessible in live UIs
     val pools = sc.map(_.getAllPools).getOrElse(Seq.empty[Schedulable]).map { pool =>
       val uiPool = parent.store.asOption(parent.store.pool(pool.name)).getOrElse(
@@ -78,7 +79,7 @@ private[ui] class AllStagesPage(parent: StagesTab) extends WebUIPage("") {
   }
 
   private def summaryAndTableForStatus(
-      allStages: Seq[StageData],
+      allStages: coll.Seq[StageData],
       appSummary: AppSummary,
       status: StageStatus,
       request: HttpServletRequest): (Option[Elem], Option[NodeSeq]) = {

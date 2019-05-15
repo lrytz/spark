@@ -20,6 +20,7 @@ package org.apache.spark.scheduler
 import collection.mutable.ArrayBuffer
 
 import org.apache.spark.annotation.DeveloperApi
+import scala.{collection => coll}
 
 // information about a specific split instance : handles both split instances.
 // So that we do not need to worry about the differences.
@@ -63,7 +64,7 @@ class SplitInfo(
 object SplitInfo {
 
   def toSplitInfo(inputFormatClazz: Class[_], path: String,
-                  mapredSplit: org.apache.hadoop.mapred.InputSplit): Seq[SplitInfo] = {
+                  mapredSplit: org.apache.hadoop.mapred.InputSplit): coll.Seq[SplitInfo] = {
     val retval = new ArrayBuffer[SplitInfo]()
     val length = mapredSplit.getLength
     for (host <- mapredSplit.getLocations) {
@@ -73,7 +74,7 @@ object SplitInfo {
   }
 
   def toSplitInfo(inputFormatClazz: Class[_], path: String,
-                  mapreduceSplit: org.apache.hadoop.mapreduce.InputSplit): Seq[SplitInfo] = {
+                  mapreduceSplit: org.apache.hadoop.mapreduce.InputSplit): coll.Seq[SplitInfo] = {
     val retval = new ArrayBuffer[SplitInfo]()
     val length = mapreduceSplit.getLength
     for (host <- mapreduceSplit.getLocations) {

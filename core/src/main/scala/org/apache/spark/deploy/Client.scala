@@ -31,6 +31,7 @@ import org.apache.spark.internal.{config, Logging}
 import org.apache.spark.internal.config.Network.RPC_ASK_TIMEOUT
 import org.apache.spark.rpc.{RpcAddress, RpcEndpointRef, RpcEnv, ThreadSafeRpcEndpoint}
 import org.apache.spark.util.{SparkExitCode, ThreadUtils, Utils}
+import scala.{collection => coll}
 
 /**
  * Proxy that relays messages to the driver.
@@ -41,7 +42,7 @@ import org.apache.spark.util.{SparkExitCode, ThreadUtils, Utils}
 private class ClientEndpoint(
     override val rpcEnv: RpcEnv,
     driverArgs: ClientArguments,
-    masterEndpoints: Seq[RpcEndpointRef],
+    masterEndpoints: coll.Seq[RpcEndpointRef],
     conf: SparkConf)
   extends ThreadSafeRpcEndpoint with Logging {
 

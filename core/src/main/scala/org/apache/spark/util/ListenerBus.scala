@@ -26,6 +26,7 @@ import scala.util.control.NonFatal
 import com.codahale.metrics.Timer
 
 import org.apache.spark.internal.Logging
+import scala.{collection => coll}
 
 /**
  * An event bus which posts events to its listeners.
@@ -126,7 +127,7 @@ private[spark] trait ListenerBus[L <: AnyRef, E] extends Logging {
   /** Allows bus implementations to prevent error logging for certain exceptions. */
   protected def isIgnorableException(e: Throwable): Boolean = false
 
-  private[spark] def findListenersByClass[T <: L : ClassTag](): Seq[T] = {
+  private[spark] def findListenersByClass[T <: L : ClassTag](): coll.Seq[T] = {
     val c = implicitly[ClassTag[T]].runtimeClass
     listeners.asScala.filter(_.getClass == c).map(_.asInstanceOf[T]).toSeq
   }

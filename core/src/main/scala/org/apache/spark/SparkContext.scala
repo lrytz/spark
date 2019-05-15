@@ -62,6 +62,7 @@ import org.apache.spark.storage.BlockManagerMessages.TriggerThreadDump
 import org.apache.spark.ui.{ConsoleProgressBar, SparkUI}
 import org.apache.spark.util._
 import org.apache.spark.util.logging.DriverLogger
+import scala.{collection => coll}
 
 /**
  * Main entry point for Spark functionality. A SparkContext represents the connection to a Spark
@@ -138,7 +139,7 @@ class SparkContext(config: SparkConf) extends Logging {
       master: String,
       appName: String,
       sparkHome: String = null,
-      jars: Seq[String] = Nil,
+      jars: coll.Seq[String] = Nil,
       environment: Map[String, String] = Map()) = {
     this(SparkContext.updatedConf(new SparkConf(), master, appName, sparkHome, jars, environment))
   }
@@ -174,7 +175,7 @@ class SparkContext(config: SparkConf) extends Logging {
    * @param jars Collection of JARs to send to the cluster. These can be paths on the local file
    *             system or HDFS, HTTP, HTTPS, or FTP URLs.
    */
-  private[spark] def this(master: String, appName: String, sparkHome: String, jars: Seq[String]) =
+  private[spark] def this(master: String, appName: String, sparkHome: String, jars: coll.Seq[String]) =
     this(master, appName, sparkHome, jars, Map())
 
   // log out Spark Version in Spark driver log
@@ -208,8 +209,8 @@ class SparkContext(config: SparkConf) extends Logging {
   private var _executorAllocationManager: Option[ExecutorAllocationManager] = None
   private var _cleaner: Option[ContextCleaner] = None
   private var _listenerBusStarted: Boolean = false
-  private var _jars: Seq[String] = _
-  private var _files: Seq[String] = _
+  private var _jars: coll.Seq[String] = _
+  private var _files: coll.Seq[String] = _
   private var _shutdownHookRef: AnyRef = _
   private var _statusStore: AppStatusStore = _
   private var _heartbeater: Heartbeater = _
@@ -227,8 +228,8 @@ class SparkContext(config: SparkConf) extends Logging {
    */
   def getConf: SparkConf = conf.clone()
 
-  def jars: Seq[String] = _jars
-  def files: Seq[String] = _files
+  def jars: coll.Seq[String] = _jars
+  def files: coll.Seq[String] = _files
   def master: String = _conf.get("spark.master")
   def deployMode: String = _conf.get(SUBMIT_DEPLOY_MODE)
   def appName: String = _conf.get("spark.app.name")
@@ -722,10 +723,10 @@ class SparkContext(config: SparkConf) extends Logging {
    * @return RDD representing distributed collection
    */
   def parallelize[T: ClassTag](
-      seq: Seq[T],
+      seq: coll.Seq[T],
       numSlices: Int = defaultParallelism): RDD[T] = withScope {
     assertNotStopped()
-    new ParallelCollectionRDD[T](this, seq, numSlices, Map[Int, Seq[String]]())
+    new ParallelCollectionRDD[T](this, seq, numSlices, Map[Int, coll.Seq[String]]())
   }
 
   /**
@@ -808,7 +809,7 @@ class SparkContext(config: SparkConf) extends Logging {
    * @return RDD representing distributed collection
    */
   def makeRDD[T: ClassTag](
-      seq: Seq[T],
+      seq: coll.Seq[T],
       numSlices: Int = defaultParallelism): RDD[T] = withScope {
     parallelize(seq, numSlices)
   }
@@ -820,7 +821,7 @@ class SparkContext(config: SparkConf) extends Logging {
    * @param seq list of tuples of data and location preferences (hostnames of Spark nodes)
    * @return RDD representing data partitioned according to location preferences
    */
-  def makeRDD[T: ClassTag](seq: Seq[(T, Seq[String])]): RDD[T] = withScope {
+  def makeRDD[T: ClassTag](seq: coll.Seq[(T, coll.Seq[String])]): RDD[T] = withScope {
     assertNotStopped()
     val indexToPrefs = seq.zipWithIndex.map(t => (t._2, t._1._2)).toMap
     new ParallelCollectionRDD[T](this, seq.map(_._1), math.max(seq.size, 1), indexToPrefs)
@@ -1323,7 +1324,7 @@ class SparkContext(config: SparkConf) extends Logging {
   }
 
   /** Build the union of a list of RDDs. */
-  def union[T: ClassTag](rdds: Seq[RDD[T]]): RDD[T] = withScope {
+  def union[T: ClassTag](rdds: coll.Seq[RDD[T]]): RDD[T] = withScope {
     val nonEmptyRdds = rdds.filter(!_.partitions.isEmpty)
     val partitioners = nonEmptyRdds.flatMap(_.partitioner).toSet
     if (nonEmptyRdds.forall(_.partitioner.isDefined) && partitioners.size == 1) {
@@ -1454,7 +1455,7 @@ class SparkContext(config: SparkConf) extends Logging {
   /**
    * Returns a list of file paths that are added to resources.
    */
-  def listFiles(): Seq[String] = addedFiles.keySet.toSeq
+  def listFiles(): coll.Seq[String] = addedFiles.keySet.toSeq
 
   /**
    * Add a file to be downloaded with this Spark job on every node.
@@ -1535,7 +1536,7 @@ class SparkContext(config: SparkConf) extends Logging {
     listenerBus.removeListener(listener)
   }
 
-  private[spark] def getExecutorIds(): Seq[String] = {
+  private[spark] def getExecutorIds(): coll.Seq[String] = {
     schedulerBackend match {
       case b: ExecutorAllocationClient =>
         b.getExecutorIds()
@@ -1613,7 +1614,7 @@ class SparkContext(config: SparkConf) extends Logging {
    * @return whether the request is received.
    */
   @DeveloperApi
-  def killExecutors(executorIds: Seq[String]): Boolean = {
+  def killExecutors(executorIds: coll.Seq[String]): Boolean = {
     schedulerBackend match {
       case b: ExecutorAllocationClient =>
         require(executorAllocationManager.isEmpty,
@@ -1714,7 +1715,7 @@ class SparkContext(config: SparkConf) extends Logging {
    * Return pools for fair scheduler
    */
   @DeveloperApi
-  def getAllPools: Seq[Schedulable] = {
+  def getAllPools: coll.Seq[Schedulable] = {
     assertNotStopped()
     // TODO(xiajunluan): We should take nested pools into account
     taskScheduler.rootPool.schedulableQueue.asScala.toSeq
@@ -1744,7 +1745,7 @@ class SparkContext(config: SparkConf) extends Logging {
    * @param partition to be looked up for locality
    * @return list of preferred locations for the partition
    */
-  private [spark] def getPreferredLocs(rdd: RDD[_], partition: Int): Seq[TaskLocation] = {
+  private [spark] def getPreferredLocs(rdd: RDD[_], partition: Int): coll.Seq[TaskLocation] = {
     dagScheduler.getPreferredLocs(rdd, partition)
   }
 
@@ -1830,7 +1831,7 @@ class SparkContext(config: SparkConf) extends Logging {
   /**
    * Returns a list of jar files that are added to resources.
    */
-  def listJars(): Seq[String] = addedJars.keySet.toSeq
+  def listJars(): coll.Seq[String] = addedJars.keySet.toSeq
 
   /**
    * When stopping SparkContext inside Spark components, it's easy to cause dead-lock since Spark
@@ -1999,7 +2000,7 @@ class SparkContext(config: SparkConf) extends Logging {
   def runJob[T, U: ClassTag](
       rdd: RDD[T],
       func: (TaskContext, Iterator[T]) => U,
-      partitions: Seq[Int],
+      partitions: coll.Seq[Int],
       resultHandler: (Int, U) => Unit): Unit = {
     if (stopped.get()) {
       throw new IllegalStateException("SparkContext has been shutdown")
@@ -2029,7 +2030,7 @@ class SparkContext(config: SparkConf) extends Logging {
   def runJob[T, U: ClassTag](
       rdd: RDD[T],
       func: (TaskContext, Iterator[T]) => U,
-      partitions: Seq[Int]): Array[U] = {
+      partitions: coll.Seq[Int]): Array[U] = {
     val results = new Array[U](partitions.size)
     runJob[T, U](rdd, func, partitions, (index, res) => results(index) = res)
     results
@@ -2048,7 +2049,7 @@ class SparkContext(config: SparkConf) extends Logging {
   def runJob[T, U: ClassTag](
       rdd: RDD[T],
       func: Iterator[T] => U,
-      partitions: Seq[Int]): Array[U] = {
+      partitions: coll.Seq[Int]): Array[U] = {
     val cleanedFunc = clean(func)
     runJob(rdd, (ctx: TaskContext, it: Iterator[T]) => cleanedFunc(it), partitions)
   }
@@ -2152,7 +2153,7 @@ class SparkContext(config: SparkConf) extends Logging {
   def submitJob[T, U, R](
       rdd: RDD[T],
       processPartition: Iterator[T] => U,
-      partitions: Seq[Int],
+      partitions: coll.Seq[Int],
       resultHandler: (Int, U) => Unit,
       resultFunc: => R): SimpleFutureAction[R] =
   {
@@ -2386,7 +2387,7 @@ class SparkContext(config: SparkConf) extends Logging {
   /** Reports heartbeat metrics for the driver. */
   private def reportHeartBeat(): Unit = {
     val driverUpdates = _heartbeater.getCurrentMetrics()
-    val accumUpdates = new Array[(Long, Int, Int, Seq[AccumulableInfo])](0)
+    val accumUpdates = new Array[(Long, Int, Int, coll.Seq[AccumulableInfo])](0)
     listenerBus.post(SparkListenerExecutorMetricsUpdate("driver", accumUpdates,
       Some(driverUpdates)))
   }
@@ -2608,7 +2609,7 @@ object SparkContext extends Logging {
       master: String,
       appName: String,
       sparkHome: String = null,
-      jars: Seq[String] = Nil,
+      jars: coll.Seq[String] = Nil,
       environment: Map[String, String] = Map()): SparkConf =
   {
     val res = conf.clone()

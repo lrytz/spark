@@ -27,6 +27,7 @@ import org.apache.spark.deploy.Command
 import org.apache.spark.internal.Logging
 import org.apache.spark.launcher.WorkerCommandBuilder
 import org.apache.spark.util.Utils
+import scala.{collection => coll}
 
 /**
  * Utilities for running commands with the spark classpath.
@@ -44,7 +45,7 @@ object CommandUtils extends Logging {
       memory: Int,
       sparkHome: String,
       substituteArguments: String => String,
-      classPaths: Seq[String] = Seq.empty,
+      classPaths: coll.Seq[String] = Seq.empty,
       env: Map[String, String] = sys.env): ProcessBuilder = {
     val localCommand = buildLocalCommand(
       command, securityMgr, substituteArguments, classPaths, env)
@@ -57,7 +58,7 @@ object CommandUtils extends Logging {
     builder
   }
 
-  private def buildCommandSeq(command: Command, memory: Int, sparkHome: String): Seq[String] = {
+  private def buildCommandSeq(command: Command, memory: Int, sparkHome: String): coll.Seq[String] = {
     // SPARK-698: do not call the run.cmd script, as process.destroy()
     // fails to kill a process tree on Windows
     val cmd = new WorkerCommandBuilder(sparkHome, memory, command).buildCommand()
@@ -73,7 +74,7 @@ object CommandUtils extends Logging {
       command: Command,
       securityMgr: SecurityManager,
       substituteArguments: String => String,
-      classPath: Seq[String] = Seq.empty,
+      classPath: coll.Seq[String] = Seq.empty,
       env: Map[String, String]): Command = {
     val libraryPathName = Utils.libraryPathEnvName
     val libraryPathEntries = command.libraryPathEntries

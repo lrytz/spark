@@ -27,6 +27,7 @@ import com.google.common.collect.{ConcurrentHashMultiset, ImmutableMultiset}
 
 import org.apache.spark.{SparkException, TaskContext}
 import org.apache.spark.internal.Logging
+import scala.{collection => coll}
 
 
 /**
@@ -341,7 +342,7 @@ private[storage] class BlockInfoManager extends Logging {
    *
    * @return the ids of blocks whose pins were released
    */
-  def releaseAllLocksForTask(taskAttemptId: TaskAttemptId): Seq[BlockId] = synchronized {
+  def releaseAllLocksForTask(taskAttemptId: TaskAttemptId): coll.Seq[BlockId] = synchronized {
     val blocksWithReleasedLocks = mutable.ArrayBuffer[BlockId]()
 
     val readLocks = readLocksByTask.remove(taskAttemptId).getOrElse(ImmutableMultiset.of[BlockId]())

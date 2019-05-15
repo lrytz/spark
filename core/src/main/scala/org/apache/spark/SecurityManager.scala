@@ -33,6 +33,7 @@ import org.apache.spark.internal.config.UI._
 import org.apache.spark.launcher.SparkLauncher
 import org.apache.spark.network.sasl.SecretKeyHolder
 import org.apache.spark.util.Utils
+import scala.{collection => coll}
 
 /**
  * Spark class responsible for security.
@@ -109,12 +110,12 @@ private[spark] class SecurityManager(
    * Admin acls should be set before the view or modify acls.  If you modify the admin
    * acls you should also set the view and modify acls again to pick up the changes.
    */
-  def setViewAcls(defaultUsers: Set[String], allowedUsers: Seq[String]) {
+  def setViewAcls(defaultUsers: Set[String], allowedUsers: coll.Seq[String]) {
     viewAcls = adminAcls ++ defaultUsers ++ allowedUsers
     logInfo("Changing view acls to: " + viewAcls.mkString(","))
   }
 
-  def setViewAcls(defaultUser: String, allowedUsers: Seq[String]) {
+  def setViewAcls(defaultUser: String, allowedUsers: coll.Seq[String]) {
     setViewAcls(Set[String](defaultUser), allowedUsers)
   }
 
@@ -122,7 +123,7 @@ private[spark] class SecurityManager(
    * Admin acls groups should be set before the view or modify acls groups. If you modify the admin
    * acls groups you should also set the view and modify acls groups again to pick up the changes.
    */
-  def setViewAclsGroups(allowedUserGroups: Seq[String]) {
+  def setViewAclsGroups(allowedUserGroups: coll.Seq[String]) {
     viewAclsGroups = adminAclsGroups ++ allowedUserGroups
     logInfo("Changing view acls groups to: " + viewAclsGroups.mkString(","))
   }
@@ -150,7 +151,7 @@ private[spark] class SecurityManager(
    * Admin acls should be set before the view or modify acls.  If you modify the admin
    * acls you should also set the view and modify acls again to pick up the changes.
    */
-  def setModifyAcls(defaultUsers: Set[String], allowedUsers: Seq[String]) {
+  def setModifyAcls(defaultUsers: Set[String], allowedUsers: coll.Seq[String]) {
     modifyAcls = adminAcls ++ defaultUsers ++ allowedUsers
     logInfo("Changing modify acls to: " + modifyAcls.mkString(","))
   }
@@ -159,7 +160,7 @@ private[spark] class SecurityManager(
    * Admin acls groups should be set before the view or modify acls groups. If you modify the admin
    * acls groups you should also set the view and modify acls groups again to pick up the changes.
    */
-  def setModifyAclsGroups(allowedUserGroups: Seq[String]) {
+  def setModifyAclsGroups(allowedUserGroups: coll.Seq[String]) {
     modifyAclsGroups = adminAclsGroups ++ allowedUserGroups
     logInfo("Changing modify acls groups to: " + modifyAclsGroups.mkString(","))
   }
@@ -187,7 +188,7 @@ private[spark] class SecurityManager(
    * Admin acls should be set before the view or modify acls.  If you modify the admin
    * acls you should also set the view and modify acls again to pick up the changes.
    */
-  def setAdminAcls(adminUsers: Seq[String]) {
+  def setAdminAcls(adminUsers: coll.Seq[String]) {
     adminAcls = adminUsers.toSet
     logInfo("Changing admin acls to: " + adminAcls.mkString(","))
   }
@@ -196,7 +197,7 @@ private[spark] class SecurityManager(
    * Admin acls groups should be set before the view or modify acls groups. If you modify the admin
    * acls groups you should also set the view and modify acls groups again to pick up the changes.
    */
-  def setAdminAclsGroups(adminUserGroups: Seq[String]) {
+  def setAdminAclsGroups(adminUserGroups: coll.Seq[String]) {
     adminAclsGroups = adminUserGroups.toSet
     logInfo("Changing admin acls groups to: " + adminAclsGroups.mkString(","))
   }

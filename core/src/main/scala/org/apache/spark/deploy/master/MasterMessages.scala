@@ -17,6 +17,7 @@
 
 package org.apache.spark.deploy.master
 
+import scala.{collection => coll}
 sealed trait MasterMessages extends Serializable
 
 /** Contains messages seen only by the Master and its associated entities. */
@@ -32,7 +33,7 @@ private[master] object MasterMessages {
 
   case object CheckForWorkerTimeOut
 
-  case class BeginRecovery(storedApps: Seq[ApplicationInfo], storedWorkers: Seq[WorkerInfo])
+  case class BeginRecovery(storedApps: coll.Seq[ApplicationInfo], storedWorkers: coll.Seq[WorkerInfo])
 
   case object CompleteRecovery
 

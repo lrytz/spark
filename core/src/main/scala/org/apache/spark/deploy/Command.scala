@@ -18,12 +18,13 @@
 package org.apache.spark.deploy
 
 import scala.collection.Map
+import scala.{collection => coll}
 
 private[spark] case class Command(
     mainClass: String,
-    arguments: Seq[String],
+    arguments: coll.Seq[String],
     environment: Map[String, String],
-    classPathEntries: Seq[String],
-    libraryPathEntries: Seq[String],
-    javaOpts: Seq[String]) {
+    classPathEntries: coll.Seq[String],
+    libraryPathEntries: coll.Seq[String],
+    javaOpts: coll.Seq[String]) {
 }

@@ -30,11 +30,12 @@ import org.apache.spark.status.AppStatusStore
 import org.apache.spark.status.api.v1
 import org.apache.spark.ui._
 import org.apache.spark.util.Utils
+import scala.{collection => coll}
 
 private[ui] class StageTableBase(
     store: AppStatusStore,
     request: HttpServletRequest,
-    stages: Seq[v1.StageData],
+    stages: coll.Seq[v1.StageData],
     tableHeaderID: String,
     stageTag: String,
     basePath: String,
@@ -122,7 +123,7 @@ private[ui] class MissingStageTableRowData(
 /** Page showing list of all ongoing and recently finished stages */
 private[ui] class StagePagedTable(
     store: AppStatusStore,
-    stages: Seq[v1.StageData],
+    stages: coll.Seq[v1.StageData],
     tableHeaderId: String,
     stageTag: String,
     basePath: String,
@@ -174,11 +175,11 @@ private[ui] class StagePagedTable(
     s"$parameterPath&$stageTag.sort=$encodedSortColumn&$stageTag.desc=$desc#$tableHeaderId"
   }
 
-  override def headers: Seq[Node] = {
+  override def headers: coll.Seq[Node] = {
     // stageHeadersAndCssClasses has three parts: header title, tooltip information, and sortable.
     // The tooltip information could be None, which indicates it does not have a tooltip.
     // Otherwise, it has two parts: tooltip text, and position (true for left, false for default).
-    val stageHeadersAndCssClasses: Seq[(String, Option[(String, Boolean)], Boolean)] =
+    val stageHeadersAndCssClasses: coll.Seq[(String, Option[(String, Boolean)], Boolean)] =
       Seq(("Stage Id", None, true)) ++
       {if (isFairScheduler) {Seq(("Pool Name", None, true))} else Seq.empty} ++
       Seq(
@@ -195,7 +196,7 @@ private[ui] class StagePagedTable(
       throw new IllegalArgumentException(s"Unknown column: $sortColumn")
     }
 
-    val headerRow: Seq[Node] = {
+    val headerRow: coll.Seq[Node] = {
       stageHeadersAndCssClasses.map { case (header, tooltip, sortable) =>
         val headerSpan = tooltip.map { case (title, left) =>
           if (left) {
@@ -254,13 +255,13 @@ private[ui] class StagePagedTable(
     <thead>{headerRow}</thead>
   }
 
-  override def row(data: StageTableRowData): Seq[Node] = {
+  override def row(data: StageTableRowData): coll.Seq[Node] = {
     <tr id={"stage-" + data.stageId + "-" + data.attemptId}>
       {rowContent(data)}
     </tr>
   }
 
-  private def rowContent(data: StageTableRowData): Seq[Node] = {
+  private def rowContent(data: StageTableRowData): coll.Seq[Node] = {
     data.option match {
       case None => missingStageRow(data.stageId)
       case Some(stageData) =>
@@ -305,7 +306,7 @@ private[ui] class StagePagedTable(
     }
   }
 
-  private def failureReasonHtml(s: v1.StageData): Seq[Node] = {
+  private def failureReasonHtml(s: v1.StageData): coll.Seq[Node] = {
     val failureReason = s.failureReason.getOrElse("")
     val isMultiline = failureReason.indexOf('\n') >= 0
     // Display the first line by default
@@ -331,7 +332,7 @@ private[ui] class StagePagedTable(
     <td valign="middle">{failureReasonSummary}{details}</td>
   }
 
-  private def makeDescription(s: v1.StageData, descriptionOption: Option[String]): Seq[Node] = {
+  private def makeDescription(s: v1.StageData, descriptionOption: Option[String]): coll.Seq[Node] = {
     val basePathUri = UIUtils.prependBaseUri(request, basePath)
 
     val killLink = if (killEnabled) {
@@ -376,7 +377,7 @@ private[ui] class StagePagedTable(
     <div>{stageDesc.getOrElse("")} {killLink} {nameLink} {details}</div>
   }
 
-  protected def missingStageRow(stageId: Int): Seq[Node] = {
+  protected def missingStageRow(stageId: Int): coll.Seq[Node] = {
     <td>{stageId}</td> ++
     {if (isFairScheduler) {<td>-</td>} else Seq.empty} ++
     <td>No data available for this stage</td> ++ // Description
@@ -392,7 +393,7 @@ private[ui] class StagePagedTable(
 
 private[ui] class StageDataSource(
     store: AppStatusStore,
-    stages: Seq[v1.StageData],
+    stages: coll.Seq[v1.StageData],
     currentTime: Long,
     pageSize: Int,
     sortColumn: String,
@@ -405,7 +406,7 @@ private[ui] class StageDataSource(
 
   override def dataSize: Int = data.size
 
-  override def sliceData(from: Int, to: Int): Seq[StageTableRowData] = {
+  override def sliceData(from: Int, to: Int): coll.Seq[StageTableRowData] = {
     val r = data.slice(from, to)
     _slicedStageIds = r.map(_.stageId).toSet
     r

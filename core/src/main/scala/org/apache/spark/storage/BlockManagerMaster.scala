@@ -26,6 +26,7 @@ import org.apache.spark.internal.Logging
 import org.apache.spark.rpc.RpcEndpointRef
 import org.apache.spark.storage.BlockManagerMessages._
 import org.apache.spark.util.{RpcUtils, ThreadUtils}
+import scala.{collection => coll}
 
 private[spark]
 class BlockManagerMaster(
@@ -80,8 +81,8 @@ class BlockManagerMaster(
   }
 
   /** Get locations of the blockId from the driver */
-  def getLocations(blockId: BlockId): Seq[BlockManagerId] = {
-    driverEndpoint.askSync[Seq[BlockManagerId]](GetLocations(blockId))
+  def getLocations(blockId: BlockId): coll.Seq[BlockManagerId] = {
+    driverEndpoint.askSync[coll.Seq[BlockManagerId]](GetLocations(blockId))
   }
 
   /** Get locations as well as status of the blockId from the driver */
@@ -91,8 +92,8 @@ class BlockManagerMaster(
   }
 
   /** Get locations of multiple blockIds from the driver */
-  def getLocations(blockIds: Array[BlockId]): IndexedSeq[Seq[BlockManagerId]] = {
-    driverEndpoint.askSync[IndexedSeq[Seq[BlockManagerId]]](
+  def getLocations(blockIds: Array[BlockId]): IndexedSeq[coll.Seq[BlockManagerId]] = {
+    driverEndpoint.askSync[IndexedSeq[coll.Seq[BlockManagerId]]](
       GetLocationsMultipleBlockIds(blockIds))
   }
 
@@ -105,8 +106,8 @@ class BlockManagerMaster(
   }
 
   /** Get ids of other nodes in the cluster from the driver */
-  def getPeers(blockManagerId: BlockManagerId): Seq[BlockManagerId] = {
-    driverEndpoint.askSync[Seq[BlockManagerId]](GetPeers(blockManagerId))
+  def getPeers(blockManagerId: BlockManagerId): coll.Seq[BlockManagerId] = {
+    driverEndpoint.askSync[coll.Seq[BlockManagerId]](GetPeers(blockManagerId))
   }
 
   def getExecutorEndpointRef(executorId: String): Option[RpcEndpointRef] = {
@@ -123,7 +124,7 @@ class BlockManagerMaster(
 
   /** Remove all blocks belonging to the given RDD. */
   def removeRdd(rddId: Int, blocking: Boolean) {
-    val future = driverEndpoint.askSync[Future[Seq[Int]]](RemoveRdd(rddId))
+    val future = driverEndpoint.askSync[Future[coll.Seq[Int]]](RemoveRdd(rddId))
     future.failed.foreach(e =>
       logWarning(s"Failed to remove RDD $rddId - ${e.getMessage}", e)
     )(ThreadUtils.sameThread)
@@ -134,7 +135,7 @@ class BlockManagerMaster(
 
   /** Remove all blocks belonging to the given shuffle. */
   def removeShuffle(shuffleId: Int, blocking: Boolean) {
-    val future = driverEndpoint.askSync[Future[Seq[Boolean]]](RemoveShuffle(shuffleId))
+    val future = driverEndpoint.askSync[Future[coll.Seq[Boolean]]](RemoveShuffle(shuffleId))
     future.failed.foreach(e =>
       logWarning(s"Failed to remove shuffle $shuffleId - ${e.getMessage}", e)
     )(ThreadUtils.sameThread)
@@ -145,7 +146,7 @@ class BlockManagerMaster(
 
   /** Remove all blocks belonging to the given broadcast. */
   def removeBroadcast(broadcastId: Long, removeFromMaster: Boolean, blocking: Boolean) {
-    val future = driverEndpoint.askSync[Future[Seq[Int]]](
+    val future = driverEndpoint.askSync[Future[coll.Seq[Int]]](
       RemoveBroadcast(broadcastId, removeFromMaster))
     future.failed.foreach(e =>
       logWarning(s"Failed to remove broadcast $broadcastId" +
@@ -216,9 +217,9 @@ class BlockManagerMaster(
    */
   def getMatchingBlockIds(
       filter: BlockId => Boolean,
-      askSlaves: Boolean): Seq[BlockId] = {
+      askSlaves: Boolean): coll.Seq[BlockId] = {
     val msg = GetMatchingBlockIds(filter, askSlaves)
-    val future = driverEndpoint.askSync[Future[Seq[BlockId]]](msg)
+    val future = driverEndpoint.askSync[Future[coll.Seq[BlockId]]](msg)
     timeout.awaitResult(future)
   }
 

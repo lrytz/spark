@@ -36,6 +36,7 @@ import org.apache.spark.scheduler.SchedulingMode.SchedulingMode
 import org.apache.spark.scheduler.TaskLocality.TaskLocality
 import org.apache.spark.storage.BlockManagerId
 import org.apache.spark.util.{AccumulatorV2, SystemClock, ThreadUtils, Utils}
+import scala.{collection => coll}
 
 /**
  * Schedules tasks for multiple types of clusters by acting through a SchedulerBackend.
@@ -325,7 +326,7 @@ private[spark] class TaskSchedulerImpl(
   private def resourceOfferSingleTaskSet(
       taskSet: TaskSetManager,
       maxLocality: TaskLocality,
-      shuffledOffers: Seq[WorkerOffer],
+      shuffledOffers: coll.Seq[WorkerOffer],
       availableCpus: Array[Int],
       tasks: IndexedSeq[ArrayBuffer[TaskDescription]],
       addressesWithDescs: ArrayBuffer[(String, TaskDescription)]) : Boolean = {
@@ -369,7 +370,7 @@ private[spark] class TaskSchedulerImpl(
    * sets for tasks in order of priority. We fill each node with tasks in a round-robin manner so
    * that tasks are balanced across the cluster.
    */
-  def resourceOffers(offers: IndexedSeq[WorkerOffer]): Seq[Seq[TaskDescription]] = synchronized {
+  def resourceOffers(offers: IndexedSeq[WorkerOffer]): coll.Seq[coll.Seq[TaskDescription]] = synchronized {
     // Mark each slave as alive and remember its hostname
     // Also track if new executor is added
     var newExecAvail = false
@@ -601,11 +602,11 @@ private[spark] class TaskSchedulerImpl(
    */
   override def executorHeartbeatReceived(
       execId: String,
-      accumUpdates: Array[(Long, Seq[AccumulatorV2[_, _]])],
+      accumUpdates: Array[(Long, coll.Seq[AccumulatorV2[_, _]])],
       blockManagerId: BlockManagerId,
       executorMetrics: ExecutorMetrics): Boolean = {
     // (taskId, stageId, stageAttemptId, accumUpdates)
-    val accumUpdatesWithTaskIds: Array[(Long, Int, Int, Seq[AccumulableInfo])] = {
+    val accumUpdatesWithTaskIds: Array[(Long, Int, Int, coll.Seq[AccumulableInfo])] = {
       accumUpdates.flatMap { case (id, updates) =>
         val accInfos = updates.map(acc => acc.toInfo(Some(acc.value), None))
         Option(taskIdToTaskSetManager.get(id)).map { taskSetMgr =>
@@ -852,7 +853,7 @@ private[spark] class TaskSchedulerImpl(
    * The returned Sequence will be the same length as the hosts argument and can be zipped
    * together with the hosts argument.
    */
-  def getRacksForHosts(hosts: Seq[String]): Seq[Option[String]] = {
+  def getRacksForHosts(hosts: coll.Seq[String]): coll.Seq[Option[String]] = {
     hosts.map(_ => defaultRackValue)
   }
 

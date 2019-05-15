@@ -20,6 +20,7 @@ package org.apache.spark.scheduler
 import org.apache.spark.TaskContext
 import org.apache.spark.rdd.RDD
 import org.apache.spark.util.CallSite
+import scala.{collection => coll}
 
 /**
  * ResultStages apply a function on some partitions of an RDD to compute the result of an action.
@@ -58,7 +59,7 @@ private[spark] class ResultStage(
    *
    * This can only be called when there is an active job.
    */
-  override def findMissingPartitions(): Seq[Int] = {
+  override def findMissingPartitions(): coll.Seq[Int] = {
     val job = activeJob.get
     (0 until job.numPartitions).filter(id => !job.finished(id))
   }

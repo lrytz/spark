@@ -23,6 +23,7 @@ import org.apache.spark.TaskState.TaskState
 import org.apache.spark.rpc.RpcEndpointRef
 import org.apache.spark.scheduler.ExecutorLossReason
 import org.apache.spark.util.SerializableBuffer
+import scala.{collection => coll}
 
 private[spark] sealed trait CoarseGrainedClusterMessage extends Serializable
 
@@ -31,7 +32,7 @@ private[spark] object CoarseGrainedClusterMessages {
   case object RetrieveSparkAppConfig extends CoarseGrainedClusterMessage
 
   case class SparkAppConfig(
-      sparkProperties: Seq[(String, String)],
+      sparkProperties: coll.Seq[(String, String)],
       ioEncryptionKey: Option[Array[Byte]],
       hadoopDelegationCreds: Option[Array[Byte]])
     extends CoarseGrainedClusterMessage
@@ -121,7 +122,7 @@ private[spark] object CoarseGrainedClusterMessages {
   // This could be the case if the executor is preempted, for instance.
   case class GetExecutorLossReason(executorId: String) extends CoarseGrainedClusterMessage
 
-  case class KillExecutors(executorIds: Seq[String]) extends CoarseGrainedClusterMessage
+  case class KillExecutors(executorIds: coll.Seq[String]) extends CoarseGrainedClusterMessage
 
   // Used internally by executors to shut themselves down.
   case object Shutdown extends CoarseGrainedClusterMessage

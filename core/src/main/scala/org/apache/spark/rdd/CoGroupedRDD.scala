@@ -27,6 +27,7 @@ import org.apache.spark.annotation.DeveloperApi
 import org.apache.spark.serializer.Serializer
 import org.apache.spark.util.Utils
 import org.apache.spark.util.collection.{CompactBuffer, ExternalAppendOnlyMap}
+import scala.{collection => coll}
 
 /**
  * The references to rdd and splitIndex are transient because redundant information is stored
@@ -76,7 +77,7 @@ private[spark] class CoGroupPartition(
  */
 @DeveloperApi
 class CoGroupedRDD[K: ClassTag](
-    @transient var rdds: Seq[RDD[_ <: Product2[K, _]]],
+    @transient var rdds: coll.Seq[RDD[_ <: Product2[K, _]]],
     part: Partitioner)
   extends RDD[(K, Array[Iterable[_]])](rdds.head.context, Nil) {
 
@@ -95,7 +96,7 @@ class CoGroupedRDD[K: ClassTag](
     this
   }
 
-  override def getDependencies: Seq[Dependency[_]] = {
+  override def getDependencies: coll.Seq[Dependency[_]] = {
     rdds.map { rdd: RDD[_] =>
       if (rdd.partitioner == Some(part)) {
         logDebug("Adding one-to-one dependency with " + rdd)

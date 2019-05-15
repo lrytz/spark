@@ -57,6 +57,7 @@ import org.apache.spark.storage.memory._
 import org.apache.spark.unsafe.Platform
 import org.apache.spark.util._
 import org.apache.spark.util.io.ChunkedByteBuffer
+import scala.{collection => coll}
 
 /* Class for returning a fetched block and associated metrics. */
 private[spark] class BlockResult(
@@ -209,7 +210,7 @@ private[spark] class BlockManager(
   private val asyncReregisterLock = new Object
 
   // Field related to peer block managers that are necessary for block replication
-  @volatile private var cachedPeers: Seq[BlockManagerId] = _
+  @volatile private var cachedPeers: coll.Seq[BlockManagerId] = _
   private val peerFetchLock = new Object
   private var lastPeerFetchTimeNs = 0L
 
@@ -642,7 +643,7 @@ private[spark] class BlockManager(
    * query the blocks stored in the disk block manager (that the block manager
    * may not know of).
    */
-  def getMatchingBlockIds(filter: BlockId => Boolean): Seq[BlockId] = {
+  def getMatchingBlockIds(filter: BlockId => Boolean): coll.Seq[BlockId] = {
     // The `toArray` is necessary here in order to force the list to be materialized so that we
     // don't try to serialize a lazy iterator when responding to client requests.
     (blockInfoManager.entries.map(_._1) ++ diskBlockManager.getAllBlocks())
@@ -719,7 +720,7 @@ private[spark] class BlockManager(
   /**
    * Get locations of an array of blocks.
    */
-  private def getLocationBlockIds(blockIds: Array[BlockId]): Array[Seq[BlockManagerId]] = {
+  private def getLocationBlockIds(blockIds: Array[BlockId]): Array[coll.Seq[BlockManagerId]] = {
     val startTimeNs = System.nanoTime()
     val locations = master.getLocations(blockIds).toArray
     logDebug(s"Got multiple block location in ${Utils.getUsedTimeNs(startTimeNs)}")
@@ -856,7 +857,7 @@ private[spark] class BlockManager(
    * Return a list of locations for the given block, prioritizing the local machine since
    * multiple block managers can share the same host, followed by hosts on the same rack.
    */
-  private def sortLocations(locations: Seq[BlockManagerId]): Seq[BlockManagerId] = {
+  private def sortLocations(locations: coll.Seq[BlockManagerId]): coll.Seq[BlockManagerId] = {
     val locs = Random.shuffle(locations)
     val (preferredLocs, otherLocs) = locs.partition { loc => blockManagerId.host == loc.host }
     blockManagerId.topologyInfo match {
@@ -1017,7 +1018,7 @@ private[spark] class BlockManager(
    *
    * @return the blocks whose locks were released.
    */
-  def releaseAllLocksForTask(taskAttemptId: Long): Seq[BlockId] = {
+  def releaseAllLocksForTask(taskAttemptId: Long): coll.Seq[BlockId] = {
     blockInfoManager.releaseAllLocksForTask(taskAttemptId)
   }
 
@@ -1391,7 +1392,7 @@ private[spark] class BlockManager(
   /**
    * Get peer block managers in the system.
    */
-  private def getPeers(forceFetch: Boolean): Seq[BlockManagerId] = {
+  private def getPeers(forceFetch: Boolean): coll.Seq[BlockManagerId] = {
     peerFetchLock.synchronized {
       val cachedPeersTtl = conf.get(config.STORAGE_CACHED_PEERS_TTL) // milliseconds
       val diff = TimeUnit.NANOSECONDS.toMillis(System.nanoTime() - lastPeerFetchTimeNs)
@@ -1699,17 +1700,17 @@ private[spark] object BlockManager {
   def blockIdsToLocations(
       blockIds: Array[BlockId],
       env: SparkEnv,
-      blockManagerMaster: BlockManagerMaster = null): Map[BlockId, Seq[String]] = {
+      blockManagerMaster: BlockManagerMaster = null): Map[BlockId, coll.Seq[String]] = {
 
     // blockManagerMaster != null is used in tests
     assert(env != null || blockManagerMaster != null)
-    val blockLocations: Seq[Seq[BlockManagerId]] = if (blockManagerMaster == null) {
+    val blockLocations: coll.Seq[coll.Seq[BlockManagerId]] = if (blockManagerMaster == null) {
       env.blockManager.getLocationBlockIds(blockIds)
     } else {
       blockManagerMaster.getLocations(blockIds)
     }
 
-    val blockManagers = new HashMap[BlockId, Seq[String]]
+    val blockManagers = new HashMap[BlockId, coll.Seq[String]]
     for (i <- 0 until blockIds.length) {
       blockManagers(blockIds(i)) = blockLocations(i).map { loc =>
         ExecutorCacheTaskLocation(loc.host, loc.executorId).toString

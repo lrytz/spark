@@ -26,13 +26,14 @@ import scala.util.control.NonFatal
 
 import org.apache.spark.{JobExecutionStatus, SparkContext}
 import org.apache.spark.ui.UIUtils
+import scala.{collection => coll}
 
 @Produces(Array(MediaType.APPLICATION_JSON))
 private[v1] class AbstractApplicationResource extends BaseAppResource {
 
   @GET
   @Path("jobs")
-  def jobsList(@QueryParam("status") statuses: JList[JobExecutionStatus]): Seq[JobData] = {
+  def jobsList(@QueryParam("status") statuses: JList[JobExecutionStatus]): coll.Seq[JobData] = {
     withUI(_.store.jobsList(statuses))
   }
 
@@ -49,7 +50,7 @@ private[v1] class AbstractApplicationResource extends BaseAppResource {
 
   @GET
   @Path("executors")
-  def executorList(): Seq[ExecutorSummary] = withUI(_.store.executorList(true))
+  def executorList(): coll.Seq[ExecutorSummary] = withUI(_.store.executorList(true))
 
   @GET
   @Path("executors/{executorId}/threads")
@@ -76,14 +77,14 @@ private[v1] class AbstractApplicationResource extends BaseAppResource {
 
   @GET
   @Path("allexecutors")
-  def allExecutorList(): Seq[ExecutorSummary] = withUI(_.store.executorList(false))
+  def allExecutorList(): coll.Seq[ExecutorSummary] = withUI(_.store.executorList(false))
 
   @Path("stages")
   def stages(): Class[StagesResource] = classOf[StagesResource]
 
   @GET
   @Path("storage/rdd")
-  def rddList(): Seq[RDDStorageInfo] = withUI(_.store.rddList())
+  def rddList(): coll.Seq[RDDStorageInfo] = withUI(_.store.rddList())
 
   @GET
   @Path("storage/rdd/{rddId: \\d+}")

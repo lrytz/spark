@@ -27,6 +27,7 @@ import org.apache.spark.status.KVUtils._
 import org.apache.spark.status.api.v1._
 import org.apache.spark.ui.scope._
 import org.apache.spark.util.kvstore.KVIndex
+import scala.{collection => coll}
 
 private[spark] case class AppStatusStoreMetadata(version: Long)
 
@@ -174,7 +175,7 @@ private[spark] class TaskDataWrapper(
     @KVIndexParam(value = TaskIndexNames.LOCALITY, parent = TaskIndexNames.STAGE)
     val taskLocality: String,
     val speculative: Boolean,
-    val accumulatorUpdates: Seq[AccumulableInfo],
+    val accumulatorUpdates: coll.Seq[AccumulableInfo],
     val errorMessage: Option[String],
 
     // The following is an exploded view of a TaskMetrics API object. This saves 5 objects
@@ -398,8 +399,8 @@ private[spark] class StreamBlockData(
 private[spark] class RDDOperationClusterWrapper(
     val id: String,
     val name: String,
-    val childNodes: Seq[RDDOperationNode],
-    val childClusters: Seq[RDDOperationClusterWrapper]) {
+    val childNodes: coll.Seq[RDDOperationNode],
+    val childClusters: coll.Seq[RDDOperationClusterWrapper]) {
 
   def toRDDOperationCluster(): RDDOperationCluster = {
     val cluster = new RDDOperationCluster(id, name)
@@ -414,9 +415,9 @@ private[spark] class RDDOperationClusterWrapper(
 
 private[spark] class RDDOperationGraphWrapper(
     @KVIndexParam val stageId: Int,
-    val edges: Seq[RDDOperationEdge],
-    val outgoingEdges: Seq[RDDOperationEdge],
-    val incomingEdges: Seq[RDDOperationEdge],
+    val edges: coll.Seq[RDDOperationEdge],
+    val outgoingEdges: coll.Seq[RDDOperationEdge],
+    val incomingEdges: coll.Seq[RDDOperationEdge],
     val rootCluster: RDDOperationClusterWrapper) {
 
   def toRDDOperationGraph(): RDDOperationGraph = {

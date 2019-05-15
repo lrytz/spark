@@ -30,6 +30,7 @@ import org.apache.spark.Partitioner
 import org.apache.spark.ShuffleDependency
 import org.apache.spark.SparkEnv
 import org.apache.spark.TaskContext
+import scala.{collection => coll}
 
 /**
  * An optimized version of cogroup for set difference/subtraction.
@@ -54,7 +55,7 @@ private[spark] class SubtractedRDD[K: ClassTag, V: ClassTag, W: ClassTag](
   extends RDD[(K, V)](rdd1.context, Nil) {
 
 
-  override def getDependencies: Seq[Dependency[_]] = {
+  override def getDependencies: coll.Seq[Dependency[_]] = {
     def rddDependency[T1: ClassTag, T2: ClassTag](rdd: RDD[_ <: Product2[T1, T2]])
       : Dependency[_] = {
       if (rdd.partitioner == Some(part)) {

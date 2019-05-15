@@ -31,6 +31,7 @@ import org.apache.spark.launcher.{LauncherBackend, SparkAppHandle}
 import org.apache.spark.rpc.RpcEndpointAddress
 import org.apache.spark.scheduler._
 import org.apache.spark.util.Utils
+import scala.{collection => coll}
 
 /**
  * A [[SchedulerBackend]] implementation for Spark's standalone cluster manager.
@@ -203,7 +204,7 @@ private[spark] class StandaloneSchedulerBackend(
    * Kill the given list of executors through the Master.
    * @return whether the kill request is acknowledged.
    */
-  protected override def doKillExecutors(executorIds: Seq[String]): Future[Boolean] = {
+  protected override def doKillExecutors(executorIds: coll.Seq[String]): Future[Boolean] = {
     Option(client) match {
       case Some(c) => c.killExecutors(executorIds)
       case None =>

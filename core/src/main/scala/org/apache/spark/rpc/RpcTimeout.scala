@@ -24,6 +24,7 @@ import scala.concurrent.duration._
 
 import org.apache.spark.SparkConf
 import org.apache.spark.util.{ThreadUtils, Utils}
+import scala.{collection => coll}
 
 /**
  * An exception thrown if RpcTimeout modifies a `TimeoutException`.
@@ -117,7 +118,7 @@ private[spark] object RpcTimeout {
    * @param timeoutPropList prioritized list of property keys for the timeout in seconds
    * @param defaultValue default timeout value in seconds if no properties found
    */
-  def apply(conf: SparkConf, timeoutPropList: Seq[String], defaultValue: String): RpcTimeout = {
+  def apply(conf: SparkConf, timeoutPropList: coll.Seq[String], defaultValue: String): RpcTimeout = {
     require(timeoutPropList.nonEmpty)
 
     // Find the first set property or use the default value with the first property

@@ -21,6 +21,7 @@ import scala.reflect.ClassTag
 
 import org.apache.spark.{Partition, TaskContext}
 import org.apache.spark.util.Utils
+import scala.{collection => coll}
 
 private[spark]
 class ZippedWithIndexRDDPartition(val prev: Partition, val startIndex: Long)
@@ -59,7 +60,7 @@ class ZippedWithIndexRDD[T: ClassTag](prev: RDD[T]) extends RDD[(T, Long)](prev)
     firstParent[T].partitions.map(x => new ZippedWithIndexRDDPartition(x, startIndices(x.index)))
   }
 
-  override def getPreferredLocations(split: Partition): Seq[String] =
+  override def getPreferredLocations(split: Partition): coll.Seq[String] =
     firstParent[T].preferredLocations(split.asInstanceOf[ZippedWithIndexRDDPartition].prev)
 
   override def compute(splitIn: Partition, context: TaskContext): Iterator[(T, Long)] = {

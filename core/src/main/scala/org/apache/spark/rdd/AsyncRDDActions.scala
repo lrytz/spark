@@ -26,6 +26,7 @@ import scala.reflect.ClassTag
 import org.apache.spark.{ComplexFutureAction, FutureAction, JobSubmitter}
 import org.apache.spark.internal.Logging
 import org.apache.spark.util.ThreadUtils
+import scala.{collection => coll}
 
 /**
  * A set of asynchronous RDD actions available through an implicit conversion.
@@ -55,16 +56,16 @@ class AsyncRDDActions[T: ClassTag](self: RDD[T]) extends Serializable with Loggi
   /**
    * Returns a future for retrieving all elements of this RDD.
    */
-  def collectAsync(): FutureAction[Seq[T]] = self.withScope {
+  def collectAsync(): FutureAction[coll.Seq[T]] = self.withScope {
     val results = new Array[Array[T]](self.partitions.length)
-    self.context.submitJob[T, Array[T], Seq[T]](self, _.toArray, Range(0, self.partitions.length),
+    self.context.submitJob[T, Array[T], coll.Seq[T]](self, _.toArray, Range(0, self.partitions.length),
       (index, data) => results(index) = data, results.flatten.toSeq)
   }
 
   /**
    * Returns a future for retrieving the first num elements of the RDD.
    */
-  def takeAsync(num: Int): FutureAction[Seq[T]] = self.withScope {
+  def takeAsync(num: Int): FutureAction[coll.Seq[T]] = self.withScope {
     val callSite = self.context.getCallSite
     val localProperties = self.context.getLocalProperties
     // Cached thread pool to handle aggregation of subtasks.
@@ -78,7 +79,7 @@ class AsyncRDDActions[T: ClassTag](self: RDD[T]) extends Serializable with Loggi
       This implementation is non-blocking, asynchronously handling the
       results of each job and triggering the next job using callbacks on futures.
      */
-    def continue(partsScanned: Int)(implicit jobSubmitter: JobSubmitter): Future[Seq[T]] =
+    def continue(partsScanned: Int)(implicit jobSubmitter: JobSubmitter): Future[coll.Seq[T]] =
       if (results.size >= num || partsScanned >= totalParts) {
         Future.successful(results.toSeq)
       } else {
@@ -116,7 +117,7 @@ class AsyncRDDActions[T: ClassTag](self: RDD[T]) extends Serializable with Loggi
         }
       }
 
-    new ComplexFutureAction[Seq[T]](continue(0)(_))
+    new ComplexFutureAction[coll.Seq[T]](continue(0)(_))
   }
 
   /**

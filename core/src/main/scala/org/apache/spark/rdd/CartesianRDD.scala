@@ -23,6 +23,7 @@ import scala.reflect.ClassTag
 
 import org.apache.spark._
 import org.apache.spark.util.Utils
+import scala.{collection => coll}
 
 private[spark]
 class CartesianPartition(
@@ -65,7 +66,7 @@ class CartesianRDD[T: ClassTag, U: ClassTag](
     array
   }
 
-  override def getPreferredLocations(split: Partition): Seq[String] = {
+  override def getPreferredLocations(split: Partition): coll.Seq[String] = {
     val currSplit = split.asInstanceOf[CartesianPartition]
     (rdd1.preferredLocations(currSplit.s1) ++ rdd2.preferredLocations(currSplit.s2)).distinct
   }
@@ -76,12 +77,12 @@ class CartesianRDD[T: ClassTag, U: ClassTag](
          y <- rdd2.iterator(currSplit.s2, context)) yield (x, y)
   }
 
-  override def getDependencies: Seq[Dependency[_]] = List(
+  override def getDependencies: coll.Seq[Dependency[_]] = List(
     new NarrowDependency(rdd1) {
-      def getParents(id: Int): Seq[Int] = List(id / numPartitionsInRdd2)
+      def getParents(id: Int): coll.Seq[Int] = List(id / numPartitionsInRdd2)
     },
     new NarrowDependency(rdd2) {
-      def getParents(id: Int): Seq[Int] = List(id % numPartitionsInRdd2)
+      def getParents(id: Int): coll.Seq[Int] = List(id % numPartitionsInRdd2)
     }
   )
 

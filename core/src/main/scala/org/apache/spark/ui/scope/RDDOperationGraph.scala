@@ -27,6 +27,7 @@ import org.apache.commons.lang3.StringEscapeUtils
 import org.apache.spark.internal.Logging
 import org.apache.spark.scheduler.StageInfo
 import org.apache.spark.storage.StorageLevel
+import scala.{collection => coll}
 
 /**
  * A representation of a generic cluster graph used for storing information on RDD operations.
@@ -36,9 +37,9 @@ import org.apache.spark.storage.StorageLevel
  * the graph from nodes that belong to adjacent graphs.
  */
 private[spark] case class RDDOperationGraph(
-    edges: Seq[RDDOperationEdge],
-    outgoingEdges: Seq[RDDOperationEdge],
-    incomingEdges: Seq[RDDOperationEdge],
+    edges: coll.Seq[RDDOperationEdge],
+    outgoingEdges: coll.Seq[RDDOperationEdge],
+    incomingEdges: coll.Seq[RDDOperationEdge],
     rootCluster: RDDOperationCluster)
 
 /** A node in an RDDOperationGraph. This represents an RDD. */
@@ -63,15 +64,15 @@ private[spark] class RDDOperationCluster(val id: String, private var _name: Stri
   def name: String = _name
   def setName(n: String): Unit = { _name = n }
 
-  def childNodes: Seq[RDDOperationNode] = _childNodes.iterator.toSeq
-  def childClusters: Seq[RDDOperationCluster] = _childClusters.iterator.toSeq
+  def childNodes: coll.Seq[RDDOperationNode] = _childNodes.iterator.toSeq
+  def childClusters: coll.Seq[RDDOperationCluster] = _childClusters.iterator.toSeq
   def attachChildNode(childNode: RDDOperationNode): Unit = { _childNodes += childNode }
   def attachChildCluster(childCluster: RDDOperationCluster): Unit = {
     _childClusters += childCluster
   }
 
   /** Return all the nodes which are cached. */
-  def getCachedNodes: Seq[RDDOperationNode] = {
+  def getCachedNodes: coll.Seq[RDDOperationNode] = {
     _childNodes.filter(_.cached) ++ _childClusters.flatMap(_.getCachedNodes)
   }
 

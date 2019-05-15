@@ -27,6 +27,7 @@ import org.apache.hadoop.fs.{FileSystem, Path}
 import org.apache.spark.{SecurityManager, SparkConf, SparkException}
 import org.apache.spark.internal.Logging
 import org.apache.spark.util.{MutableURLClassLoader, Utils}
+import scala.{collection => coll}
 
 private[deploy] object DependencyUtils extends Logging {
 
@@ -36,7 +37,7 @@ private[deploy] object DependencyUtils extends Logging {
       repositories: String,
       ivyRepoPath: String,
       ivySettingsPath: Option[String]): String = {
-    val exclusions: Seq[String] =
+    val exclusions: coll.Seq[String] =
       if (!StringUtils.isBlank(packagesExclusions)) {
         packagesExclusions.split(",")
       } else {

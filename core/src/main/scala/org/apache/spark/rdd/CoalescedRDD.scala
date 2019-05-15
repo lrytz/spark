@@ -25,6 +25,7 @@ import scala.reflect.ClassTag
 
 import org.apache.spark._
 import org.apache.spark.util.Utils
+import scala.{collection => coll}
 
 /**
  * Class that captures a coalesced RDD by essentially keeping track of parent partitions
@@ -38,7 +39,7 @@ private[spark] case class CoalescedRDDPartition(
     @transient rdd: RDD[_],
     parentsIndices: Array[Int],
     @transient preferredLocation: Option[String] = None) extends Partition {
-  var parents: Seq[Partition] = parentsIndices.map(rdd.partitions(_))
+  var parents: coll.Seq[Partition] = parentsIndices.map(rdd.partitions(_))
 
   @throws(classOf[IOException])
   private def writeObject(oos: ObjectOutputStream): Unit = Utils.tryOrIOException {
@@ -100,9 +101,9 @@ private[spark] class CoalescedRDD[T: ClassTag](
     }
   }
 
-  override def getDependencies: Seq[Dependency[_]] = {
+  override def getDependencies: coll.Seq[Dependency[_]] = {
     Seq(new NarrowDependency(prev) {
-      def getParents(id: Int): Seq[Int] =
+      def getParents(id: Int): coll.Seq[Int] =
         partitions(id).asInstanceOf[CoalescedRDDPartition].parentsIndices
     })
   }
@@ -118,7 +119,7 @@ private[spark] class CoalescedRDD[T: ClassTag](
    * @param partition the partition for which to retrieve the preferred machine, if exists
    * @return the machine most preferred by split
    */
-  override def getPreferredLocations(partition: Partition): Seq[String] = {
+  override def getPreferredLocations(partition: Partition): coll.Seq[String] = {
     partition.asInstanceOf[CoalescedRDDPartition].preferredLocation.toSeq
   }
 }
@@ -176,7 +177,7 @@ private class DefaultPartitionCoalescer(val balanceSlack: Double = 0.10)
   var noLocality = true  // if true if no preferredLocations exists for parent RDD
 
   // gets the *current* preferred locations from the DAGScheduler (as opposed to the static ones)
-  def currPrefLocs(part: Partition, prev: RDD[_]): Seq[String] = {
+  def currPrefLocs(part: Partition, prev: RDD[_]): coll.Seq[String] = {
     prev.context.getPreferredLocs(prev, part.index).map(tl => tl.host)
   }
 
@@ -192,7 +193,7 @@ private class DefaultPartitionCoalescer(val balanceSlack: Double = 0.10)
     // gets all the preferred locations of the previous RDD and splits them into partitions
     // with preferred locations and ones without
     def getAllPrefLocs(prev: RDD[_]): Unit = {
-      val tmpPartsWithLocs = mutable.LinkedHashMap[Partition, Seq[String]]()
+      val tmpPartsWithLocs = mutable.LinkedHashMap[Partition, coll.Seq[String]]()
       // first get the locations for each partition, only do this once since it can be expensive
       prev.partitions.foreach(p => {
           val locs = currPrefLocs(p, prev)

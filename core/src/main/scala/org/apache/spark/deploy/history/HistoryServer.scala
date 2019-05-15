@@ -35,6 +35,7 @@ import org.apache.spark.internal.config.UI._
 import org.apache.spark.status.api.v1.{ApiRootResource, ApplicationInfo, UIRoot}
 import org.apache.spark.ui.{SparkUI, UIUtils, WebUI}
 import org.apache.spark.util.{ShutdownHookManager, SystemClock, Utils}
+import scala.{collection => coll}
 
 /**
  * A web server that renders SparkUIs of completed applications.
@@ -207,7 +208,7 @@ class HistoryServer(
   /**
    * @return html text to display when the application list is empty
    */
-  def emptyListingHtml(): Seq[Node] = {
+  def emptyListingHtml(): coll.Seq[Node] = {
     provider.getEmptyListingHtml()
   }
 

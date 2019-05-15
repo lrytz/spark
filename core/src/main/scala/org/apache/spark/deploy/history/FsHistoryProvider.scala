@@ -56,6 +56,7 @@ import org.apache.spark.status.api.v1.{ApplicationAttemptInfo, ApplicationInfo}
 import org.apache.spark.ui.SparkUI
 import org.apache.spark.util.{Clock, SystemClock, ThreadUtils, Utils}
 import org.apache.spark.util.kvstore._
+import scala.{collection => coll}
 
 /**
  * A class that provides application history from event logs stored in the file system.
@@ -309,7 +310,7 @@ private[history] class FsHistoryProvider(conf: SparkConf, clock: Clock)
   /**
    * Split a comma separated String, filter out any empty items, and return a Sequence of strings
    */
-  private def stringToSeq(list: String): Seq[String] = {
+  private def stringToSeq(list: String): coll.Seq[String] = {
     list.split(',').map(_.trim).filter(!_.isEmpty)
   }
 
@@ -364,7 +365,7 @@ private[history] class FsHistoryProvider(conf: SparkConf, clock: Clock)
     Some(loadedUI)
   }
 
-  override def getEmptyListingHtml(): Seq[Node] = {
+  override def getEmptyListingHtml(): coll.Seq[Node] = {
     <p>
       Did you specify the correct logging directory? Please verify your setting of
       <span style="font-style:italic">spark.history.fs.logDirectory</span>

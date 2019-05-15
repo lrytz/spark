@@ -33,6 +33,7 @@ import org.apache.spark.status._
 import org.apache.spark.status.api.v1._
 import org.apache.spark.ui._
 import org.apache.spark.util.Utils
+import scala.{collection => coll}
 
 /** Page showing statistics and task list for a given stage */
 private[ui] class StagePage(parent: StagesTab, store: AppStatusStore) extends WebUIPage("stage") {
@@ -80,7 +81,7 @@ private[ui] class StagePage(parent: StagesTab, store: AppStatusStore) extends We
     localityNamesAndCounts.sorted.mkString("; ")
   }
 
-  def render(request: HttpServletRequest): Seq[Node] = {
+  def render(request: HttpServletRequest): coll.Seq[Node] = {
     val parameterId = request.getParameter("id")
     require(parameterId != null && parameterId.nonEmpty, "Missing id parameter")
 
@@ -210,8 +211,8 @@ private[ui] class StagePage(parent: StagesTab, store: AppStatusStore) extends We
     val stageGraph = parent.store.asOption(parent.store.operationGraphForStage(stageId))
     val dagViz = UIUtils.showDagVizForStage(stageId, stageGraph)
 
-    val accumulableHeaders: Seq[String] = Seq("Accumulable", "Value")
-    def accumulableRow(acc: AccumulableInfo): Seq[Node] = {
+    val accumulableHeaders: coll.Seq[String] = Seq("Accumulable", "Value")
+    def accumulableRow(acc: AccumulableInfo): coll.Seq[Node] = {
       if (acc.name != null && acc.value != null) {
         <tr><td>{acc.name}</td><td>{acc.value}</td></tr>
       } else {
@@ -278,14 +279,14 @@ private[ui] class StagePage(parent: StagesTab, store: AppStatusStore) extends We
   }
 
   def makeTimeline(
-      tasks: Seq[TaskData],
+      tasks: coll.Seq[TaskData],
       currentTime: Long,
       page: Int,
       pageSize: Int,
       totalPages: Int,
       stageId: Int,
       stageAttemptId: Int,
-      totalTasks: Int): Seq[Node] = {
+      totalTasks: Int): coll.Seq[Node] = {
     val executorsSet = new HashSet[(String, String)]
     var minLaunchTime = Long.MaxValue
     var maxFinishTime = Long.MinValue
@@ -493,11 +494,11 @@ private[ui] class TaskDataSource(
   // Keep an internal cache of executor log maps so that long task lists render faster.
   private val executorIdToLogs = new HashMap[String, Map[String, String]]()
 
-  private var _tasksToShow: Seq[TaskData] = null
+  private var _tasksToShow: coll.Seq[TaskData] = null
 
   override def dataSize: Int = store.taskCount(stage.stageId, stage.attemptId).toInt
 
-  override def sliceData(from: Int, to: Int): Seq[TaskData] = {
+  override def sliceData(from: Int, to: Int): coll.Seq[TaskData] = {
     if (_tasksToShow == null) {
       _tasksToShow = store.taskList(stage.stageId, stage.attemptId, from, to - from,
         indexName(sortColumn), !desc)
@@ -505,7 +506,7 @@ private[ui] class TaskDataSource(
     _tasksToShow
   }
 
-  def tasks: Seq[TaskData] = _tasksToShow
+  def tasks: coll.Seq[TaskData] = _tasksToShow
 
   def executorLogs(id: String): Map[String, String] = {
     executorIdToLogs.getOrElseUpdate(id,
@@ -556,10 +557,10 @@ private[ui] class TaskPagedTable(
     s"$basePath&task.sort=$encodedSortColumn&task.desc=$desc"
   }
 
-  def headers: Seq[Node] = {
+  def headers: coll.Seq[Node] = {
     import ApiHelper._
 
-    val taskHeadersAndCssClasses: Seq[(String, String)] =
+    val taskHeadersAndCssClasses: coll.Seq[(String, String)] =
       Seq(
         (HEADER_TASK_INDEX, ""), (HEADER_ID, ""), (HEADER_ATTEMPT, ""), (HEADER_STATUS, ""),
         (HEADER_LOCALITY, ""), (HEADER_EXECUTOR, ""), (HEADER_HOST, ""), (HEADER_LAUNCH_TIME, ""),
@@ -595,7 +596,7 @@ private[ui] class TaskPagedTable(
       throw new IllegalArgumentException(s"Unknown column: $sortColumn")
     }
 
-    val headerRow: Seq[Node] = {
+    val headerRow: coll.Seq[Node] = {
       taskHeadersAndCssClasses.map { case (header, cssClass) =>
         if (header == sortColumn) {
           val headerLink = Unparsed(
@@ -626,7 +627,7 @@ private[ui] class TaskPagedTable(
     <thead>{headerRow}</thead>
   }
 
-  def row(task: TaskData): Seq[Node] = {
+  def row(task: TaskData): coll.Seq[Node] = {
     def formatDuration(value: Option[Long], hideZero: Boolean = false): String = {
       value.map { v =>
         if (v > 0 || !hideZero) UIUtils.formatDuration(v) else ""
@@ -730,7 +731,7 @@ private[ui] class TaskPagedTable(
     </tr>
   }
 
-  private def accumulatorsInfo(task: TaskData): Seq[Node] = {
+  private def accumulatorsInfo(task: TaskData): coll.Seq[Node] = {
     task.accumulatorUpdates.flatMap { acc =>
       if (acc.name != null && acc.update.isDefined) {
         Unparsed(StringEscapeUtils.escapeHtml4(s"${acc.name}: ${acc.update.get}")) ++ <br />
@@ -740,11 +741,11 @@ private[ui] class TaskPagedTable(
     }
   }
 
-  private def metricInfo(task: TaskData)(fn: TaskMetrics => Seq[Node]): Seq[Node] = {
+  private def metricInfo(task: TaskData)(fn: TaskMetrics => coll.Seq[Node]): coll.Seq[Node] = {
     task.taskMetrics.map(fn).getOrElse(Nil)
   }
 
-  private def errorMessageCell(error: String): Seq[Node] = {
+  private def errorMessageCell(error: String): coll.Seq[Node] = {
     val isMultiline = error.indexOf('\n') >= 0
     // Display the first line by default
     val errorSummary = StringEscapeUtils.escapeHtml4(

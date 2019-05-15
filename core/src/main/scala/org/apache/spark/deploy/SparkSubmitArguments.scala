@@ -36,12 +36,13 @@ import org.apache.spark.internal.config.DYN_ALLOCATION_ENABLED
 import org.apache.spark.launcher.SparkSubmitArgumentsParser
 import org.apache.spark.network.util.JavaUtils
 import org.apache.spark.util.Utils
+import scala.{collection => coll}
 
 /**
  * Parses and encapsulates arguments from the spark-submit script.
  * The env argument is used for testing.
  */
-private[deploy] class SparkSubmitArguments(args: Seq[String], env: Map[String, String] = sys.env)
+private[deploy] class SparkSubmitArguments(args: coll.Seq[String], env: Map[String, String] = sys.env)
   extends SparkSubmitArgumentsParser with Logging {
   var master: String = null
   var deployMode: String = null

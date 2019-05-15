@@ -29,6 +29,7 @@ import com.google.common.io.{ByteStreams, Files}
 import org.apache.spark.api.r.RUtils
 import org.apache.spark.internal.Logging
 import org.apache.spark.util.{RedirectThread, Utils}
+import scala.{collection => coll}
 
 private[deploy] object RPackageUtils extends Logging {
 
@@ -211,7 +212,7 @@ private[deploy] object RPackageUtils extends Logging {
     }
   }
 
-  private def listFilesRecursively(dir: File, excludePatterns: Seq[String]): Set[File] = {
+  private def listFilesRecursively(dir: File, excludePatterns: coll.Seq[String]): Set[File] = {
     if (!dir.exists()) {
       Set.empty[File]
     } else {

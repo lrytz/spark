@@ -34,6 +34,7 @@ import org.apache.spark.internal.Logging
 import org.apache.spark.internal.config.Worker.WORKER_DRIVER_TERMINATE_TIMEOUT
 import org.apache.spark.rpc.RpcEndpointRef
 import org.apache.spark.util.{Clock, ShutdownHookManager, SystemClock, Utils}
+import scala.{collection => coll}
 
 /**
  * Manages the execution of one driver, including automatically restarting the driver on failure.
@@ -248,12 +249,12 @@ private[deploy] trait Sleeper {
 // Needed because ProcessBuilder is a final class and cannot be mocked
 private[deploy] trait ProcessBuilderLike {
   def start(): Process
-  def command: Seq[String]
+  def command: coll.Seq[String]
 }
 
 private[deploy] object ProcessBuilderLike {
   def apply(processBuilder: ProcessBuilder): ProcessBuilderLike = new ProcessBuilderLike {
     override def start(): Process = processBuilder.start()
-    override def command: Seq[String] = processBuilder.command().asScala
+    override def command: coll.Seq[String] = processBuilder.command().asScala
   }
 }

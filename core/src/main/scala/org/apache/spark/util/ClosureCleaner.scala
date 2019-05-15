@@ -27,6 +27,7 @@ import org.apache.xbean.asm7.Opcodes._
 
 import org.apache.spark.{SparkEnv, SparkException}
 import org.apache.spark.internal.Logging
+import scala.{collection => coll}
 
 /**
  * A cleaner that renders closures serializable if they can be done so safely.
@@ -97,7 +98,7 @@ private[spark] object ClosureCleaner extends Logging {
   /** Initializes the accessed fields for outer classes and their super classes. */
   private def initAccessedFields(
       accessedFields: Map[Class[_], Set[String]],
-      outerClasses: Seq[Class[_]]): Unit = {
+      outerClasses: coll.Seq[Class[_]]): Unit = {
     for (cls <- outerClasses) {
       var currentClass = cls
       assert(currentClass != null, "The outer class can't be null.")

@@ -20,6 +20,7 @@ package org.apache.spark.executor
 import org.apache.spark.annotation.DeveloperApi
 import org.apache.spark.shuffle.ShuffleReadMetricsReporter
 import org.apache.spark.util.LongAccumulator
+import scala.{collection => coll}
 
 
 /**
@@ -104,7 +105,7 @@ class ShuffleReadMetrics private[spark] () extends Serializable {
    * Resets the value of the current metrics (`this`) and merges all the independent
    * [[TempShuffleReadMetrics]] into `this`.
    */
-  private[spark] def setMergeValues(metrics: Seq[TempShuffleReadMetrics]): Unit = {
+  private[spark] def setMergeValues(metrics: coll.Seq[TempShuffleReadMetrics]): Unit = {
     _remoteBlocksFetched.setValue(0)
     _localBlocksFetched.setValue(0)
     _remoteBytesRead.setValue(0)

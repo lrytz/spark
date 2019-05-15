@@ -23,6 +23,7 @@ import org.apache.spark._
 import org.apache.spark.internal.Logging
 import org.apache.spark.internal.config.UI._
 import org.apache.spark.status.api.v1.StageData
+import scala.{collection => coll}
 
 /**
  * ConsoleProgressBar shows the progress of stages in the next line of the console. It poll the
@@ -73,7 +74,7 @@ private[spark] class ConsoleProgressBar(sc: SparkContext) extends Logging {
    * after your last output, keeps overwriting itself to hold in one line. The logging will follow
    * the progress bar, then progress bar will be showed in next line without overwrite logs.
    */
-  private def show(now: Long, stages: Seq[StageData]) {
+  private def show(now: Long, stages: coll.Seq[StageData]) {
     val width = TerminalWidth / stages.size
     val bar = stages.map { s =>
       val total = s.numTasks

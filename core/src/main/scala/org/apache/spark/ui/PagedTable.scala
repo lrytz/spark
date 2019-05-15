@@ -25,6 +25,7 @@ import scala.xml.{Node, Unparsed}
 import com.google.common.base.Splitter
 
 import org.apache.spark.util.Utils
+import scala.{collection => coll}
 
 /**
  * A data source that provides data for a page.
@@ -41,7 +42,7 @@ private[spark] abstract class PagedDataSource[T](val pageSize: Int) {
   /**
    * Slice a range of data.
    */
-  protected def sliceData(from: Int, to: Int): Seq[T]
+  protected def sliceData(from: Int, to: Int): coll.Seq[T]
 
   /**
    * Slice the data for this page
@@ -74,7 +75,7 @@ private[spark] abstract class PagedDataSource[T](val pageSize: Int) {
  * The data returned by `PagedDataSource.pageData`, including the page number, the number of total
  * pages and the data in this page.
  */
-private[ui] case class PageData[T](totalPage: Int, data: Seq[T])
+private[ui] case class PageData[T](totalPage: Int, data: coll.Seq[T])
 
 /**
  * A paged table that will generate a HTML table for a specified page and also the page navigation.
@@ -91,11 +92,11 @@ private[spark] trait PagedTable[T] {
 
   def dataSource: PagedDataSource[T]
 
-  def headers: Seq[Node]
+  def headers: coll.Seq[Node]
 
-  def row(t: T): Seq[Node]
+  def row(t: T): coll.Seq[Node]
 
-  def table(page: Int): Seq[Node] = {
+  def table(page: Int): coll.Seq[Node] = {
     val _dataSource = dataSource
     try {
       val PageData(totalPages, data) = _dataSource.pageData(page)
@@ -170,7 +171,7 @@ private[spark] trait PagedTable[T] {
    * > means jumping to the next page.
    * }}}
    */
-  private[ui] def pageNavigation(page: Int, pageSize: Int, totalPages: Int): Seq[Node] = {
+  private[ui] def pageNavigation(page: Int, pageSize: Int, totalPages: Int): coll.Seq[Node] = {
     // A group includes all page numbers will be shown in the page navigation.
     // The size of group is 10 means there are 10 page numbers will be shown.
     // The first group is 1 to 10, the second is 2 to 20, and so on

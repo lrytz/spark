@@ -20,6 +20,7 @@ package org.apache.spark.scheduler
 import org.apache.spark.TaskState
 import org.apache.spark.TaskState.TaskState
 import org.apache.spark.annotation.DeveloperApi
+import scala.{collection => coll}
 
 /**
  * :: DeveloperApi ::
@@ -52,11 +53,11 @@ class TaskInfo(
    * accumulable to be updated multiple times in a single task or for two accumulables with the
    * same name but different IDs to exist in a task.
    */
-  def accumulables: Seq[AccumulableInfo] = _accumulables
+  def accumulables: coll.Seq[AccumulableInfo] = _accumulables
 
-  private[this] var _accumulables: Seq[AccumulableInfo] = Nil
+  private[this] var _accumulables: coll.Seq[AccumulableInfo] = Nil
 
-  private[spark] def setAccumulables(newAccumulables: Seq[AccumulableInfo]): Unit = {
+  private[spark] def setAccumulables(newAccumulables: coll.Seq[AccumulableInfo]): Unit = {
     _accumulables = newAccumulables
   }
 

@@ -33,6 +33,7 @@ import org.apache.spark.status.api.v1
 import org.apache.spark.storage._
 import org.apache.spark.ui.SparkUI
 import org.apache.spark.ui.scope._
+import scala.{collection => coll}
 
 /**
  * A Spark listener that writes application information to a data store. The types written to the
@@ -891,7 +892,7 @@ private[spark] class AppStatusListener(
    * Shortcut to get active stages quickly in a live application, for use by the console
    * progress bar.
    */
-  def activeStages(): Seq[v1.StageData] = {
+  def activeStages(): coll.Seq[v1.StageData] = {
     liveStages.values.asScala
       .filter(_.info.submissionTime.isDefined)
       .map(_.toApi())

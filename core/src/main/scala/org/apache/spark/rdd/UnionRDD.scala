@@ -27,6 +27,7 @@ import org.apache.spark.{Dependency, Partition, RangeDependency, SparkContext, T
 import org.apache.spark.annotation.DeveloperApi
 import org.apache.spark.internal.config.RDD_PARALLEL_LISTING_THRESHOLD
 import org.apache.spark.util.{ThreadUtils, Utils}
+import scala.{collection => coll}
 
 /**
  * Partition for UnionRDD.
@@ -46,7 +47,7 @@ private[spark] class UnionPartition[T: ClassTag](
 
   var parentPartition: Partition = rdd.partitions(parentRddPartitionIndex)
 
-  def preferredLocations(): Seq[String] = rdd.preferredLocations(parentPartition)
+  def preferredLocations(): coll.Seq[String] = rdd.preferredLocations(parentPartition)
 
   override val index: Int = idx
 
@@ -66,7 +67,7 @@ object UnionRDD {
 @DeveloperApi
 class UnionRDD[T: ClassTag](
     sc: SparkContext,
-    var rdds: Seq[RDD[T]])
+    var rdds: coll.Seq[RDD[T]])
   extends RDD[T](sc, Nil) {  // Nil since we implement getDependencies
 
   // visible for testing
@@ -90,7 +91,7 @@ class UnionRDD[T: ClassTag](
     array
   }
 
-  override def getDependencies: Seq[Dependency[_]] = {
+  override def getDependencies: coll.Seq[Dependency[_]] = {
     val deps = new ArrayBuffer[Dependency[_]]
     var pos = 0
     for (rdd <- rdds) {
@@ -105,7 +106,7 @@ class UnionRDD[T: ClassTag](
     parent[T](part.parentRddIndex).iterator(part.parentPartition, context)
   }
 
-  override def getPreferredLocations(s: Partition): Seq[String] =
+  override def getPreferredLocations(s: Partition): coll.Seq[String] =
     s.asInstanceOf[UnionPartition[T]].preferredLocations()
 
   override def clearDependencies() {

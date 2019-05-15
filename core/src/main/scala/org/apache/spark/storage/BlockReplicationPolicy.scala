@@ -22,6 +22,7 @@ import scala.util.Random
 
 import org.apache.spark.annotation.DeveloperApi
 import org.apache.spark.internal.Logging
+import scala.{collection => coll}
 
 /**
  * ::DeveloperApi::
@@ -47,7 +48,7 @@ trait BlockReplicationPolicy {
    */
   def prioritize(
       blockManagerId: BlockManagerId,
-      peers: Seq[BlockManagerId],
+      peers: coll.Seq[BlockManagerId],
       peersReplicatedTo: mutable.HashSet[BlockManagerId],
       blockId: BlockId,
       numReplicas: Int): List[BlockManagerId]
@@ -82,7 +83,7 @@ object BlockReplicationUtils {
    * @return a random list of size m. If there are fewer than m elements in elems, we just
    *         randomly shuffle elems
    */
-  def getRandomSample[T](elems: Seq[T], m: Int, r: Random): List[T] = {
+  def getRandomSample[T](elems: coll.Seq[T], m: Int, r: Random): List[T] = {
     if (elems.size > m) {
       getSampleIds(elems.size, m, r).map(elems(_))
     } else {
@@ -110,7 +111,7 @@ class RandomBlockReplicationPolicy
    */
   override def prioritize(
       blockManagerId: BlockManagerId,
-      peers: Seq[BlockManagerId],
+      peers: coll.Seq[BlockManagerId],
       peersReplicatedTo: mutable.HashSet[BlockManagerId],
       blockId: BlockId,
       numReplicas: Int): List[BlockManagerId] = {
@@ -151,7 +152,7 @@ class BasicBlockReplicationPolicy
    */
   override def prioritize(
       blockManagerId: BlockManagerId,
-      peers: Seq[BlockManagerId],
+      peers: coll.Seq[BlockManagerId],
       peersReplicatedTo: mutable.HashSet[BlockManagerId],
       blockId: BlockId,
       numReplicas: Int): List[BlockManagerId] = {

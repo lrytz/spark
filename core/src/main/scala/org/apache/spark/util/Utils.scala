@@ -69,6 +69,7 @@ import org.apache.spark.network.util.JavaUtils
 import org.apache.spark.serializer.{DeserializationStream, SerializationStream, SerializerInstance}
 import org.apache.spark.status.api.v1.{StackTrace, ThreadStackTrace}
 import org.apache.spark.util.io.ChunkedByteBufferOutputStream
+import scala.{collection => coll}
 
 /** CallSite represents a place in user code. It can have a short and a long form. */
 private[spark] case class CallSite(shortForm: String, longForm: String)
@@ -903,7 +904,7 @@ private[spark] object Utils extends Logging {
    * result in a new collection. Unlike scala.util.Random.shuffle, this method
    * uses a local random number generator, avoiding inter-thread contention.
    */
-  def randomize[T: ClassTag](seq: TraversableOnce[T]): Seq[T] = {
+  def randomize[T: ClassTag](seq: TraversableOnce[T]): coll.Seq[T] = {
     randomizeInPlace(seq.toArray)
   }
 
@@ -1205,7 +1206,7 @@ private[spark] object Utils extends Logging {
    * Execute a command and return the process running the command.
    */
   def executeCommand(
-      command: Seq[String],
+      command: coll.Seq[String],
       workingDir: File = new File("."),
       extraEnvironment: Map[String, String] = Map.empty,
       redirectStderr: Boolean = true): Process = {
@@ -1227,7 +1228,7 @@ private[spark] object Utils extends Logging {
    * Execute a command and get its output, throwing an exception if it yields a code other than 0.
    */
   def executeAndGetOutput(
-      command: Seq[String],
+      command: coll.Seq[String],
       workingDir: File = new File("."),
       extraEnvironment: Map[String, String] = Map.empty,
       redirectStderr: Boolean = true): String = {
@@ -1572,7 +1573,7 @@ private[spark] object Utils extends Logging {
    * and `endIndex` is based on the cumulative size of all the files take in
    * the given order. See figure below for more details.
    */
-  def offsetBytes(files: Seq[File], fileLengths: Seq[Long], start: Long, end: Long): String = {
+  def offsetBytes(files: coll.Seq[File], fileLengths: coll.Seq[Long], start: Long, end: Long): String = {
     assert(files.length == fileLengths.length)
     val startIndex = math.max(start, 0)
     val endIndex = math.min(end, fileLengths.sum)
@@ -1636,7 +1637,7 @@ private[spark] object Utils extends Logging {
    * would do it to determine arguments to a command. For example, if the string is 'a "b c" d',
    * then it would be parsed as three arguments: 'a', 'b c' and 'd'.
    */
-  def splitCommandString(s: String): Seq[String] = {
+  def splitCommandString(s: String): coll.Seq[String] = {
     val buf = new ArrayBuffer[String]
     var inWord = false
     var inSingleQuote = false
@@ -2195,7 +2196,7 @@ private[spark] object Utils extends Logging {
   /**
    * Convert all spark properties set in the given SparkConf to a sequence of java options.
    */
-  def sparkJavaOpts(conf: SparkConf, filterKey: (String => Boolean) = _ => true): Seq[String] = {
+  def sparkJavaOpts(conf: SparkConf, filterKey: (String => Boolean) = _ => true): coll.Seq[String] = {
     conf.getAll
       .filter { case (k, _) => filterKey(k) }
       .map { case (k, v) => s"-D$k=$v" }
@@ -2338,7 +2339,7 @@ private[spark] object Utils extends Logging {
    * system-specific library path environment variable. On Unix, for instance,
    * this returns the string LD_LIBRARY_PATH="path1:path2:$LD_LIBRARY_PATH".
    */
-  def libraryPathEnvPrefix(libraryPaths: Seq[String]): String = {
+  def libraryPathEnvPrefix(libraryPaths: coll.Seq[String]): String = {
     val libraryPathScriptVar = if (isWindows) {
       s"%${libraryPathEnvName}%"
     } else {
@@ -2567,7 +2568,7 @@ private[spark] object Utils extends Logging {
    * these jars through file server. In the YARN mode, it will return an empty list, since YARN
    * has its own mechanism to distribute jars.
    */
-  def getUserJars(conf: SparkConf): Seq[String] = {
+  def getUserJars(conf: SparkConf): coll.Seq[String] = {
     conf.get(JARS).filter(_.nonEmpty)
   }
 
@@ -2576,7 +2577,7 @@ private[spark] object Utils extends Logging {
    * specified by --jars (spark.jars) or --packages, remote jars will be downloaded to local by
    * SparkSubmit at first.
    */
-  def getLocalUserJarsForShell(conf: SparkConf): Seq[String] = {
+  def getLocalUserJarsForShell(conf: SparkConf): coll.Seq[String] = {
     val localJars = conf.getOption("spark.repl.local.jars")
     localJars.map(_.split(",")).map(_.filter(_.nonEmpty)).toSeq.flatten
   }
@@ -2587,7 +2588,7 @@ private[spark] object Utils extends Logging {
    * Redact the sensitive values in the given map. If a map key matches the redaction pattern then
    * its value is replaced with a dummy text.
    */
-  def redact(conf: SparkConf, kvs: Seq[(String, String)]): Seq[(String, String)] = {
+  def redact(conf: SparkConf, kvs: coll.Seq[(String, String)]): coll.Seq[(String, String)] = {
     val redactionPattern = conf.get(SECRET_REDACTION_PATTERN)
     redact(redactionPattern, kvs)
   }
@@ -2596,7 +2597,7 @@ private[spark] object Utils extends Logging {
    * Redact the sensitive values in the given map. If a map key matches the redaction pattern then
    * its value is replaced with a dummy text.
    */
-  def redact(regex: Option[Regex], kvs: Seq[(String, String)]): Seq[(String, String)] = {
+  def redact(regex: Option[Regex], kvs: coll.Seq[(String, String)]): coll.Seq[(String, String)] = {
     regex match {
       case None => kvs
       case Some(r) => redact(r, kvs)
@@ -2618,7 +2619,7 @@ private[spark] object Utils extends Logging {
     }
   }
 
-  private def redact(redactionPattern: Regex, kvs: Seq[(String, String)]): Seq[(String, String)] = {
+  private def redact(redactionPattern: Regex, kvs: coll.Seq[(String, String)]): coll.Seq[(String, String)] = {
     // If the sensitive information regex matches with either the key or the value, redact the value
     // While the original intent was to only redact the value if the key matched with the regex,
     // we've found that especially in verbose mode, the value of the property may contain sensitive
@@ -2646,7 +2647,7 @@ private[spark] object Utils extends Logging {
    * redacted. So theoretically, the property itself could be configured to redact its own value
    * when printing.
    */
-  def redact(kvs: Map[String, String]): Seq[(String, String)] = {
+  def redact(kvs: Map[String, String]): coll.Seq[(String, String)] = {
     val redactionPattern = kvs.getOrElse(
       SECRET_REDACTION_PATTERN.key,
       SECRET_REDACTION_PATTERN.defaultValueString
@@ -2654,7 +2655,7 @@ private[spark] object Utils extends Logging {
     redact(redactionPattern, kvs.toArray)
   }
 
-  def redactCommandLineArgs(conf: SparkConf, commands: Seq[String]): Seq[String] = {
+  def redactCommandLineArgs(conf: SparkConf, commands: coll.Seq[String]): coll.Seq[String] = {
     val redactionPattern = conf.get(SECRET_REDACTION_PATTERN)
     commands.map {
       case PATTERN_FOR_COMMAND_LINE_ARG(key, value) =>
@@ -2665,7 +2666,7 @@ private[spark] object Utils extends Logging {
     }
   }
 
-  def stringToSeq(str: String): Seq[String] = {
+  def stringToSeq(str: String): coll.Seq[String] = {
     str.split(",").map(_.trim()).filter(_.nonEmpty)
   }
 
@@ -2682,7 +2683,7 @@ private[spark] object Utils extends Logging {
    * Other exceptions are bubbled up.
    */
   def loadExtensions[T <: AnyRef](
-      extClass: Class[T], classes: Seq[String], conf: SparkConf): Seq[T] = {
+      extClass: Class[T], classes: coll.Seq[String], conf: SparkConf): coll.Seq[T] = {
     classes.flatMap { name =>
       try {
         val klass = classForName[T](name)

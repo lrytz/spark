@@ -29,6 +29,7 @@ import com.fasterxml.jackson.module.scala.DefaultScalaModule
 
 import org.apache.spark.internal.Logging
 import org.apache.spark.util.kvstore._
+import scala.{collection => coll}
 
 private[spark] object KVUtils extends Logging {
 
@@ -73,7 +74,7 @@ private[spark] object KVUtils extends Logging {
   def viewToSeq[T](
       view: KVStoreView[T],
       max: Int)
-      (filter: T => Boolean): Seq[T] = {
+      (filter: T => Boolean): coll.Seq[T] = {
     val iter = view.closeableIterator()
     try {
       iter.asScala.filter(filter).take(max).toList

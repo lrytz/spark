@@ -35,6 +35,7 @@ import org.apache.spark.{SparkConf, SparkContext}
 import org.apache.spark.deploy.master.RecoveryState
 import org.apache.spark.internal.{config, Logging}
 import org.apache.spark.util.{ThreadUtils, Utils}
+import scala.{collection => coll}
 
 /**
  * This suite tests the fault tolerance of the Spark standalone scheduler, mainly the Master.
@@ -219,7 +220,7 @@ private object FaultToleranceTest extends App with Logging {
     sc = new SparkContext(getMasterUrls(masters), "fault-tolerance", containerSparkHome)
   }
 
-  private def getMasterUrls(masters: Seq[TestMasterInfo]): String = {
+  private def getMasterUrls(masters: coll.Seq[TestMasterInfo]): String = {
     "spark://" + masters.map(master => master.ip + ":7077").mkString(",")
   }
 
@@ -276,7 +277,7 @@ private object FaultToleranceTest extends App with Logging {
     var numAlive = 0
     var numStandby = 0
     var numLiveApps = 0
-    var liveWorkerIPs: Seq[String] = List()
+    var liveWorkerIPs: coll.Seq[String] = List()
 
     def stateValid(): Boolean = {
       (workers.map(_.ip) -- liveWorkerIPs).isEmpty &&

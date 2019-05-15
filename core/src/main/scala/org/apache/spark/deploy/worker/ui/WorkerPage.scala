@@ -29,6 +29,7 @@ import org.apache.spark.deploy.master.DriverState
 import org.apache.spark.deploy.worker.{DriverRunner, ExecutorRunner}
 import org.apache.spark.ui.{UIUtils, WebUIPage}
 import org.apache.spark.util.Utils
+import scala.{collection => coll}
 
 private[ui] class WorkerPage(parent: WorkerWebUI) extends WebUIPage("") {
   private val workerEndpoint = parent.worker.self
@@ -38,7 +39,7 @@ private[ui] class WorkerPage(parent: WorkerWebUI) extends WebUIPage("") {
     JsonProtocol.writeWorkerState(workerState)
   }
 
-  def render(request: HttpServletRequest): Seq[Node] = {
+  def render(request: HttpServletRequest): coll.Seq[Node] = {
     val workerState = workerEndpoint.askSync[WorkerStateResponse](RequestWorkerState)
 
     val executorHeaders = Seq("ExecutorID", "Cores", "State", "Memory", "Job Details", "Logs")
@@ -139,7 +140,7 @@ private[ui] class WorkerPage(parent: WorkerWebUI) extends WebUIPage("") {
       workerState.host, workerState.port))
   }
 
-  def executorRow(executor: ExecutorRunner): Seq[Node] = {
+  def executorRow(executor: ExecutorRunner): coll.Seq[Node] = {
     val workerUrlRef = UIUtils.makeHref(parent.worker.reverseProxy, executor.workerId,
       parent.webUrl)
     val appUrlRef = UIUtils.makeHref(parent.worker.reverseProxy, executor.appId,
@@ -177,7 +178,7 @@ private[ui] class WorkerPage(parent: WorkerWebUI) extends WebUIPage("") {
 
   }
 
-  def driverRow(workerId: String, driver: DriverRunner): Seq[Node] = {
+  def driverRow(workerId: String, driver: DriverRunner): coll.Seq[Node] = {
     val workerUrlRef = UIUtils.makeHref(parent.worker.reverseProxy, workerId, parent.webUrl)
     <tr>
       <td>{driver.driverId}</td>

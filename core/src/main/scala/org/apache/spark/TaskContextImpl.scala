@@ -29,6 +29,7 @@ import org.apache.spark.metrics.MetricsSystem
 import org.apache.spark.metrics.source.Source
 import org.apache.spark.shuffle.FetchFailedException
 import org.apache.spark.util._
+import scala.{collection => coll}
 
 
 /**
@@ -119,7 +120,7 @@ private[spark] class TaskContextImpl(
   }
 
   private def invokeListeners[T](
-      listeners: Seq[T],
+      listeners: coll.Seq[T],
       name: String,
       error: Option[Throwable])(
       callback: T => Unit): Unit = {
@@ -161,7 +162,7 @@ private[spark] class TaskContextImpl(
 
   override def getLocalProperty(key: String): String = localProperties.getProperty(key)
 
-  override def getMetricsSources(sourceName: String): Seq[Source] =
+  override def getMetricsSources(sourceName: String): coll.Seq[Source] =
     metricsSystem.getSourcesByName(sourceName)
 
   private[spark] override def registerAccumulator(a: AccumulatorV2[_, _]): Unit = {

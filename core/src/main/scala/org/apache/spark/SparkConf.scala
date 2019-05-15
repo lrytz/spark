@@ -32,6 +32,7 @@ import org.apache.spark.internal.config.Kryo._
 import org.apache.spark.internal.config.Network._
 import org.apache.spark.serializer.KryoSerializer
 import org.apache.spark.util.Utils
+import scala.{collection => coll}
 
 /**
  * Configuration for a Spark application. Used to set various Spark parameters as key-value pairs.
@@ -121,7 +122,7 @@ class SparkConf(loadDefaults: Boolean) extends Cloneable with Logging with Seria
   }
 
   /** Set JAR files to distribute to the cluster. */
-  def setJars(jars: Seq[String]): SparkConf = {
+  def setJars(jars: coll.Seq[String]): SparkConf = {
     for (jar <- jars if (jar == null)) logWarning("null jar passed to SparkContext constructor")
     set(JARS, jars.filter(_ != null))
   }
@@ -145,7 +146,7 @@ class SparkConf(loadDefaults: Boolean) extends Cloneable with Logging with Seria
    * These variables are stored as properties of the form spark.executorEnv.VAR_NAME
    * (for example spark.executorEnv.PATH) but this method makes them easier to set.
    */
-  def setExecutorEnv(variables: Seq[(String, String)]): SparkConf = {
+  def setExecutorEnv(variables: coll.Seq[(String, String)]): SparkConf = {
     for ((k, v) <- variables) {
       setExecutorEnv(k, v)
     }
@@ -440,7 +441,7 @@ class SparkConf(loadDefaults: Boolean) extends Cloneable with Logging with Seria
   }
 
   /** Get all executor environment variables set on this SparkConf */
-  def getExecutorEnv: Seq[(String, String)] = {
+  def getExecutorEnv: coll.Seq[(String, String)] = {
     getAllWithPrefix("spark.executorEnv.")
   }
 
@@ -641,7 +642,7 @@ private[spark] object SparkConf extends Logging {
    *
    * TODO: consolidate it with `ConfigBuilder.withAlternative`.
    */
-  private val configsWithAlternatives = Map[String, Seq[AlternateConfig]](
+  private val configsWithAlternatives = Map[String, coll.Seq[AlternateConfig]](
     EXECUTOR_USER_CLASS_PATH_FIRST.key -> Seq(
       AlternateConfig("spark.files.userClassPathFirst", "1.3")),
     UPDATE_INTERVAL_S.key -> Seq(

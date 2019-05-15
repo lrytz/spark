@@ -26,6 +26,7 @@ import org.apache.spark.internal.Logging
 import org.apache.spark.ui.{UIUtils, WebUIPage}
 import org.apache.spark.util.Utils
 import org.apache.spark.util.logging.RollingFileAppender
+import scala.{collection => coll}
 
 private[ui] class LogPage(parent: WorkerWebUI) extends WebUIPage("logPage") with Logging {
   private val worker = parent.worker
@@ -56,7 +57,7 @@ private[ui] class LogPage(parent: WorkerWebUI) extends WebUIPage("logPage") with
     pre + logText
   }
 
-  def render(request: HttpServletRequest): Seq[Node] = {
+  def render(request: HttpServletRequest): coll.Seq[Node] = {
     val appId = Option(request.getParameter("appId"))
     val executorId = Option(request.getParameter("executorId"))
     val driverId = Option(request.getParameter("driverId"))
@@ -140,7 +141,7 @@ private[ui] class LogPage(parent: WorkerWebUI) extends WebUIPage("logPage") with
       val files = RollingFileAppender.getSortedRolledOverFiles(logDirectory, logType)
       logDebug(s"Sorted log files of type $logType in $logDirectory:\n${files.mkString("\n")}")
 
-      val fileLengths: Seq[Long] = files.map(Utils.getFileLength(_, worker.conf))
+      val fileLengths: coll.Seq[Long] = files.map(Utils.getFileLength(_, worker.conf))
       val totalLength = fileLengths.sum
       val offset = offsetOption.getOrElse(totalLength - byteLength)
       val startIndex = {

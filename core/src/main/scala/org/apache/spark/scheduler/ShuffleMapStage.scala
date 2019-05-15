@@ -22,6 +22,7 @@ import scala.collection.mutable.HashSet
 import org.apache.spark.{MapOutputTrackerMaster, ShuffleDependency}
 import org.apache.spark.rdd.RDD
 import org.apache.spark.util.CallSite
+import scala.{collection => coll}
 
 /**
  * ShuffleMapStages are intermediate stages in the execution DAG that produce data for a shuffle.
@@ -64,7 +65,7 @@ private[spark] class ShuffleMapStage(
    * Returns the list of active jobs,
    * i.e. map-stage jobs that were submitted to execute this stage independently (if any).
    */
-  def mapStageJobs: Seq[ActiveJob] = _mapStageJobs
+  def mapStageJobs: coll.Seq[ActiveJob] = _mapStageJobs
 
   /** Adds the job to the active job list. */
   def addActiveJob(job: ActiveJob): Unit = {
@@ -88,7 +89,7 @@ private[spark] class ShuffleMapStage(
   def isAvailable: Boolean = numAvailableOutputs == numPartitions
 
   /** Returns the sequence of partition ids that are missing (i.e. needs to be computed). */
-  override def findMissingPartitions(): Seq[Int] = {
+  override def findMissingPartitions(): coll.Seq[Int] = {
     mapOutputTrackerMaster
       .findMissingPartitions(shuffleDep.shuffleId)
       .getOrElse(0 until numPartitions)

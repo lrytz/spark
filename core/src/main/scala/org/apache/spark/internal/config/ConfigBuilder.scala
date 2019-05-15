@@ -24,6 +24,7 @@ import scala.util.matching.Regex
 
 import org.apache.spark.network.util.{ByteUnit, JavaUtils}
 import org.apache.spark.util.Utils
+import scala.{collection => coll}
 
 private object ConfigHelpers {
 
@@ -45,11 +46,11 @@ private object ConfigHelpers {
     }
   }
 
-  def stringToSeq[T](str: String, converter: String => T): Seq[T] = {
+  def stringToSeq[T](str: String, converter: String => T): coll.Seq[T] = {
     Utils.stringToSeq(str).map(converter)
   }
 
-  def seqToString[T](v: Seq[T], stringConverter: T => String): String = {
+  def seqToString[T](v: coll.Seq[T], stringConverter: T => String): String = {
     v.map(stringConverter).mkString(",")
   }
 
@@ -121,7 +122,7 @@ private[spark] class TypedConfigBuilder[T](
   }
 
   /** Turns the config entry into a sequence of values of the underlying type. */
-  def toSequence: TypedConfigBuilder[Seq[T]] = {
+  def toSequence: TypedConfigBuilder[coll.Seq[T]] = {
     new TypedConfigBuilder(parent, stringToSeq(_, converter), seqToString(_, stringConverter))
   }
 

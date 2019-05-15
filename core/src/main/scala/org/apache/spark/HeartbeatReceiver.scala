@@ -29,6 +29,7 @@ import org.apache.spark.rpc.{RpcCallContext, RpcEnv, ThreadSafeRpcEndpoint}
 import org.apache.spark.scheduler._
 import org.apache.spark.storage.BlockManagerId
 import org.apache.spark.util._
+import scala.{collection => coll}
 
 /**
  * A heartbeat from executors to the driver. This is a shared message used by several internal
@@ -38,7 +39,7 @@ import org.apache.spark.util._
  */
 private[spark] case class Heartbeat(
     executorId: String,
-    accumUpdates: Array[(Long, Seq[AccumulatorV2[_, _]])], // taskId -> accumulator updates
+    accumUpdates: Array[(Long, coll.Seq[AccumulatorV2[_, _]])], // taskId -> accumulator updates
     blockManagerId: BlockManagerId,
     executorUpdates: ExecutorMetrics) // executor level updates
 

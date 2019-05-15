@@ -26,6 +26,7 @@ import org.apache.spark.SparkEnv
 import org.apache.spark.serializer.SerializerInstance
 import org.apache.spark.storage.BlockId
 import org.apache.spark.util.{AccumulatorV2, Utils}
+import scala.{collection => coll}
 
 // Task result. Also contains updates to accumulator variables.
 private[spark] sealed trait TaskResult[T]
@@ -37,7 +38,7 @@ private[spark] case class IndirectTaskResult[T](blockId: BlockId, size: Int)
 /** A TaskResult that contains the task's return value and accumulator updates. */
 private[spark] class DirectTaskResult[T](
     var valueBytes: ByteBuffer,
-    var accumUpdates: Seq[AccumulatorV2[_, _]])
+    var accumUpdates: coll.Seq[AccumulatorV2[_, _]])
   extends TaskResult[T] with Externalizable {
 
   private var valueObjectDeserialized = false

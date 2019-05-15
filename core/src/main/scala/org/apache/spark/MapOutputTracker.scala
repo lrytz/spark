@@ -36,6 +36,7 @@ import org.apache.spark.scheduler.MapStatus
 import org.apache.spark.shuffle.MetadataFetchFailedException
 import org.apache.spark.storage.{BlockId, BlockManagerId, ShuffleBlockId}
 import org.apache.spark.util._
+import scala.{collection => coll}
 
 /**
  * Helper class used by the [[MapOutputTrackerMaster]] to perform bookkeeping for a single
@@ -150,7 +151,7 @@ private class ShuffleStatus(numPartitions: Int) {
   /**
    * Returns the sequence of partition ids that are missing (i.e. needs to be computed).
    */
-  def findMissingPartitions(): Seq[Int] = synchronized {
+  def findMissingPartitions(): coll.Seq[Int] = synchronized {
     val missing = (0 until numPartitions).filter(id => mapStatuses(id) == null)
     assert(missing.size == numPartitions - _numAvailableOutputs,
       s"${missing.size} missing, expected ${numPartitions - _numAvailableOutputs}")
@@ -282,7 +283,7 @@ private[spark] abstract class MapOutputTracker(conf: SparkConf) extends Logging 
 
   // For testing
   def getMapSizesByExecutorId(shuffleId: Int, reduceId: Int)
-      : Iterator[(BlockManagerId, Seq[(BlockId, Long)])] = {
+      : Iterator[(BlockManagerId, coll.Seq[(BlockId, Long)])] = {
     getMapSizesByExecutorId(shuffleId, reduceId, reduceId + 1)
   }
 
@@ -296,7 +297,7 @@ private[spark] abstract class MapOutputTracker(conf: SparkConf) extends Logging 
    *         describing the shuffle blocks that are stored at that block manager.
    */
   def getMapSizesByExecutorId(shuffleId: Int, startPartition: Int, endPartition: Int)
-      : Iterator[(BlockManagerId, Seq[(BlockId, Long)])]
+      : Iterator[(BlockManagerId, coll.Seq[(BlockId, Long)])]
 
   /**
    * Deletes map output status information for the specified shuffle stage.
@@ -482,7 +483,7 @@ private[spark] class MapOutputTrackerMaster(
    * Returns the sequence of partition ids that are missing (i.e. needs to be computed), or None
    * if the MapOutputTrackerMaster doesn't know about this shuffle.
    */
-  def findMissingPartitions(shuffleId: Int): Option[Seq[Int]] = {
+  def findMissingPartitions(shuffleId: Int): Option[coll.Seq[Int]] = {
     shuffleStatuses.get(shuffleId).map(_.findMissingPartitions())
   }
 
@@ -490,7 +491,7 @@ private[spark] class MapOutputTrackerMaster(
    * Grouped function of Range, this is to avoid traverse of all elements of Range using
    * IterableLike's grouped function.
    */
-  def rangeGrouped(range: Range, size: Int): Seq[Range] = {
+  def rangeGrouped(range: Range, size: Int): coll.Seq[Range] = {
     val start = range.start
     val step = range.step
     val end = range.end
@@ -503,7 +504,7 @@ private[spark] class MapOutputTrackerMaster(
    * To equally divide n elements into m buckets, basically each bucket should have n/m elements,
    * for the remaining n%m elements, add one more element to the first n%m buckets each.
    */
-  def equallyDivide(numElements: Int, numBuckets: Int): Seq[Seq[Int]] = {
+  def equallyDivide(numElements: Int, numBuckets: Int): coll.Seq[coll.Seq[Int]] = {
     val elementsPerBucket = numElements / numBuckets
     val remaining = numElements % numBuckets
     val splitPoint = (elementsPerBucket + 1) * remaining
@@ -561,7 +562,7 @@ private[spark] class MapOutputTrackerMaster(
    * @return a sequence of host names
    */
   def getPreferredLocationsForShuffle(dep: ShuffleDependency[_, _, _], partitionId: Int)
-      : Seq[String] = {
+      : coll.Seq[String] = {
     if (shuffleLocalityEnabled && dep.rdd.partitions.length < SHUFFLE_PREF_MAP_THRESHOLD &&
         dep.partitioner.numPartitions < SHUFFLE_PREF_REDUCE_THRESHOLD) {
       val blockManagerIds = getLocationsWithLargestOutputs(dep.shuffleId, partitionId,
@@ -646,7 +647,7 @@ private[spark] class MapOutputTrackerMaster(
   // Get blocks sizes by executor Id. Note that zero-sized blocks are excluded in the result.
   // This method is only called in local-mode.
   def getMapSizesByExecutorId(shuffleId: Int, startPartition: Int, endPartition: Int)
-      : Iterator[(BlockManagerId, Seq[(BlockId, Long)])] = {
+      : Iterator[(BlockManagerId, coll.Seq[(BlockId, Long)])] = {
     logDebug(s"Fetching outputs for shuffle $shuffleId, partitions $startPartition-$endPartition")
     shuffleStatuses.get(shuffleId) match {
       case Some (shuffleStatus) =>
@@ -683,7 +684,7 @@ private[spark] class MapOutputTrackerWorker(conf: SparkConf) extends MapOutputTr
 
   // Get blocks sizes by executor Id. Note that zero-sized blocks are excluded in the result.
   override def getMapSizesByExecutorId(shuffleId: Int, startPartition: Int, endPartition: Int)
-      : Iterator[(BlockManagerId, Seq[(BlockId, Long)])] = {
+      : Iterator[(BlockManagerId, coll.Seq[(BlockId, Long)])] = {
     logDebug(s"Fetching outputs for shuffle $shuffleId, partitions $startPartition-$endPartition")
     val statuses = getStatuses(shuffleId)
     try {
@@ -871,7 +872,7 @@ private[spark] object MapOutputTracker extends Logging {
       shuffleId: Int,
       startPartition: Int,
       endPartition: Int,
-      statuses: Array[MapStatus]): Iterator[(BlockManagerId, Seq[(BlockId, Long)])] = {
+      statuses: Array[MapStatus]): Iterator[(BlockManagerId, coll.Seq[(BlockId, Long)])] = {
     assert (statuses != null)
     val splitsByAddress = new HashMap[BlockManagerId, ListBuffer[(BlockId, Long)]]
     for ((status, mapId) <- statuses.iterator.zipWithIndex) {

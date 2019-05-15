@@ -40,6 +40,7 @@ import org.apache.spark.network.util.JavaUtils
 import org.apache.spark.rdd.RDD
 import org.apache.spark.security.{SocketAuthHelper, SocketAuthServer}
 import org.apache.spark.util._
+import scala.{collection => coll}
 
 
 private[spark] class PythonRDD(
@@ -83,7 +84,7 @@ private[spark] case class PythonFunction(
  * A wrapper for chained Python functions (from bottom to top).
  * @param funcs
  */
-private[spark] case class ChainedPythonFunctions(funcs: Seq[PythonFunction])
+private[spark] case class ChainedPythonFunctions(funcs: coll.Seq[PythonFunction])
 
 /** Thrown for exceptions in user Python code. */
 private[spark] class PythonException(msg: String, cause: Throwable)
@@ -852,7 +853,7 @@ private[spark] object DechunkedInputStream {
  */
 private[spark] class EncryptedPythonBroadcastServer(
     val env: SparkEnv,
-    val idsAndFiles: Seq[(Long, String)])
+    val idsAndFiles: coll.Seq[(Long, String)])
     extends SocketAuthServer[Unit]("broadcast-decrypt-server") with Logging {
 
   override def handleConnection(socket: Socket): Unit = {

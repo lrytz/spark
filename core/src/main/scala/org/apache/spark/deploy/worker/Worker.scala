@@ -43,6 +43,7 @@ import org.apache.spark.internal.config.Worker._
 import org.apache.spark.metrics.{MetricsSystem, MetricsSystemInstances}
 import org.apache.spark.rpc._
 import org.apache.spark.util.{SparkUncaughtExceptionHandler, ThreadUtils, Utils}
+import scala.{collection => coll}
 
 private[deploy] class Worker(
     override val rpcEnv: RpcEnv,
@@ -138,7 +139,7 @@ private[deploy] class Worker(
   val drivers = new HashMap[String, DriverRunner]
   val executors = new HashMap[String, ExecutorRunner]
   val finishedDrivers = new LinkedHashMap[String, DriverRunner]
-  val appDirectories = new HashMap[String, Seq[String]]
+  val appDirectories = new HashMap[String, coll.Seq[String]]
   val finishedApps = new HashSet[String]
 
   val retainedExecutors = conf.get(WORKER_UI_RETAINED_EXECUTORS)

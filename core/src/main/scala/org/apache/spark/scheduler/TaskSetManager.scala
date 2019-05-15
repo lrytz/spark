@@ -32,6 +32,7 @@ import org.apache.spark.internal.config._
 import org.apache.spark.scheduler.SchedulingMode._
 import org.apache.spark.util.{AccumulatorV2, Clock, LongAccumulator, SystemClock, Utils}
 import org.apache.spark.util.collection.MedianHeap
+import scala.{collection => coll}
 
 /**
  * Schedules the tasks within a single TaskSet in the TaskSchedulerImpl. This class keeps track of
@@ -842,7 +843,7 @@ private[spark] class TaskSetManager(
     info.markFinished(state, clock.getTimeMillis())
     val index = info.index
     copiesRunning(index) -= 1
-    var accumUpdates: Seq[AccumulatorV2[_, _]] = Seq.empty
+    var accumUpdates: coll.Seq[AccumulatorV2[_, _]] = Seq.empty
     val failureReason = s"Lost task ${info.id} in stage ${taskSet.id} (TID $tid, ${info.host}," +
       s" executor ${info.executorId}): ${reason.toErrorString}"
     val failureException: Option[Throwable] = reason match {

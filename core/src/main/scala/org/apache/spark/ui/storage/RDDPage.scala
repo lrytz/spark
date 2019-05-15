@@ -26,11 +26,12 @@ import org.apache.spark.status.AppStatusStore
 import org.apache.spark.status.api.v1.{ExecutorSummary, RDDDataDistribution, RDDPartitionInfo}
 import org.apache.spark.ui._
 import org.apache.spark.util.Utils
+import scala.{collection => coll}
 
 /** Page showing storage details for a given RDD */
 private[ui] class RDDPage(parent: SparkUITab, store: AppStatusStore) extends WebUIPage("rdd") {
 
-  def render(request: HttpServletRequest): Seq[Node] = {
+  def render(request: HttpServletRequest): coll.Seq[Node] = {
     val parameterId = request.getParameter("id")
     require(parameterId != null && parameterId.nonEmpty, "Missing id parameter")
 
@@ -144,7 +145,7 @@ private[ui] class RDDPage(parent: SparkUITab, store: AppStatusStore) extends Web
     "Disk Usage")
 
   /** Render an HTML row representing a worker */
-  private def workerRow(worker: RDDDataDistribution): Seq[Node] = {
+  private def workerRow(worker: RDDDataDistribution): coll.Seq[Node] = {
     <tr>
       <td>{worker.address}</td>
       <td>
@@ -168,7 +169,7 @@ private[ui] case class BlockTableRowData(
     executors: String)
 
 private[ui] class BlockDataSource(
-    rddPartitions: Seq[RDDPartitionInfo],
+    rddPartitions: coll.Seq[RDDPartitionInfo],
     pageSize: Int,
     sortColumn: String,
     desc: Boolean,
@@ -178,7 +179,7 @@ private[ui] class BlockDataSource(
 
   override def dataSize: Int = data.size
 
-  override def sliceData(from: Int, to: Int): Seq[BlockTableRowData] = {
+  override def sliceData(from: Int, to: Int): coll.Seq[BlockTableRowData] = {
     data.slice(from, to)
   }
 
@@ -216,11 +217,11 @@ private[ui] class BlockDataSource(
 
 private[ui] class BlockPagedTable(
     basePath: String,
-    rddPartitions: Seq[RDDPartitionInfo],
+    rddPartitions: coll.Seq[RDDPartitionInfo],
     pageSize: Int,
     sortColumn: String,
     desc: Boolean,
-    executorSummaries: Seq[ExecutorSummary]) extends PagedTable[BlockTableRowData] {
+    executorSummaries: coll.Seq[ExecutorSummary]) extends PagedTable[BlockTableRowData] {
 
   override def tableId: String = "rdd-storage-by-block-table"
 
@@ -252,7 +253,7 @@ private[ui] class BlockPagedTable(
     s"$basePath&block.sort=$encodedSortColumn&block.desc=$desc"
   }
 
-  override def headers: Seq[Node] = {
+  override def headers: coll.Seq[Node] = {
     val blockHeaders = Seq(
       "Block Name",
       "Storage Level",
@@ -264,7 +265,7 @@ private[ui] class BlockPagedTable(
       throw new IllegalArgumentException(s"Unknown column: $sortColumn")
     }
 
-    val headerRow: Seq[Node] = {
+    val headerRow: coll.Seq[Node] = {
       blockHeaders.map { header =>
         if (header == sortColumn) {
           val headerLink = Unparsed(
@@ -295,7 +296,7 @@ private[ui] class BlockPagedTable(
     <thead>{headerRow}</thead>
   }
 
-  override def row(block: BlockTableRowData): Seq[Node] = {
+  override def row(block: BlockTableRowData): coll.Seq[Node] = {
     <tr>
       <td>{block.blockName}</td>
       <td>{block.storageLevel}</td>

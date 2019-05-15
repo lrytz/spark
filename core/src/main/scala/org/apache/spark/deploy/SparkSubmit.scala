@@ -54,6 +54,7 @@ import org.apache.spark.internal.config._
 import org.apache.spark.internal.config.UI._
 import org.apache.spark.launcher.SparkLauncher
 import org.apache.spark.util._
+import scala.{collection => coll}
 
 /**
  * Whether to submit, kill, or request the status of an application.
@@ -218,7 +219,7 @@ private[spark] class SparkSubmit extends Logging {
   private[deploy] def prepareSubmitEnvironment(
       args: SparkSubmitArguments,
       conf: Option[HadoopConfiguration] = None)
-      : (Seq[String], Seq[String], SparkConf, String) = {
+      : (coll.Seq[String], coll.Seq[String], SparkConf, String) = {
     // Return values
     val childArgs = new ArrayBuffer[String]()
     val childClasspath = new ArrayBuffer[String]()
@@ -1037,7 +1038,7 @@ private[spark] object SparkSubmitUtils {
    * @param coordinates Comma-delimited string of maven coordinates
    * @return Sequence of Maven coordinates
    */
-  def extractMavenCoordinates(coordinates: String): Seq[MavenCoordinate] = {
+  def extractMavenCoordinates(coordinates: String): coll.Seq[MavenCoordinate] = {
     coordinates.split(",").map { p =>
       val splits = p.replace("/", ":").split(":")
       require(splits.length == 3, s"Provided Maven Coordinates must be in the form " +
@@ -1128,7 +1129,7 @@ private[spark] object SparkSubmitUtils {
   /** Adds the given maven coordinates to Ivy's module descriptor. */
   def addDependenciesToIvy(
       md: DefaultModuleDescriptor,
-      artifacts: Seq[MavenCoordinate],
+      artifacts: coll.Seq[MavenCoordinate],
       ivyConfName: String): Unit = {
     artifacts.foreach { mvn =>
       val ri = ModuleRevisionId.newInstance(mvn.groupId, mvn.artifactId, mvn.version)
@@ -1277,7 +1278,7 @@ private[spark] object SparkSubmitUtils {
   def resolveMavenCoordinates(
       coordinates: String,
       ivySettings: IvySettings,
-      exclusions: Seq[String] = Nil,
+      exclusions: coll.Seq[String] = Nil,
       isTest: Boolean = false): String = {
     if (coordinates == null || coordinates.trim.isEmpty) {
       ""

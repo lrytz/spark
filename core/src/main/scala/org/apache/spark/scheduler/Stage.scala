@@ -23,6 +23,7 @@ import org.apache.spark.executor.TaskMetrics
 import org.apache.spark.internal.Logging
 import org.apache.spark.rdd.RDD
 import org.apache.spark.util.CallSite
+import scala.{collection => coll}
 
 /**
  * A stage is a set of parallel tasks all computing the same function that need to run as part
@@ -96,7 +97,7 @@ private[scheduler] abstract class Stage(
   /** Creates a new attempt for this stage by creating a new StageInfo with a new attempt ID. */
   def makeNewStageAttempt(
       numPartitionsToCompute: Int,
-      taskLocalityPreferences: Seq[Seq[TaskLocation]] = Seq.empty): Unit = {
+      taskLocalityPreferences: coll.Seq[coll.Seq[TaskLocation]] = Seq.empty): Unit = {
     val metrics = new TaskMetrics
     metrics.register(rdd.sparkContext)
     _latestInfo = StageInfo.fromStage(
@@ -115,5 +116,5 @@ private[scheduler] abstract class Stage(
   }
 
   /** Returns the sequence of partition ids that are missing (i.e. needs to be computed). */
-  def findMissingPartitions(): Seq[Int]
+  def findMissingPartitions(): coll.Seq[Int]
 }

@@ -27,6 +27,7 @@ import com.google.common.base.Objects
 
 import org.apache.spark.SparkContext
 import org.apache.spark.internal.Logging
+import scala.{collection => coll}
 
 /**
  * A general, named code block representing an operation that instantiates RDDs.
@@ -57,7 +58,7 @@ private[spark] class RDDOperationScope(
    * The result is ordered from the outermost scope (eldest ancestor) to this scope.
    */
   @JsonIgnore
-  def getAllScopes: Seq[RDDOperationScope] = {
+  def getAllScopes: coll.Seq[RDDOperationScope] = {
     parent.map(_.getAllScopes).getOrElse(Seq.empty) ++ Seq(this)
   }
 

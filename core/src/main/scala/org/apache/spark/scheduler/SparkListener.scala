@@ -30,6 +30,7 @@ import org.apache.spark.executor.{ExecutorMetrics, TaskMetrics}
 import org.apache.spark.scheduler.cluster.ExecutorInfo
 import org.apache.spark.storage.{BlockManagerId, BlockUpdatedInfo}
 import org.apache.spark.ui.SparkUI
+import scala.{collection => coll}
 
 @DeveloperApi
 @JsonTypeInfo(use = JsonTypeInfo.Id.CLASS, include = JsonTypeInfo.As.PROPERTY, property = "Event")
@@ -70,12 +71,12 @@ case class SparkListenerTaskEnd(
 case class SparkListenerJobStart(
     jobId: Int,
     time: Long,
-    stageInfos: Seq[StageInfo],
+    stageInfos: coll.Seq[StageInfo],
     properties: Properties = null)
   extends SparkListenerEvent {
   // Note: this is here for backwards-compatibility with older versions of this event which
   // only stored stageIds and not StageInfos:
-  val stageIds: Seq[Int] = stageInfos.map(_.stageId)
+  val stageIds: coll.Seq[Int] = stageInfos.map(_.stageId)
 }
 
 @DeveloperApi
@@ -86,7 +87,7 @@ case class SparkListenerJobEnd(
   extends SparkListenerEvent
 
 @DeveloperApi
-case class SparkListenerEnvironmentUpdate(environmentDetails: Map[String, Seq[(String, String)]])
+case class SparkListenerEnvironmentUpdate(environmentDetails: Map[String, coll.Seq[(String, String)]])
   extends SparkListenerEvent
 
 @DeveloperApi
@@ -165,7 +166,7 @@ case class SparkListenerBlockUpdated(blockUpdatedInfo: BlockUpdatedInfo) extends
 @DeveloperApi
 case class SparkListenerExecutorMetricsUpdate(
     execId: String,
-    accumUpdates: Seq[(Long, Int, Int, Seq[AccumulableInfo])],
+    accumUpdates: coll.Seq[(Long, Int, Int, coll.Seq[AccumulableInfo])],
     executorUpdates: Option[ExecutorMetrics] = None)
   extends SparkListenerEvent
 

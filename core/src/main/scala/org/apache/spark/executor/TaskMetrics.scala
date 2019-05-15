@@ -27,6 +27,7 @@ import org.apache.spark.internal.config.Tests.IS_TESTING
 import org.apache.spark.scheduler.AccumulableInfo
 import org.apache.spark.storage.{BlockId, BlockStatus}
 import org.apache.spark.util._
+import scala.{collection => coll}
 
 
 /**
@@ -120,7 +121,7 @@ class TaskMetrics private[spark] () extends Serializable {
    * Tracking can be turned off to save memory via config
    * TASK_METRICS_TRACK_UPDATED_BLOCK_STATUSES.
    */
-  def updatedBlockStatuses: Seq[(BlockId, BlockStatus)] = {
+  def updatedBlockStatuses: coll.Seq[(BlockId, BlockStatus)] = {
     // This is called on driver. All accumulator updates have a fixed value. So it's safe to use
     // `asScala` which accesses the internal values using `java.util.Iterator`.
     _updatedBlockStatuses.value.asScala
@@ -144,7 +145,7 @@ class TaskMetrics private[spark] () extends Serializable {
     _updatedBlockStatuses.add(v)
   private[spark] def setUpdatedBlockStatuses(v: java.util.List[(BlockId, BlockStatus)]): Unit =
     _updatedBlockStatuses.setValue(v)
-  private[spark] def setUpdatedBlockStatuses(v: Seq[(BlockId, BlockStatus)]): Unit =
+  private[spark] def setUpdatedBlockStatuses(v: coll.Seq[(BlockId, BlockStatus)]): Unit =
     _updatedBlockStatuses.setValue(v.asJava)
 
   /**
@@ -235,7 +236,7 @@ class TaskMetrics private[spark] () extends Serializable {
     output.RECORDS_WRITTEN -> outputMetrics._recordsWritten
   ) ++ testAccum.map(TEST_ACCUM -> _)
 
-  @transient private[spark] lazy val internalAccums: Seq[AccumulatorV2[_, _]] =
+  @transient private[spark] lazy val internalAccums: coll.Seq[AccumulatorV2[_, _]] =
     nameToAccums.values.toIndexedSeq
 
   /* ========================== *
@@ -257,9 +258,9 @@ class TaskMetrics private[spark] () extends Serializable {
     externalAccums += a
   }
 
-  private[spark] def accumulators(): Seq[AccumulatorV2[_, _]] = internalAccums ++ externalAccums
+  private[spark] def accumulators(): coll.Seq[AccumulatorV2[_, _]] = internalAccums ++ externalAccums
 
-  private[spark] def nonZeroInternalAccums(): Seq[AccumulatorV2[_, _]] = {
+  private[spark] def nonZeroInternalAccums(): coll.Seq[AccumulatorV2[_, _]] = {
     // RESULT_SIZE accumulator is always zero at executor, we need to send it back as its
     // value will be updated at driver side.
     internalAccums.filter(a => !a.isZero || a == _resultSize)
@@ -292,7 +293,7 @@ private[spark] object TaskMetrics extends Logging {
    * The returned [[TaskMetrics]] is only used to get some internal metrics, we don't need to take
    * care of external accumulator info passed in.
    */
-  def fromAccumulatorInfos(infos: Seq[AccumulableInfo]): TaskMetrics = {
+  def fromAccumulatorInfos(infos: coll.Seq[AccumulableInfo]): TaskMetrics = {
     val tm = new TaskMetrics
     infos.filter(info => info.name.isDefined && info.update.isDefined).foreach { info =>
       val name = info.name.get
@@ -311,7 +312,7 @@ private[spark] object TaskMetrics extends Logging {
   /**
    * Construct a [[TaskMetrics]] object from a list of accumulator updates, called on driver only.
    */
-  def fromAccumulators(accums: Seq[AccumulatorV2[_, _]]): TaskMetrics = {
+  def fromAccumulators(accums: coll.Seq[AccumulatorV2[_, _]]): TaskMetrics = {
     val tm = new TaskMetrics
     for (acc <- accums) {
       val name = acc.name

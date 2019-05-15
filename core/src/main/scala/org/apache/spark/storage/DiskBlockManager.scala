@@ -24,6 +24,7 @@ import org.apache.spark.SparkConf
 import org.apache.spark.executor.ExecutorExitCode
 import org.apache.spark.internal.{config, Logging}
 import org.apache.spark.util.{ShutdownHookManager, Utils}
+import scala.{collection => coll}
 
 /**
  * Creates and maintains the logical mapping between logical blocks and physical on-disk
@@ -85,7 +86,7 @@ private[spark] class DiskBlockManager(conf: SparkConf, deleteFilesOnStop: Boolea
   }
 
   /** List all the files currently stored on disk by the disk manager. */
-  def getAllFiles(): Seq[File] = {
+  def getAllFiles(): coll.Seq[File] = {
     // Get all the files inside the array of array of directories
     subDirs.flatMap { dir =>
       dir.synchronized {
@@ -99,7 +100,7 @@ private[spark] class DiskBlockManager(conf: SparkConf, deleteFilesOnStop: Boolea
   }
 
   /** List all the blocks currently stored on disk by the disk manager. */
-  def getAllBlocks(): Seq[BlockId] = {
+  def getAllBlocks(): coll.Seq[BlockId] = {
     getAllFiles().flatMap { f =>
       try {
         Some(BlockId(f.getName))

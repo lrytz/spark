@@ -43,6 +43,7 @@ import org.apache.spark.rpc.RpcTimeout
 import org.apache.spark.storage._
 import org.apache.spark.storage.BlockManagerMessages.BlockManagerHeartbeat
 import org.apache.spark.util._
+import scala.{collection => coll}
 
 /**
  * The high-level scheduling layer that implements stage-oriented scheduling. It computes a DAG of
@@ -167,7 +168,7 @@ private[spark] class DAGScheduler(
    *
    * All accesses to this map should be guarded by synchronizing on it (see SPARK-4454).
    */
-  private val cacheLocs = new HashMap[Int, IndexedSeq[Seq[TaskLocation]]]
+  private val cacheLocs = new HashMap[Int, IndexedSeq[coll.Seq[TaskLocation]]]
 
   // For tracking failed nodes, we use the MapOutputTracker's epoch number, which is sent with
   // every task. When we detect a node failing, we note the current epoch number and failed
@@ -247,7 +248,7 @@ private[spark] class DAGScheduler(
       task: Task[_],
       reason: TaskEndReason,
       result: Any,
-      accumUpdates: Seq[AccumulatorV2[_, _]],
+      accumUpdates: coll.Seq[AccumulatorV2[_, _]],
       taskInfo: TaskInfo): Unit = {
     eventProcessLoop.post(
       CompletionEvent(task, reason, result, accumUpdates, taskInfo))
@@ -261,7 +262,7 @@ private[spark] class DAGScheduler(
   def executorHeartbeatReceived(
       execId: String,
       // (taskId, stageId, stageAttemptId, accumUpdates)
-      accumUpdates: Array[(Long, Int, Int, Seq[AccumulableInfo])],
+      accumUpdates: Array[(Long, Int, Int, coll.Seq[AccumulableInfo])],
       blockManagerId: BlockManagerId,
       // executor metrics indexed by ExecutorMetricType.values
       executorUpdates: ExecutorMetrics): Boolean = {
@@ -308,11 +309,11 @@ private[spark] class DAGScheduler(
   }
 
   private[scheduler]
-  def getCacheLocs(rdd: RDD[_]): IndexedSeq[Seq[TaskLocation]] = cacheLocs.synchronized {
+  def getCacheLocs(rdd: RDD[_]): IndexedSeq[coll.Seq[TaskLocation]] = cacheLocs.synchronized {
     // Note: this doesn't use `getOrElse()` because this method is called O(num tasks) times
     if (!cacheLocs.contains(rdd.id)) {
       // Note: if the storage level is NONE, we don't need to get locations from block manager.
-      val locs: IndexedSeq[Seq[TaskLocation]] = if (rdd.getStorageLevel == StorageLevel.NONE) {
+      val locs: IndexedSeq[coll.Seq[TaskLocation]] = if (rdd.getStorageLevel == StorageLevel.NONE) {
         IndexedSeq.fill(rdd.partitions.length)(Nil)
       } else {
         val blockIds =
@@ -678,7 +679,7 @@ private[spark] class DAGScheduler(
   def submitJob[T, U](
       rdd: RDD[T],
       func: (TaskContext, Iterator[T]) => U,
-      partitions: Seq[Int],
+      partitions: coll.Seq[Int],
       callSite: CallSite,
       resultHandler: (Int, U) => Unit,
       properties: Properties): JobWaiter[U] = {
@@ -727,7 +728,7 @@ private[spark] class DAGScheduler(
   def runJob[T, U](
       rdd: RDD[T],
       func: (TaskContext, Iterator[T]) => U,
-      partitions: Seq[Int],
+      partitions: coll.Seq[Int],
       callSite: CallSite,
       resultHandler: (Int, U) => Unit,
       properties: Properties): Unit = {
@@ -1099,7 +1100,7 @@ private[spark] class DAGScheduler(
     logDebug("submitMissingTasks(" + stage + ")")
 
     // First figure out the indexes of partition ids to compute.
-    val partitionsToCompute: Seq[Int] = stage.findMissingPartitions()
+    val partitionsToCompute: coll.Seq[Int] = stage.findMissingPartitions()
 
     // Use the scheduling pool, job group, description, etc. from an ActiveJob associated
     // with this Stage
@@ -1117,7 +1118,7 @@ private[spark] class DAGScheduler(
         outputCommitCoordinator.stageStart(
           stage = s.id, maxPartitionId = s.rdd.partitions.length - 1)
     }
-    val taskIdToLocations: Map[Int, Seq[TaskLocation]] = try {
+    val taskIdToLocations: Map[Int, coll.Seq[TaskLocation]] = try {
       stage match {
         case s: ShuffleMapStage =>
           partitionsToCompute.map { id => (id, getPreferredLocs(stage.rdd, id))}.toMap
@@ -1194,7 +1195,7 @@ private[spark] class DAGScheduler(
         return
     }
 
-    val tasks: Seq[Task[_]] = try {
+    val tasks: coll.Seq[Task[_]] = try {
       val serializedTaskMetrics = closureSerializer.serialize(stage.latestInfo.taskMetrics).array()
       stage match {
         case stage: ShuffleMapStage =>
@@ -1933,7 +1934,7 @@ private[spark] class DAGScheduler(
       // Skip all the actions if the stage has been removed.
       return
     }
-    val dependentJobs: Seq[ActiveJob] =
+    val dependentJobs: coll.Seq[ActiveJob] =
       activeJobs.filter(job => stageDependsOn(job.finalStage, failedStage)).toSeq
     failedStage.latestInfo.completionTime = Some(clock.getTimeMillis())
     for (job <- dependentJobs) {
@@ -2034,7 +2035,7 @@ private[spark] class DAGScheduler(
    * @return list of machines that are preferred by the partition
    */
   private[spark]
-  def getPreferredLocs(rdd: RDD[_], partition: Int): Seq[TaskLocation] = {
+  def getPreferredLocs(rdd: RDD[_], partition: Int): coll.Seq[TaskLocation] = {
     getPreferredLocsInternal(rdd, partition, new HashSet)
   }
 
@@ -2048,7 +2049,7 @@ private[spark] class DAGScheduler(
   private def getPreferredLocsInternal(
       rdd: RDD[_],
       partition: Int,
-      visited: HashSet[(RDD[_], Int)]): Seq[TaskLocation] = {
+      visited: HashSet[(RDD[_], Int)]): coll.Seq[TaskLocation] = {
     // If the partition has already been visited, no need to re-visit.
     // This avoids exponential path exploration.  SPARK-695
     if (!visited.add((rdd, partition))) {

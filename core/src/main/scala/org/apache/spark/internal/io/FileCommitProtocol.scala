@@ -22,6 +22,7 @@ import org.apache.hadoop.mapreduce._
 
 import org.apache.spark.internal.Logging
 import org.apache.spark.util.Utils
+import scala.{collection => coll}
 
 
 /**
@@ -53,7 +54,7 @@ abstract class FileCommitProtocol {
   /**
    * Commits a job after the writes succeed. Must be called on the driver.
    */
-  def commitJob(jobContext: JobContext, taskCommits: Seq[TaskCommitMessage]): Unit
+  def commitJob(jobContext: JobContext, taskCommits: coll.Seq[TaskCommitMessage]): Unit
 
   /**
    * Aborts a job after the writes fail. Must be called on the driver.

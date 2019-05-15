@@ -21,6 +21,7 @@ import java.io.{Externalizable, ObjectInput, ObjectOutput}
 
 import org.apache.spark.rpc.RpcEndpointRef
 import org.apache.spark.util.Utils
+import scala.{collection => coll}
 
 private[spark] object BlockManagerMessages {
   //////////////////////////////////////////////////////////////////////////////////
@@ -33,7 +34,7 @@ private[spark] object BlockManagerMessages {
   case class RemoveBlock(blockId: BlockId) extends ToBlockManagerSlave
 
   // Replicate blocks that were lost due to executor failure
-  case class ReplicateBlock(blockId: BlockId, replicas: Seq[BlockManagerId], maxReplicas: Int)
+  case class ReplicateBlock(blockId: BlockId, replicas: coll.Seq[BlockManagerId], maxReplicas: Int)
     extends ToBlockManagerSlave
 
   // Remove all blocks belonging to a specific RDD.
@@ -96,7 +97,7 @@ private[spark] object BlockManagerMessages {
   case class GetLocationsAndStatus(blockId: BlockId) extends ToBlockManagerMaster
 
   // The response message of `GetLocationsAndStatus` request.
-  case class BlockLocationsAndStatus(locations: Seq[BlockManagerId], status: BlockStatus) {
+  case class BlockLocationsAndStatus(locations: coll.Seq[BlockManagerId], status: BlockStatus) {
     assert(locations.nonEmpty)
   }
 

@@ -32,6 +32,7 @@ import org.apache.spark.network.server.{TransportServer, TransportServerBootstra
 import org.apache.spark.network.shuffle.ExternalShuffleBlockHandler
 import org.apache.spark.network.util.TransportConf
 import org.apache.spark.util.{ShutdownHookManager, Utils}
+import scala.{collection => coll}
 
 /**
  * Provides a server from which Executors can read shuffle files (rather than reading directly from
@@ -98,7 +99,7 @@ class ExternalShuffleService(sparkConf: SparkConf, securityManager: SecurityMana
     require(server == null, "Shuffle server already started")
     val authEnabled = securityManager.isAuthenticationEnabled()
     logInfo(s"Starting shuffle service on port $port (auth enabled = $authEnabled)")
-    val bootstraps: Seq[TransportServerBootstrap] =
+    val bootstraps: coll.Seq[TransportServerBootstrap] =
       if (authEnabled) {
         Seq(new AuthServerBootstrap(transportConf, securityManager))
       } else {

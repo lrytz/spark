@@ -36,6 +36,7 @@ import org.apache.spark.partial.{BoundedDouble, PartialResult}
 import org.apache.spark.rdd.RDD
 import org.apache.spark.storage.StorageLevel
 import org.apache.spark.util.Utils
+import scala.{collection => coll}
 
 /**
  * As a workaround for https://issues.scala-lang.org/browse/SI-8905, implementations
@@ -710,7 +711,7 @@ trait JavaRDDLike[T, This <: JavaRDDLike[T, This]] extends Serializable {
    * all the data is loaded into the driver's memory.
    */
   def collectAsync(): JavaFutureAction[JList[T]] = {
-    new JavaFutureActionWrapper(rdd.collectAsync(), (x: Seq[T]) => x.asJava)
+    new JavaFutureActionWrapper(rdd.collectAsync(), (x: coll.Seq[T]) => x.asJava)
   }
 
   /**
@@ -721,7 +722,7 @@ trait JavaRDDLike[T, This <: JavaRDDLike[T, This]] extends Serializable {
    * all the data is loaded into the driver's memory.
    */
   def takeAsync(num: Int): JavaFutureAction[JList[T]] = {
-    new JavaFutureActionWrapper(rdd.takeAsync(num), (x: Seq[T]) => x.asJava)
+    new JavaFutureActionWrapper(rdd.takeAsync(num), (x: coll.Seq[T]) => x.asJava)
   }
 
   /**

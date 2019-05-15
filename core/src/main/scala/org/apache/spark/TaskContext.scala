@@ -26,6 +26,7 @@ import org.apache.spark.memory.TaskMemoryManager
 import org.apache.spark.metrics.source.Source
 import org.apache.spark.shuffle.FetchFailedException
 import org.apache.spark.util.{AccumulatorV2, TaskCompletionListener, TaskFailureListener}
+import scala.{collection => coll}
 
 
 object TaskContext {
@@ -185,7 +186,7 @@ abstract class TaskContext extends Serializable {
    * which runs the task. For more information see `org.apache.spark.metrics.MetricsSystem`.
    */
   @DeveloperApi
-  def getMetricsSources(sourceName: String): Seq[Source]
+  def getMetricsSources(sourceName: String): coll.Seq[Source]
 
   /**
    * If the task is interrupted, throws TaskKilledException with the reason for the interrupt.
