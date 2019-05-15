@@ -34,6 +34,7 @@ import com.typesafe.sbt.pom.{PomBuild, SbtPomKeys}
 import com.typesafe.tools.mima.plugin.MimaKeys
 import org.scalastyle.sbt.ScalastylePlugin.autoImport._
 import org.scalastyle.sbt.Tasks
+import scalafix.sbt.ScalafixPlugin.autoImport._
 
 import spray.revolver.RevolverPlugin._
 
@@ -212,6 +213,7 @@ object SparkBuild extends PomBuild {
 
   lazy val sharedSettings = sparkGenjavadocSettings ++
       (if (sys.env.contains("NOLINT_ON_COMPILE")) Nil else enableScalaStyle) ++ Seq(
+    addCompilerPlugin(scalafixSemanticdb),
     exportJars in Compile := true,
     exportJars in Test := false,
     javaHome := sys.env.get("JAVA_HOME")
