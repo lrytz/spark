@@ -283,7 +283,7 @@
     -->
     <dependency>
       <groupId>org.scalatest</groupId>
-      <artifactId>scalatest_${scala.binary.version}</artifactId>
+      <artifactId>scalatest_2.13.0-RC1</artifactId>
       <scope>test</scope>
     </dependency>
     <dependency>
@@ -802,8 +802,8 @@
       </dependency>
       <dependency>
         <groupId>org.scalatest</groupId>
-        <artifactId>scalatest_${scala.binary.version}</artifactId>
-        <version>3.0.5</version>
+        <artifactId>scalatest_2.13.0-RC1</artifactId>
+        <version>3.1.0-SNAP10</version>
         <scope>test</scope>
       </dependency>
       <dependency>
