@@ -211,8 +211,7 @@ object SparkBuild extends PomBuild {
     }
   )
 
-  lazy val sharedSettings = sparkGenjavadocSettings ++
-      (if (sys.env.contains("NOLINT_ON_COMPILE")) Nil else enableScalaStyle) ++ Seq(
+  lazy val sharedSettings = sparkGenjavadocSettings ++ Seq(
     // addCompilerPlugin(scalafixSemanticdb),
     scalaBinaryVersion := "2.12",
     excludeDependencies += SbtExclusionRule("org.scala-lang.modules", "scala-xml_2.12"),
