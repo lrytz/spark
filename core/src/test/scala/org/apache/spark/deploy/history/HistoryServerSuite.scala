@@ -51,6 +51,7 @@ import org.apache.spark.status.api.v1.ApplicationInfo
 import org.apache.spark.status.api.v1.JobData
 import org.apache.spark.ui.SparkUI
 import org.apache.spark.util.{ResetSystemProperties, ShutdownHookManager, Utils}
+import scala.{collection => coll}
 
 /**
  * A collection of tests against the historyserver, including comparing responses from the json
@@ -187,7 +188,7 @@ class HistoryServerSuite extends SparkFunSuite with BeforeAndAfter with Matchers
     test(name) {
       val (code, jsonOpt, errOpt) = getContentAndCode(path)
       code should be (HttpServletResponse.SC_OK)
-      jsonOpt should be ('defined)
+      jsonOpt should be (Symbol("defined"))
       errOpt should be (None)
 
       val exp = IOUtils.toString(new FileInputStream(
@@ -435,7 +436,7 @@ class HistoryServerSuite extends SparkFunSuite with BeforeAndAfter with Matchers
     val logDirPath = new Path(logDirUri)
     val fs = FileSystem.get(logDirUri, sc.hadoopConfiguration)
 
-    def listDir(dir: Path): Seq[FileStatus] = {
+    def listDir(dir: Path): coll.Seq[FileStatus] = {
       val statuses = fs.listStatus(dir)
       statuses.flatMap(
         stat => if (stat.isDirectory) listDir(stat.getPath) else Seq(stat))
@@ -509,7 +510,7 @@ class HistoryServerSuite extends SparkFunSuite with BeforeAndAfter with Matchers
     }
 
     // get a list of app Ids of all apps in a given state. REST API
-    def listApplications(completed: Boolean): Seq[String] = {
+    def listApplications(completed: Boolean): coll.Seq[String] = {
       val json = parse(HistoryServerSuite.getUrl(applications("", "")))
       logDebug(s"${JsonMethods.pretty(json)}")
       json match {
@@ -527,11 +528,11 @@ class HistoryServerSuite extends SparkFunSuite with BeforeAndAfter with Matchers
       }
     }
 
-    def completedJobs(): Seq[JobData] = {
+    def completedJobs(): coll.Seq[JobData] = {
       getAppUI.store.jobsList(List(JobExecutionStatus.SUCCEEDED).asJava)
     }
 
-    def activeJobs(): Seq[JobData] = {
+    def activeJobs(): coll.Seq[JobData] = {
       getAppUI.store.jobsList(List(JobExecutionStatus.RUNNING).asJava)
     }
 

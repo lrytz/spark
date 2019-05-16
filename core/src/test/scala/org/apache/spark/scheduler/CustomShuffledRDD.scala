@@ -22,6 +22,7 @@ import java.util.Objects
 
 import org.apache.spark._
 import org.apache.spark.rdd.RDD
+import scala.{collection => coll}
 
 /**
  * A Partitioner that might group together one or more partitions from the parent.
@@ -87,7 +88,7 @@ class CustomShuffledRDD[K, V, C](
     this(dep, (0 until dep.partitioner.numPartitions).toArray)
   }
 
-  override def getDependencies: Seq[Dependency[_]] = List(dependency)
+  override def getDependencies: coll.Seq[Dependency[_]] = List(dependency)
 
   override val partitioner = {
     Some(new CoalescedPartitioner(dependency.partitioner, partitionStartIndices))

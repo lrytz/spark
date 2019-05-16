@@ -19,6 +19,7 @@ package org.apache.spark.status
 
 import org.apache.spark.SparkFunSuite
 import org.apache.spark.status.api.v1.RDDPartitionInfo
+import scala.{collection => coll}
 
 class LiveEntitySuite extends SparkFunSuite {
 
@@ -52,7 +53,7 @@ class LiveEntitySuite extends SparkFunSuite {
     assert(!seq.exists(_.blockName == items(5).blockName))
   }
 
-  private def checkSize(seq: Seq[_], expected: Int): Unit = {
+  private def checkSize(seq: coll.Seq[_], expected: Int): Unit = {
     assert(seq.length === expected)
     var count = 0
     seq.iterator.foreach { _ => count += 1 }

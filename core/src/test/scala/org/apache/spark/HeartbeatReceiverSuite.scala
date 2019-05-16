@@ -35,6 +35,7 @@ import org.apache.spark.scheduler.cluster.CoarseGrainedClusterMessages._
 import org.apache.spark.scheduler.cluster.CoarseGrainedSchedulerBackend
 import org.apache.spark.storage.BlockManagerId
 import org.apache.spark.util.{ManualClock, ThreadUtils}
+import scala.{collection => coll}
 
 /**
  * A test suite for the heartbeating behavior between the driver and the executors.
@@ -55,9 +56,9 @@ class HeartbeatReceiverSuite
   private var heartbeatReceiverClock: ManualClock = null
 
   // Helper private method accessors for HeartbeatReceiver
-  private val _executorLastSeen = PrivateMethod[collection.Map[String, Long]]('executorLastSeen)
-  private val _executorTimeoutMs = PrivateMethod[Long]('executorTimeoutMs)
-  private val _killExecutorThread = PrivateMethod[ExecutorService]('killExecutorThread)
+  private val _executorLastSeen = PrivateMethod[collection.Map[String, Long]](Symbol("executorLastSeen"))
+  private val _executorTimeoutMs = PrivateMethod[Long](Symbol("executorTimeoutMs"))
+  private val _killExecutorThread = PrivateMethod[ExecutorService](Symbol("killExecutorThread"))
 
   /**
    * Before each test, set up the SparkContext and a custom [[HeartbeatReceiver]]
@@ -278,7 +279,7 @@ private class FakeSchedulerBackend(
       RequestExecutors(requestedTotal, localityAwareTasks, hostToLocalTaskCount, Set.empty))
   }
 
-  protected override def doKillExecutors(executorIds: Seq[String]): Future[Boolean] = {
+  protected override def doKillExecutors(executorIds: coll.Seq[String]): Future[Boolean] = {
     clusterManagerEndpoint.ask[Boolean](KillExecutors(executorIds))
   }
 }

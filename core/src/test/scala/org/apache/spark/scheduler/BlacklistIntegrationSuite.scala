@@ -21,6 +21,7 @@ import scala.concurrent.duration._
 import org.apache.spark._
 import org.apache.spark.internal.config
 import org.apache.spark.internal.config.Tests._
+import scala.{collection => coll}
 
 class BlacklistIntegrationSuite extends SchedulerIntegrationSuite[MultiExecutorMockBackend]{
 
@@ -151,9 +152,9 @@ class MultiExecutorMockBackend(
 class MockRDDWithLocalityPrefs(
     sc: SparkContext,
     numPartitions: Int,
-    shuffleDeps: Seq[ShuffleDependency[Int, Int, Nothing]],
+    shuffleDeps: coll.Seq[ShuffleDependency[Int, Int, Nothing]],
     val preferredLoc: String) extends MockRDD(sc, numPartitions, shuffleDeps) {
-  override def getPreferredLocations(split: Partition): Seq[String] = {
+  override def getPreferredLocations(split: Partition): coll.Seq[String] = {
     Seq(preferredLoc)
   }
 }

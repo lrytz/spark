@@ -32,6 +32,7 @@ import org.apache.spark.api.java.{JavaRDD, JavaSparkContext}
 import org.apache.spark.internal.config.RDD_PARALLEL_LISTING_THRESHOLD
 import org.apache.spark.rdd.RDDSuiteUtils._
 import org.apache.spark.util.{ThreadUtils, Utils}
+import scala.{collection => coll}
 
 class RDDSuite extends SparkFunSuite with SharedSparkContext {
   var tempDir: File = _
@@ -178,7 +179,7 @@ class RDDSuite extends SparkFunSuite with SharedSparkContext {
   }
 
   test("partitioner aware union") {
-    def makeRDDWithPartitioner(seq: Seq[Int]): RDD[Int] = {
+    def makeRDDWithPartitioner(seq: coll.Seq[Int]): RDD[Int] = {
       sc.makeRDD(seq, 1)
         .map(x => (x, null))
         .partitionBy(new HashPartitioner(2))
@@ -363,7 +364,7 @@ class RDDSuite extends SparkFunSuite with SharedSparkContext {
     assert(math.abs(partitions1(1).length - 500) < initialPartitions)
     assert(repartitioned1.collect() === input)
 
-    def testSplitPartitions(input: Seq[Int], initialPartitions: Int, finalPartitions: Int) {
+    def testSplitPartitions(input: coll.Seq[Int], initialPartitions: Int, finalPartitions: Int) {
       val data = sc.parallelize(input, initialPartitions)
       val repartitioned = data.repartition(finalPartitions)
       assert(repartitioned.partitions.size === finalPartitions)
@@ -1095,7 +1096,7 @@ class RDDSuite extends SparkFunSuite with SharedSparkContext {
     override def getPartitions: Array[Partition] = Array(new Partition {
       override def index: Int = 0
     })
-    override def getDependencies: Seq[Dependency[_]] = mutableDependencies
+    override def getDependencies: coll.Seq[Dependency[_]] = mutableDependencies
     def addDependency(dep: Dependency[_]) {
       mutableDependencies += dep
     }
@@ -1290,12 +1291,12 @@ class SizeBasedCoalescer(val maxSize: Int) extends PartitionCoalescer with Seria
 /** Alters the preferred locations of the parent RDD using provided function. */
 class LocationPrefRDD[T: ClassTag](
     @transient var prev: RDD[T],
-    val locationPicker: Partition => Seq[String]) extends RDD[T](prev) {
+    val locationPicker: Partition => coll.Seq[String]) extends RDD[T](prev) {
   override protected def getPartitions: Array[Partition] = prev.partitions
 
   override def compute(partition: Partition, context: TaskContext): Iterator[T] =
     null.asInstanceOf[Iterator[T]]
 
-  override def getPreferredLocations(partition: Partition): Seq[String] =
+  override def getPreferredLocations(partition: Partition): coll.Seq[String] =
     locationPicker(partition)
 }

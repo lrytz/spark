@@ -29,6 +29,7 @@ import org.scalatest.time.SpanSugar._
 
 import org.apache.spark._
 import org.apache.spark.util.ThreadUtils
+import scala.{collection => coll}
 
 class AsyncRDDActionsSuite extends SparkFunSuite with BeforeAndAfterAll with TimeLimits {
 
@@ -86,7 +87,7 @@ class AsyncRDDActionsSuite extends SparkFunSuite with BeforeAndAfterAll with Tim
   }
 
   test("takeAsync") {
-    def testTake(rdd: RDD[Int], input: Seq[Int], num: Int) {
+    def testTake(rdd: RDD[Int], input: coll.Seq[Int], num: Int) {
       val expected = input.take(num)
       val saw = rdd.takeAsync(num).get()
       assert(saw == expected, "incorrect result for rdd with %d partitions (expected %s, saw %s)"

@@ -23,6 +23,7 @@ import org.apache.spark.internal.config._
 import org.apache.spark.rdd.{PartitionPruningRDD, RDD}
 import org.apache.spark.scheduler.BarrierJobAllocationFailed._
 import org.apache.spark.util.ThreadUtils
+import scala.{collection => coll}
 
 /**
  * This test suite covers all the cases that shall fail fast on job submitted that contains one
@@ -40,7 +41,7 @@ class BarrierStageOnSubmittedSuite extends SparkFunSuite with LocalSparkContext 
   private def testSubmitJob(
       sc: SparkContext,
       rdd: RDD[Int],
-      partitions: Option[Seq[Int]] = None,
+      partitions: Option[coll.Seq[Int]] = None,
       message: String): Unit = {
     val futureAction = sc.submitJob(
       rdd,

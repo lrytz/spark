@@ -32,6 +32,7 @@ import org.apache.spark.scheduler.cluster.ExecutorInfo
 import org.apache.spark.scheduler.local.LocalSchedulerBackend
 import org.apache.spark.storage.BlockManagerMaster
 import org.apache.spark.util.ManualClock
+import scala.{collection => coll}
 
 /**
  * Test add and remove behavior of ExecutorAllocationManager.
@@ -1229,7 +1230,7 @@ private object ExecutorAllocationManagerSuite extends PrivateMethodTester {
   private def createStageInfo(
       stageId: Int,
       numTasks: Int,
-      taskLocalityPreferences: Seq[Seq[TaskLocation]] = Seq.empty
+      taskLocalityPreferences: coll.Seq[coll.Seq[TaskLocation]] = Seq.empty
     ): StageInfo = {
     new StageInfo(stageId, 0, "name", numTasks, Seq.empty, Seq.empty, "no details",
       taskLocalityPreferences = taskLocalityPreferences)
@@ -1248,30 +1249,30 @@ private object ExecutorAllocationManagerSuite extends PrivateMethodTester {
    | Helper methods for accessing private methods and fields |
    * ------------------------------------------------------- */
 
-  private val _numExecutorsToAdd = PrivateMethod[Int]('numExecutorsToAdd)
-  private val _numExecutorsTarget = PrivateMethod[Int]('numExecutorsTarget)
-  private val _maxNumExecutorsNeeded = PrivateMethod[Int]('maxNumExecutorsNeeded)
+  private val _numExecutorsToAdd = PrivateMethod[Int](Symbol("numExecutorsToAdd"))
+  private val _numExecutorsTarget = PrivateMethod[Int](Symbol("numExecutorsTarget"))
+  private val _maxNumExecutorsNeeded = PrivateMethod[Int](Symbol("maxNumExecutorsNeeded"))
   private val _executorsPendingToRemove =
-    PrivateMethod[collection.Set[String]]('executorsPendingToRemove)
-  private val _executorIds = PrivateMethod[collection.Set[String]]('executorIds)
-  private val _addTime = PrivateMethod[Long]('addTime)
-  private val _removeTimes = PrivateMethod[collection.Map[String, Long]]('removeTimes)
-  private val _schedule = PrivateMethod[Unit]('schedule)
-  private val _addExecutors = PrivateMethod[Int]('addExecutors)
+    PrivateMethod[collection.Set[String]](Symbol("executorsPendingToRemove"))
+  private val _executorIds = PrivateMethod[collection.Set[String]](Symbol("executorIds"))
+  private val _addTime = PrivateMethod[Long](Symbol("addTime"))
+  private val _removeTimes = PrivateMethod[collection.Map[String, Long]](Symbol("removeTimes"))
+  private val _schedule = PrivateMethod[Unit](Symbol("schedule"))
+  private val _addExecutors = PrivateMethod[Int](Symbol("addExecutors"))
   private val _updateAndSyncNumExecutorsTarget =
-    PrivateMethod[Int]('updateAndSyncNumExecutorsTarget)
-  private val _removeExecutor = PrivateMethod[Boolean]('removeExecutor)
-  private val _removeExecutors = PrivateMethod[Seq[String]]('removeExecutors)
-  private val _onExecutorAdded = PrivateMethod[Unit]('onExecutorAdded)
-  private val _onExecutorRemoved = PrivateMethod[Unit]('onExecutorRemoved)
-  private val _onSchedulerBacklogged = PrivateMethod[Unit]('onSchedulerBacklogged)
-  private val _onSchedulerQueueEmpty = PrivateMethod[Unit]('onSchedulerQueueEmpty)
-  private val _onExecutorIdle = PrivateMethod[Unit]('onExecutorIdle)
-  private val _onExecutorBusy = PrivateMethod[Unit]('onExecutorBusy)
-  private val _localityAwareTasks = PrivateMethod[Int]('localityAwareTasks)
-  private val _hostToLocalTaskCount = PrivateMethod[Map[String, Int]]('hostToLocalTaskCount)
-  private val _onSpeculativeTaskSubmitted = PrivateMethod[Unit]('onSpeculativeTaskSubmitted)
-  private val _totalRunningTasks = PrivateMethod[Int]('totalRunningTasks)
+    PrivateMethod[Int](Symbol("updateAndSyncNumExecutorsTarget"))
+  private val _removeExecutor = PrivateMethod[Boolean](Symbol("removeExecutor"))
+  private val _removeExecutors = PrivateMethod[coll.Seq[String]](Symbol("removeExecutors"))
+  private val _onExecutorAdded = PrivateMethod[Unit](Symbol("onExecutorAdded"))
+  private val _onExecutorRemoved = PrivateMethod[Unit](Symbol("onExecutorRemoved"))
+  private val _onSchedulerBacklogged = PrivateMethod[Unit](Symbol("onSchedulerBacklogged"))
+  private val _onSchedulerQueueEmpty = PrivateMethod[Unit](Symbol("onSchedulerQueueEmpty"))
+  private val _onExecutorIdle = PrivateMethod[Unit](Symbol("onExecutorIdle"))
+  private val _onExecutorBusy = PrivateMethod[Unit](Symbol("onExecutorBusy"))
+  private val _localityAwareTasks = PrivateMethod[Int](Symbol("localityAwareTasks"))
+  private val _hostToLocalTaskCount = PrivateMethod[Map[String, Int]](Symbol("hostToLocalTaskCount"))
+  private val _onSpeculativeTaskSubmitted = PrivateMethod[Unit](Symbol("onSpeculativeTaskSubmitted"))
+  private val _totalRunningTasks = PrivateMethod[Int](Symbol("totalRunningTasks"))
 
   private def numExecutorsToAdd(manager: ExecutorAllocationManager): Int = {
     manager invokePrivate _numExecutorsToAdd()
@@ -1319,7 +1320,7 @@ private object ExecutorAllocationManagerSuite extends PrivateMethodTester {
     manager invokePrivate _removeExecutor(id)
   }
 
-  private def removeExecutors(manager: ExecutorAllocationManager, ids: Seq[String]): Seq[String] = {
+  private def removeExecutors(manager: ExecutorAllocationManager, ids: coll.Seq[String]): coll.Seq[String] = {
     manager invokePrivate _removeExecutors(ids)
   }
 
@@ -1397,7 +1398,7 @@ private class DummyLocalExternalClusterManager extends ExternalClusterManager {
 private class DummyLocalSchedulerBackend (sc: SparkContext, sb: SchedulerBackend)
   extends SchedulerBackend with ExecutorAllocationClient {
 
-  override private[spark] def getExecutorIds(): Seq[String] = Nil
+  override private[spark] def getExecutorIds(): coll.Seq[String] = Nil
 
   override private[spark] def requestTotalExecutors(
       numExecutors: Int,
@@ -1407,10 +1408,10 @@ private class DummyLocalSchedulerBackend (sc: SparkContext, sb: SchedulerBackend
   override def requestExecutors(numAdditionalExecutors: Int): Boolean = true
 
   override def killExecutors(
-      executorIds: Seq[String],
+      executorIds: coll.Seq[String],
       adjustTargetNumExecutors: Boolean,
       countFailures: Boolean,
-      force: Boolean): Seq[String] = executorIds
+      force: Boolean): coll.Seq[String] = executorIds
 
   override def start(): Unit = sb.start()
 

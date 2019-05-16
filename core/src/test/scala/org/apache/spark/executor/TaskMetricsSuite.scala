@@ -22,6 +22,7 @@ import org.scalatest.Assertions
 import org.apache.spark._
 import org.apache.spark.storage.{BlockStatus, StorageLevel, TestBlockId}
 import org.apache.spark.util.AccumulatorV2
+import scala.{collection => coll}
 
 
 class TaskMetricsSuite extends SparkFunSuite {
@@ -234,8 +235,8 @@ private[spark] object TaskMetricsSuite extends Assertions {
    * Note: this does NOT check accumulator ID equality.
    */
   def assertUpdatesEquals(
-      updates1: Seq[AccumulatorV2[_, _]],
-      updates2: Seq[AccumulatorV2[_, _]]): Unit = {
+      updates1: coll.Seq[AccumulatorV2[_, _]],
+      updates2: coll.Seq[AccumulatorV2[_, _]]): Unit = {
     assert(updates1.size === updates2.size)
     updates1.zip(updates2).foreach { case (acc1, acc2) =>
       // do not assert ID equals here

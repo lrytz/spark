@@ -20,6 +20,7 @@ package org.apache.spark.ui
 import scala.xml.Node
 
 import org.apache.spark.SparkFunSuite
+import scala.{collection => coll}
 
 class PagedDataSourceSuite extends SparkFunSuite {
 
@@ -53,9 +54,9 @@ class PagedTableSuite extends SparkFunSuite {
 
       override def pageLink(page: Int): String = page.toString
 
-      override def headers: Seq[Node] = Nil
+      override def headers: coll.Seq[Node] = Nil
 
-      override def row(t: Int): Seq[Node] = Nil
+      override def row(t: Int): coll.Seq[Node] = Nil
 
       override def pageSizeFormField: String = "pageSize"
 
@@ -87,10 +88,10 @@ class PagedTableSuite extends SparkFunSuite {
   }
 }
 
-private[spark] class SeqPagedDataSource[T](seq: Seq[T], pageSize: Int)
+private[spark] class SeqPagedDataSource[T](seq: coll.Seq[T], pageSize: Int)
   extends PagedDataSource[T](pageSize) {
 
   override protected def dataSize: Int = seq.size
 
-  override protected def sliceData(from: Int, to: Int): Seq[T] = seq.slice(from, to)
+  override protected def sliceData(from: Int, to: Int): coll.Seq[T] = seq.slice(from, to)
 }

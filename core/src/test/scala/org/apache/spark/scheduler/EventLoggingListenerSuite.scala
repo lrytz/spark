@@ -38,6 +38,7 @@ import org.apache.spark.io._
 import org.apache.spark.metrics.{ExecutorMetricType, MetricsSystem}
 import org.apache.spark.scheduler.cluster.ExecutorInfo
 import org.apache.spark.util.{JsonProtocol, Utils}
+import scala.{collection => coll}
 
 
 /**
@@ -489,7 +490,7 @@ class EventLoggingListenerSuite extends SparkFunSuite with LocalSparkContext wit
     }
   }
 
-  private def readLines(in: InputStream): Seq[String] = {
+  private def readLines(in: InputStream): coll.Seq[String] = {
     Source.fromInputStream(in).getLines().toSeq
   }
 

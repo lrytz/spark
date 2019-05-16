@@ -27,6 +27,7 @@ import scala.reflect.ClassTag
 import org.apache.spark.SparkConf
 import org.apache.spark.deploy.master._
 import org.apache.spark.serializer.Serializer
+import scala.{collection => coll}
 
 class CustomRecoveryModeFactory(
   conf: SparkConf,
@@ -83,7 +84,7 @@ class CustomPersistenceEngine(serializer: Serializer) extends PersistenceEngine 
    * Gives all objects, matching a prefix. This defines how objects are
    * read/deserialized back.
    */
-  override def read[T: ClassTag](prefix: String): Seq[T] = {
+  override def read[T: ClassTag](prefix: String): coll.Seq[T] = {
     CustomPersistenceEngine.readAttempts += 1
     val results = for ((name, bytes) <- data; if name.startsWith(prefix))
       yield serializer.newInstance().deserialize[T](ByteBuffer.wrap(bytes))

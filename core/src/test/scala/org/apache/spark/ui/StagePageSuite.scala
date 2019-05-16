@@ -31,6 +31,7 @@ import org.apache.spark.scheduler._
 import org.apache.spark.status.AppStatusStore
 import org.apache.spark.status.api.v1.{AccumulableInfo => UIAccumulableInfo, StageData, StageStatus}
 import org.apache.spark.ui.jobs.{ApiHelper, StagePage, StagesTab, TaskPagedTable}
+import scala.{collection => coll}
 
 class StagePageSuite extends SparkFunSuite with LocalSparkContext {
 
@@ -100,7 +101,7 @@ class StagePageSuite extends SparkFunSuite with LocalSparkContext {
    * Render a stage page started with the given conf and return the HTML.
    * This also runs a dummy stage to populate the page with useful content.
    */
-  private def renderStagePage(): Seq[Node] = {
+  private def renderStagePage(): coll.Seq[Node] = {
     val conf = new SparkConf(false).set(LIVE_ENTITY_UPDATE_PERIOD, 0L)
     val statusStore = AppStatusStore.createLiveStore(conf)
     val listener = statusStore.listener.get

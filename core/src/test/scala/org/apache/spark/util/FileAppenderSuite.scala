@@ -36,6 +36,7 @@ import org.scalatest.BeforeAndAfter
 import org.apache.spark.{SparkConf, SparkFunSuite}
 import org.apache.spark.internal.{config, Logging}
 import org.apache.spark.util.logging.{FileAppender, RollingFileAppender, SizeBasedRollingPolicy, TimeBasedRollingPolicy}
+import scala.{collection => coll}
 
 class FileAppenderSuite extends SparkFunSuite with BeforeAndAfter with Logging {
 
@@ -172,7 +173,7 @@ class FileAppenderSuite extends SparkFunSuite with BeforeAndAfter with Logging {
     // on SparkConf settings.
 
     def testAppenderSelection[ExpectedAppender: ClassTag, ExpectedRollingPolicy](
-        properties: Seq[(String, String)], expectedRollingPolicyParam: Long = -1): Unit = {
+        properties: coll.Seq[(String, String)], expectedRollingPolicyParam: Long = -1): Unit = {
 
       // Set spark conf properties
       val conf = new SparkConf
@@ -200,11 +201,11 @@ class FileAppenderSuite extends SparkFunSuite with BeforeAndAfter with Logging {
       appender.awaitTermination()
     }
 
-    def rollingStrategy(strategy: String): Seq[(String, String)] =
+    def rollingStrategy(strategy: String): coll.Seq[(String, String)] =
       Seq(config.EXECUTOR_LOGS_ROLLING_STRATEGY.key -> strategy)
-    def rollingSize(size: String): Seq[(String, String)] =
+    def rollingSize(size: String): coll.Seq[(String, String)] =
       Seq(config.EXECUTOR_LOGS_ROLLING_MAX_SIZE.key -> size)
-    def rollingInterval(interval: String): Seq[(String, String)] =
+    def rollingInterval(interval: String): coll.Seq[(String, String)] =
       Seq(config.EXECUTOR_LOGS_ROLLING_TIME_INTERVAL.key -> interval)
 
     val msInDay = 24 * 60 * 60 * 1000L
@@ -314,10 +315,10 @@ class FileAppenderSuite extends SparkFunSuite with BeforeAndAfter with Logging {
   def testRolling(
       appender: FileAppender,
       outputStream: OutputStream,
-      textToAppend: Seq[String],
+      textToAppend: coll.Seq[String],
       sleepTimeBetweenTexts: Long,
       isCompressed: Boolean = false
-    ): Seq[File] = {
+    ): coll.Seq[File] = {
     // send data to appender through the input stream, and wait for the data to be written
     val expectedText = textToAppend.mkString("")
     for (i <- 0 until textToAppend.size) {

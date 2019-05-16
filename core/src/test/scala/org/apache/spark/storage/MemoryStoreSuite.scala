@@ -31,6 +31,7 @@ import org.apache.spark.serializer.{KryoSerializer, SerializerManager}
 import org.apache.spark.storage.memory.{BlockEvictionHandler, MemoryStore, PartiallySerializedBlock, PartiallyUnrolledIterator}
 import org.apache.spark.util._
 import org.apache.spark.util.io.ChunkedByteBuffer
+import scala.{collection => coll}
 
 class MemoryStoreSuite
   extends SparkFunSuite
@@ -54,7 +55,7 @@ class MemoryStoreSuite
     super.beforeEach()
     // Set the arch to 64-bit and compressedOops to true to get a deterministic test-case
     System.setProperty("os.arch", "amd64")
-    val initialize = PrivateMethod[Unit]('initialize)
+    val initialize = PrivateMethod[Unit](Symbol("initialize"))
     SizeEstimator invokePrivate initialize()
   }
 
@@ -76,7 +77,7 @@ class MemoryStoreSuite
     (memoryStore, blockInfoManager)
   }
 
-  private def assertSameContents[T](expected: Seq[T], actual: Seq[T], hint: String): Unit = {
+  private def assertSameContents[T](expected: coll.Seq[T], actual: coll.Seq[T], hint: String): Unit = {
     assert(actual.length === expected.length, s"wrong number of values returned in $hint")
     expected.iterator.zip(actual.iterator).foreach { case (e, a) =>
       assert(e === a, s"$hint did not return original values!")

@@ -33,6 +33,7 @@ import org.apache.spark.deploy.worker.Worker
 import org.apache.spark.internal.Logging
 import org.apache.spark.rpc.RpcEnv
 import org.apache.spark.util.Utils
+import scala.{collection => coll}
 
 /**
  * End-to-end tests for application client in standalone mode.
@@ -48,9 +49,9 @@ class AppClientSuite
   private val securityManager = new SecurityManager(conf)
 
   private var masterRpcEnv: RpcEnv = null
-  private var workerRpcEnvs: Seq[RpcEnv] = null
+  private var workerRpcEnvs: coll.Seq[RpcEnv] = null
   private var master: Master = null
-  private var workers: Seq[Worker] = null
+  private var workers: coll.Seq[Worker] = null
 
   /**
    * Start the local cluster.
@@ -162,7 +163,7 @@ class AppClientSuite
   }
 
   /** Make a few workers that talk to our master. */
-  private def makeWorkers(cores: Int, memory: Int): Seq[Worker] = {
+  private def makeWorkers(cores: Int, memory: Int): coll.Seq[Worker] = {
     (0 until numWorkers).map { i =>
       val rpcEnv = workerRpcEnvs(i)
       val worker = new Worker(rpcEnv, 0, cores, memory, Array(masterRpcEnv.address),
@@ -178,7 +179,7 @@ class AppClientSuite
   }
 
   /** Get the applications that are active from Master */
-  private def getApplications(): Seq[ApplicationInfo] = {
+  private def getApplications(): coll.Seq[ApplicationInfo] = {
     getMasterState.activeApps
   }
 

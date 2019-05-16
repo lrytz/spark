@@ -26,6 +26,7 @@ import org.scalatest.Assertions
 import org.apache.spark.{SparkConf, SparkFunSuite}
 import org.apache.spark.internal.config.Kryo._
 import org.apache.spark.serializer.KryoTest.RegistratorWithoutAutoReset
+import scala.{collection => coll}
 
 /**
  * Tests to ensure that [[Serializer]] implementations obey the API contracts for methods that
@@ -63,7 +64,7 @@ class SerializerPropertiesSuite extends SparkFunSuite {
 object SerializerPropertiesSuite extends Assertions {
 
   def generateRandomItem(rand: Random): Any = {
-    val randomFunctions: Seq[() => Any] = Seq(
+    val randomFunctions: coll.Seq[() => Any] = Seq(
       () => rand.nextInt(),
       () => rand.nextString(rand.nextInt(10)),
       () => rand.nextDouble(),
@@ -101,7 +102,7 @@ object SerializerPropertiesSuite extends Assertions {
         val itemEndOffset = baos.toByteArray.length
         baos.toByteArray.slice(itemStartOffset, itemEndOffset).clone()
       }
-      val itemsAndSerializedItems: Seq[(Any, Array[Byte])] = {
+      val itemsAndSerializedItems: coll.Seq[(Any, Array[Byte])] = {
         val serItems = items.map {
           item => (item, serializeItem(item))
         }

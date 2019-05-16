@@ -31,6 +31,7 @@ import org.scalatest.exceptions.TestFailedException
 import org.apache.spark.scheduler._
 import org.apache.spark.serializer.JavaSerializer
 import org.apache.spark.util.{AccumulatorContext, AccumulatorMetadata, AccumulatorV2, LongAccumulator}
+import scala.{collection => coll}
 
 
 class AccumulatorSuite extends SparkFunSuite with Matchers with LocalSparkContext {
@@ -154,9 +155,9 @@ private class SaveInfoListener extends SparkListener {
   private val jobCompletionSem = new Semaphore(0)
   private var exception: Throwable = null
 
-  def getCompletedStageInfos: Seq[StageInfo] = completedStageInfos.toArray.toSeq
-  def getCompletedTaskInfos: Seq[TaskInfo] = completedTaskInfos.values.flatten.toSeq
-  def getCompletedTaskInfos(stageId: StageId, stageAttemptId: StageAttemptId): Seq[TaskInfo] =
+  def getCompletedStageInfos: coll.Seq[StageInfo] = completedStageInfos.toArray.toSeq
+  def getCompletedTaskInfos: coll.Seq[TaskInfo] = completedTaskInfos.values.flatten.toSeq
+  def getCompletedTaskInfos(stageId: StageId, stageAttemptId: StageAttemptId): coll.Seq[TaskInfo] =
     completedTaskInfos.getOrElse((stageId, stageAttemptId), Seq.empty[TaskInfo])
 
   /**

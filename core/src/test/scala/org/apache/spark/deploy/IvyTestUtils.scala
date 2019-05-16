@@ -30,6 +30,7 @@ import org.apache.ivy.core.settings.IvySettings
 
 import org.apache.spark.TestUtils.{createCompiledClass, JavaSourceFromString}
 import org.apache.spark.deploy.SparkSubmitUtils.MavenCoordinate
+import scala.{collection => coll}
 
 private[deploy] object IvyTestUtils {
 
@@ -96,7 +97,7 @@ private[deploy] object IvyTestUtils {
   private def createRFiles(
       dir: File,
       className: String,
-      packageName: String): Seq[(String, File)] = {
+      packageName: String): coll.Seq[(String, File)] = {
     val rFilesDir = new File(dir, "R" + File.separator + "pkg")
     Files.createParentDirs(new File(rFilesDir, "R" + File.separator + "mylib.R"))
     val contents =
@@ -149,7 +150,7 @@ private[deploy] object IvyTestUtils {
   private def createDescriptor(
       tempPath: File,
       artifact: MavenCoordinate,
-      dependencies: Option[Seq[MavenCoordinate]],
+      dependencies: Option[coll.Seq[MavenCoordinate]],
       useIvyLayout: Boolean): File = {
     if (useIvyLayout) {
       val ivyXmlPath = pathFromCoordinate(artifact, tempPath, "ivy", true)
@@ -174,7 +175,7 @@ private[deploy] object IvyTestUtils {
   private def createPom(
       dir: File,
       artifact: MavenCoordinate,
-      dependencies: Option[Seq[MavenCoordinate]]): File = {
+      dependencies: Option[coll.Seq[MavenCoordinate]]): File = {
     var content = """
                     |<?xml version="1.0" encoding="UTF-8"?>
                     |<project xmlns="http://maven.apache.org/POM/4.0.0"
@@ -205,7 +206,7 @@ private[deploy] object IvyTestUtils {
   private def createIvyDescriptor(
       dir: File,
       artifact: MavenCoordinate,
-      dependencies: Option[Seq[MavenCoordinate]]): File = {
+      dependencies: Option[coll.Seq[MavenCoordinate]]): File = {
     var content = s"""
         |<?xml version="1.0" encoding="UTF-8"?>
         |<ivy-module version="2.0" xmlns:m="http://ant.apache.org/ivy/maven">
@@ -237,7 +238,7 @@ private[deploy] object IvyTestUtils {
   private[deploy] def packJar(
       dir: File,
       artifact: MavenCoordinate,
-      files: Seq[(String, File)],
+      files: coll.Seq[(String, File)],
       useIvyLayout: Boolean,
       withR: Boolean,
       withManifest: Option[Manifest] = None): File = {
@@ -288,7 +289,7 @@ private[deploy] object IvyTestUtils {
    */
   private def createLocalRepository(
       artifact: MavenCoordinate,
-      dependencies: Option[Seq[MavenCoordinate]] = None,
+      dependencies: Option[coll.Seq[MavenCoordinate]] = None,
       tempDir: Option[File] = None,
       useIvyLayout: Boolean = false,
       withPython: Boolean = false,
@@ -394,7 +395,7 @@ private[deploy] object IvyTestUtils {
   /** Deletes the test packages from the ivy cache */
   private def purgeLocalIvyCache(
       artifact: MavenCoordinate,
-      dependencies: Option[Seq[MavenCoordinate]],
+      dependencies: Option[coll.Seq[MavenCoordinate]],
       ivySettings: IvySettings): Unit = {
     // delete the artifact from the cache as well if it already exists
     FileUtils.deleteDirectory(new File(ivySettings.getDefaultCache, artifact.groupId))

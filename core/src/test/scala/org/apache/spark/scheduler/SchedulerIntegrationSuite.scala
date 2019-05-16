@@ -36,6 +36,7 @@ import org.apache.spark.internal.Logging
 import org.apache.spark.internal.config.SCHEDULER_REVIVE_INTERVAL
 import org.apache.spark.rdd.RDD
 import org.apache.spark.util.{CallSite, ThreadUtils, Utils}
+import scala.{collection => coll}
 
 /**
  * Tests for the  entire scheduler code -- DAGScheduler, TaskSchedulerImpl, TaskSets,
@@ -88,7 +89,7 @@ abstract class SchedulerIntegrationSuite[T <: MockBackend: ClassTag] extends Spa
     testScheduler(name, Seq())(testBody)
   }
 
-  def testScheduler(name: String, extraConfs: Seq[(String, String)])(testBody: => Unit): Unit = {
+  def testScheduler(name: String, extraConfs: coll.Seq[(String, String)])(testBody: => Unit): Unit = {
     test(name) {
       val conf = new SparkConf()
       extraConfs.foreach{ case (k, v) => conf.set(k, v)}
@@ -447,7 +448,7 @@ case class ExecutorTaskStatus(host: String, executorId: String, var freeCores: I
 class MockRDD(
   sc: SparkContext,
   val numPartitions: Int,
-  val shuffleDeps: Seq[ShuffleDependency[Int, Int, Nothing]]
+  val shuffleDeps: coll.Seq[ShuffleDependency[Int, Int, Nothing]]
 ) extends RDD[(Int, Int)](sc, shuffleDeps) with Serializable {
 
   MockRDD.validate(numPartitions, shuffleDeps)
@@ -459,7 +460,7 @@ class MockRDD(
       override def index: Int = i
     }).toArray
   }
-  override def getPreferredLocations(split: Partition): Seq[String] = Nil
+  override def getPreferredLocations(split: Partition): coll.Seq[String] = Nil
   override def toString: String = "MockRDD " + id
 }
 
@@ -468,7 +469,7 @@ object MockRDD extends AssertionsHelper with TripleEquals {
    * make sure all the shuffle dependencies have a consistent number of output partitions
    * (mostly to make sure the test setup makes sense, not that Spark itself would get this wrong)
    */
-  def validate(numPartitions: Int, dependencies: Seq[ShuffleDependency[_, _, _]]): Unit = {
+  def validate(numPartitions: Int, dependencies: coll.Seq[ShuffleDependency[_, _, _]]): Unit = {
     dependencies.foreach { dependency =>
       val partitioner = dependency.partitioner
       assert(partitioner != null)

@@ -35,6 +35,7 @@ import org.apache.spark.rpc.{RpcAddress, RpcEndpointRef, RpcEnv}
 import org.apache.spark.scheduler.TaskSchedulerImpl
 import org.apache.spark.scheduler.cluster._
 import org.apache.spark.scheduler.cluster.CoarseGrainedClusterMessages.{RegisterExecutor, RegisterExecutorFailed}
+import scala.{collection => coll}
 
 /**
  * End-to-end tests for dynamic allocation in standalone mode.
@@ -50,9 +51,9 @@ class StandaloneDynamicAllocationSuite
   private val securityManager = new SecurityManager(conf)
 
   private var masterRpcEnv: RpcEnv = null
-  private var workerRpcEnvs: Seq[RpcEnv] = null
+  private var workerRpcEnvs: coll.Seq[RpcEnv] = null
   private var master: Master = null
-  private var workers: Seq[Worker] = null
+  private var workers: coll.Seq[Worker] = null
 
   /**
    * Start the local cluster.
@@ -438,7 +439,7 @@ class StandaloneDynamicAllocationSuite
 
     // simulate running a task on the executor
     val getMap =
-      PrivateMethod[mutable.HashMap[String, mutable.HashSet[Long]]]('executorIdToRunningTaskIds)
+      PrivateMethod[mutable.HashMap[String, mutable.HashSet[Long]]](Symbol("executorIdToRunningTaskIds"))
     val taskScheduler = sc.taskScheduler.asInstanceOf[TaskSchedulerImpl]
     val executorIdToRunningTaskIds = taskScheduler invokePrivate getMap()
     executorIdToRunningTaskIds(executors.head) = mutable.HashSet(1L)
@@ -537,7 +538,7 @@ class StandaloneDynamicAllocationSuite
   }
 
   /** Make a few workers that talk to our master. */
-  private def makeWorkers(cores: Int, memory: Int): Seq[Worker] = {
+  private def makeWorkers(cores: Int, memory: Int): coll.Seq[Worker] = {
     (0 until numWorkers).map { i =>
       val rpcEnv = workerRpcEnvs(i)
       val worker = new Worker(rpcEnv, 0, cores, memory, Array(masterRpcEnv.address),
@@ -553,7 +554,7 @@ class StandaloneDynamicAllocationSuite
   }
 
   /** Get the applications that are active from Master */
-  private def getApplications(): Seq[ApplicationInfo] = {
+  private def getApplications(): coll.Seq[ApplicationInfo] = {
     getMasterState.activeApps
   }
 
@@ -569,7 +570,7 @@ class StandaloneDynamicAllocationSuite
   }
 
   /** Kill the given executor, specifying whether to force kill it. */
-  private def killExecutor(sc: SparkContext, executorId: String, force: Boolean): Seq[String] = {
+  private def killExecutor(sc: SparkContext, executorId: String, force: Boolean): coll.Seq[String] = {
     syncExecutors(sc)
     sc.schedulerBackend match {
       case b: CoarseGrainedSchedulerBackend =>
@@ -596,7 +597,7 @@ class StandaloneDynamicAllocationSuite
    * updated view. We cannot rely on the executor IDs according to the driver because we
    * don't wait for executors to register. Otherwise the tests will take much longer to run.
    */
-  private def getExecutorIds(sc: SparkContext): Seq[String] = {
+  private def getExecutorIds(sc: SparkContext): coll.Seq[String] = {
     val app = getApplications().find(_.id == sc.applicationId)
     assert(app.isDefined)
     // Although executors is transient, master is in the same process so the message won't be

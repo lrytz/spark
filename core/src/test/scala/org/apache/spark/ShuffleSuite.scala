@@ -32,6 +32,7 @@ import org.apache.spark.serializer.KryoSerializer
 import org.apache.spark.shuffle.ShuffleWriter
 import org.apache.spark.storage.{ShuffleBlockId, ShuffleDataBlockId, ShuffleIndexBlockId}
 import org.apache.spark.util.{MutablePair, Utils}
+import scala.{collection => coll}
 
 abstract class ShuffleSuite extends SparkFunSuite with Matchers with LocalSparkContext {
 
@@ -421,9 +422,9 @@ abstract class ShuffleSuite extends SparkFunSuite with Matchers with LocalSparkC
  * process one element, before pausing to wait for the other function to "catch up".
  */
 class InterleaveIterators[T, R](
-  data1: Seq[T],
+  data1: coll.Seq[T],
   f1: Iterator[T] => R,
-  data2: Seq[T],
+  data2: coll.Seq[T],
   f2: Iterator[T] => R) {
 
   require(data1.size == data2.size)

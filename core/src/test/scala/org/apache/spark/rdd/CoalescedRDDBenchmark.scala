@@ -21,6 +21,7 @@ import scala.collection.immutable
 
 import org.apache.spark.SparkContext
 import org.apache.spark.benchmark.{Benchmark, BenchmarkBase}
+import scala.{collection => coll}
 
 /**
  * Benchmark for CoalescedRDD.
@@ -52,7 +53,7 @@ object CoalescedRDDBenchmark extends BenchmarkBase {
         hosts.length
         val rnd = scala.util.Random
         rnd.setSeed(seed)
-        val blocks: immutable.Seq[(Int, Seq[String])] = (1 to numBlocks).map { i =>
+        val blocks: immutable.Seq[(Int, coll.Seq[String])] = (1 to numBlocks).map { i =>
           (i, hosts(rnd.nextInt(hosts.size)) :: Nil)
         }
 
@@ -67,7 +68,7 @@ object CoalescedRDDBenchmark extends BenchmarkBase {
     benchmark.run()
   }
 
-  private def performCoalesce(blocks: immutable.Seq[(Int, Seq[String])], numPartitions: Int) {
+  private def performCoalesce(blocks: immutable.Seq[(Int, coll.Seq[String])], numPartitions: Int) {
     sc.makeRDD(blocks).coalesce(numPartitions).partitions
   }
 

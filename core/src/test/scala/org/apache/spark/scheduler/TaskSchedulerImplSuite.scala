@@ -32,6 +32,7 @@ import org.apache.spark._
 import org.apache.spark.internal.Logging
 import org.apache.spark.internal.config
 import org.apache.spark.util.ManualClock
+import scala.{collection => coll}
 
 class FakeSchedulerBackend extends SchedulerBackend {
   def start() {}
@@ -381,7 +382,7 @@ class TaskSchedulerImplSuite extends SparkFunSuite with LocalSparkContext with B
         .isExecutorBlacklistedForTaskSet(anyString())
     }
 
-    def tasksForStage(stageId: Int): Seq[TaskDescription] = {
+    def tasksForStage(stageId: Int): coll.Seq[TaskDescription] = {
       firstTaskAttempts.filter{_.name.contains(s"stage $stageId")}
     }
     tasksForStage(0).foreach { task =>
@@ -713,8 +714,8 @@ class TaskSchedulerImplSuite extends SparkFunSuite with LocalSparkContext with B
    */
   private def testBlacklistPerformance(
       testName: String,
-      nodeBlacklist: Seq[String],
-      execBlacklist: Seq[String]): Unit = {
+      nodeBlacklist: coll.Seq[String],
+      execBlacklist: coll.Seq[String]): Unit = {
     // Because scheduling involves shuffling the order of offers around, we run this test a few
     // times to cover more possibilities.  There are only 3 offers, which means 6 permutations,
     // so 10 iterations is pretty good.

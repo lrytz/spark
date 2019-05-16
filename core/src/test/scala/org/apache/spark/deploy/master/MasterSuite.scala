@@ -44,6 +44,7 @@ import org.apache.spark.internal.config.UI._
 import org.apache.spark.internal.config.Worker._
 import org.apache.spark.rpc.{RpcAddress, RpcEndpoint, RpcEndpointRef, RpcEnv}
 import org.apache.spark.serializer
+import scala.{collection => coll}
 
 object MockWorker {
   val counter = new AtomicInteger(10000)
@@ -530,9 +531,9 @@ class MasterSuite extends SparkFunSuite
   // | Utility methods and fields for testing |
   // ==========================================
 
-  private val _scheduleExecutorsOnWorkers = PrivateMethod[Array[Int]]('scheduleExecutorsOnWorkers)
-  private val _drivers = PrivateMethod[HashSet[DriverInfo]]('drivers)
-  private val _state = PrivateMethod[RecoveryState.Value]('state)
+  private val _scheduleExecutorsOnWorkers = PrivateMethod[Array[Int]](Symbol("scheduleExecutorsOnWorkers"))
+  private val _drivers = PrivateMethod[HashSet[DriverInfo]](Symbol("drivers"))
+  private val _state = PrivateMethod[RecoveryState.Value](Symbol("state"))
 
   private val workerInfo = makeWorkerInfo(4096, 10)
   private val workerInfos = Array(workerInfo, workerInfo, workerInfo)
@@ -793,7 +794,7 @@ private class FakeRecoveryModeFactory(conf: SparkConf, ser: serializer.Serialize
       persistentData(name) = obj
     }
 
-    override def read[T: ClassTag](prefix: String): Seq[T] = {
+    override def read[T: ClassTag](prefix: String): coll.Seq[T] = {
       persistentData.filter(_._1.startsWith(prefix)).map(_._2.asInstanceOf[T]).toSeq
     }
   }

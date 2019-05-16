@@ -37,6 +37,7 @@ import org.apache.spark.scheduler.SchedulingMode.SchedulingMode
 import org.apache.spark.shuffle.{FetchFailedException, MetadataFetchFailedException}
 import org.apache.spark.storage.{BlockId, BlockManagerId, BlockManagerMaster}
 import org.apache.spark.util.{AccumulatorContext, AccumulatorV2, CallSite, LongAccumulator, Utils}
+import scala.{collection => coll}
 
 class DAGSchedulerEventProcessLoopTester(dagScheduler: DAGScheduler)
   extends DAGSchedulerEventProcessLoop(dagScheduler) {
@@ -62,7 +63,7 @@ class MyCheckpointRDD(
     sc: SparkContext,
     numPartitions: Int,
     dependencies: List[Dependency[_]],
-    locations: Seq[Seq[String]] = Nil,
+    locations: coll.Seq[coll.Seq[String]] = Nil,
     @(transient @param) tracker: MapOutputTrackerMaster = null,
     indeterminate: Boolean = false)
   extends MyRDD(sc, numPartitions, dependencies, locations, tracker, indeterminate) {
@@ -85,7 +86,7 @@ class MyRDD(
     sc: SparkContext,
     numPartitions: Int,
     dependencies: List[Dependency[_]],
-    locations: Seq[Seq[String]] = Nil,
+    locations: coll.Seq[coll.Seq[String]] = Nil,
     @(transient @param) tracker: MapOutputTrackerMaster = null,
     indeterminate: Boolean = false)
   extends RDD[(Int, Int)](sc, dependencies) with Serializable {
@@ -101,7 +102,7 @@ class MyRDD(
     if (indeterminate) DeterministicLevel.INDETERMINATE else super.getOutputDeterministicLevel
   }
 
-  override def getPreferredLocations(partition: Partition): Seq[String] = {
+  override def getPreferredLocations(partition: Partition): coll.Seq[String] = {
     if (locations.isDefinedAt(partition.index)) {
       locations(partition.index)
     } else if (tracker != null && dependencies.size == 1 &&
@@ -142,7 +143,7 @@ class DAGSchedulerSuite extends SparkFunSuite with LocalSparkContext with TimeLi
     override def stop() = {}
     override def executorHeartbeatReceived(
         execId: String,
-        accumUpdates: Array[(Long, Seq[AccumulatorV2[_, _]])],
+        accumUpdates: Array[(Long, coll.Seq[AccumulatorV2[_, _]])],
         blockManagerId: BlockManagerId,
         executorUpdates: ExecutorMetrics): Boolean = true
     override def submitTasks(taskSet: TaskSet) = {
@@ -210,10 +211,10 @@ class DAGSchedulerSuite extends SparkFunSuite with LocalSparkContext with TimeLi
    * Keys are (rdd ID, partition ID). Anything not present will return an empty
    * list of cache locations silently.
    */
-  val cacheLocations = new HashMap[(Int, Int), Seq[BlockManagerId]]
+  val cacheLocations = new HashMap[(Int, Int), coll.Seq[BlockManagerId]]
   // stub out BlockManagerMaster.getLocations to use our cacheLocations
   val blockManagerMaster = new BlockManagerMaster(null, conf, true) {
-      override def getLocations(blockIds: Array[BlockId]): IndexedSeq[Seq[BlockManagerId]] = {
+      override def getLocations(blockIds: Array[BlockId]): IndexedSeq[coll.Seq[BlockManagerId]] = {
         blockIds.map {
           _.asRDDId.map(id => (id.rddId -> id.splitIndex)).flatMap(key => cacheLocations.get(key)).
             getOrElse(Seq())
@@ -316,7 +317,7 @@ class DAGSchedulerSuite extends SparkFunSuite with LocalSparkContext with TimeLi
     it.next.asInstanceOf[Tuple2[_, _]]._1
 
   /** Send the given CompletionEvent messages for the tasks in the TaskSet. */
-  private def complete(taskSet: TaskSet, results: Seq[(TaskEndReason, Any)]) {
+  private def complete(taskSet: TaskSet, results: coll.Seq[(TaskEndReason, Any)]) {
     assert(taskSet.tasks.size >= results.size)
     for ((result, i) <- results.zipWithIndex) {
       if (i < taskSet.tasks.size) {
@@ -328,7 +329,7 @@ class DAGSchedulerSuite extends SparkFunSuite with LocalSparkContext with TimeLi
   private def completeWithAccumulator(
       accumId: Long,
       taskSet: TaskSet,
-      results: Seq[(TaskEndReason, Any)]) {
+      results: coll.Seq[(TaskEndReason, Any)]) {
     assert(taskSet.tasks.size >= results.size)
     for ((result, i) <- results.zipWithIndex) {
       if (i < taskSet.tasks.size) {
@@ -674,7 +675,7 @@ class DAGSchedulerSuite extends SparkFunSuite with LocalSparkContext with TimeLi
       override def defaultParallelism(): Int = 2
       override def executorHeartbeatReceived(
           execId: String,
-          accumUpdates: Array[(Long, Seq[AccumulatorV2[_, _]])],
+          accumUpdates: Array[(Long, coll.Seq[AccumulatorV2[_, _]])],
           blockManagerId: BlockManagerId,
           executorMetrics: ExecutorMetrics): Boolean = true
       override def executorLost(executorId: String, reason: ExecutorLossReason): Unit = {}
@@ -1977,7 +1978,7 @@ class DAGSchedulerSuite extends SparkFunSuite with LocalSparkContext with TimeLi
   test("getPreferredLocations errors should not crash DAGScheduler and SparkContext (SPARK-8606)") {
     val e1 = intercept[SparkException] {
       val rdd = new MyRDD(sc, 2, Nil) {
-        override def getPreferredLocations(split: Partition): Seq[String] = {
+        override def getPreferredLocations(split: Partition): coll.Seq[String] = {
           throw new DAGSchedulerSuiteDummyException
         }
       }
@@ -2927,7 +2928,7 @@ class DAGSchedulerSuite extends SparkFunSuite with LocalSparkContext with TimeLi
    * Assert that the supplied TaskSet has exactly the given hosts as its preferred locations.
    * Note that this checks only the host and not the executor ID.
    */
-  private def assertLocations(taskSet: TaskSet, hosts: Seq[Seq[String]]) {
+  private def assertLocations(taskSet: TaskSet, hosts: coll.Seq[coll.Seq[String]]) {
     assert(hosts.size === taskSet.tasks.size)
     for ((taskLocs, expectedLocs) <- taskSet.tasks.map(_.preferredLocations).zip(hosts)) {
       assert(taskLocs.map(_.host).toSet === expectedLocs.toSet)
@@ -2964,7 +2965,7 @@ class DAGSchedulerSuite extends SparkFunSuite with LocalSparkContext with TimeLi
       task: Task[_],
       reason: TaskEndReason,
       result: Any,
-      extraAccumUpdates: Seq[AccumulatorV2[_, _]] = Seq.empty,
+      extraAccumUpdates: coll.Seq[AccumulatorV2[_, _]] = Seq.empty,
       taskInfo: TaskInfo = createFakeTaskInfo()): CompletionEvent = {
     val accumUpdates = reason match {
       case Success => task.metrics.accumulators()

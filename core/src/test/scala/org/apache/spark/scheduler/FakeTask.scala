@@ -21,11 +21,12 @@ import java.util.Properties
 
 import org.apache.spark.{Partition, SparkEnv, TaskContext}
 import org.apache.spark.executor.TaskMetrics
+import scala.{collection => coll}
 
 class FakeTask(
     stageId: Int,
     partitionId: Int,
-    prefLocs: Seq[TaskLocation] = Nil,
+    prefLocs: coll.Seq[TaskLocation] = Nil,
     serializedTaskMetrics: Array[Byte] =
       SparkEnv.get.closureSerializer.newInstance().serialize(TaskMetrics.registered).array(),
     isBarrier: Boolean = false)
@@ -33,7 +34,7 @@ class FakeTask(
     isBarrier = isBarrier) {
 
   override def runTask(context: TaskContext): Int = 0
-  override def preferredLocations: Seq[TaskLocation] = prefLocs
+  override def preferredLocations: coll.Seq[TaskLocation] = prefLocs
 }
 
 object FakeTask {

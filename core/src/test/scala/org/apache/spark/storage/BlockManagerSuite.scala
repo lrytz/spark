@@ -54,6 +54,7 @@ import org.apache.spark.shuffle.sort.SortShuffleManager
 import org.apache.spark.storage.BlockManagerMessages._
 import org.apache.spark.util._
 import org.apache.spark.util.io.ChunkedByteBuffer
+import scala.{collection => coll}
 
 class BlockManagerSuite extends SparkFunSuite with Matchers with BeforeAndAfterEach
   with PrivateMethodTester with LocalSparkContext with ResetSystemProperties
@@ -136,7 +137,7 @@ class BlockManagerSuite extends SparkFunSuite with Matchers with BeforeAndAfterE
       new BlockManagerMasterEndpoint(rpcEnv, true, conf,
         new LiveListenerBus(conf))), conf, true)
 
-    val initialize = PrivateMethod[Unit]('initialize)
+    val initialize = PrivateMethod[Unit](Symbol("initialize"))
     SizeEstimator invokePrivate initialize()
   }
 
@@ -509,7 +510,7 @@ class BlockManagerSuite extends SparkFunSuite with Matchers with BeforeAndAfterE
     when(bmMaster.getLocations(mc.any[BlockId])).thenReturn(Seq(bmId1, bmId2, bmId3))
 
     val blockManager = makeBlockManager(128, "exec", bmMaster)
-    val sortLocations = PrivateMethod[Seq[BlockManagerId]]('sortLocations)
+    val sortLocations = PrivateMethod[coll.Seq[BlockManagerId]](Symbol("sortLocations"))
     val locations = blockManager invokePrivate sortLocations(bmMaster.getLocations("test"))
     assert(locations.map(_.host) === Seq(localHost, localHost, otherHost))
   }
@@ -532,7 +533,7 @@ class BlockManagerSuite extends SparkFunSuite with Matchers with BeforeAndAfterE
     val blockManager = makeBlockManager(128, "exec", bmMaster)
     blockManager.blockManagerId =
       BlockManagerId(SparkContext.DRIVER_IDENTIFIER, localHost, 1, Some(localRack))
-    val sortLocations = PrivateMethod[Seq[BlockManagerId]]('sortLocations)
+    val sortLocations = PrivateMethod[coll.Seq[BlockManagerId]](Symbol("sortLocations"))
     val locations = blockManager invokePrivate sortLocations(bmMaster.getLocations("test"))
     assert(locations.map(_.host) === Seq(localHost, localHost, otherHost, otherHost, otherHost))
     assert(locations.flatMap(_.topologyInfo)
@@ -960,7 +961,7 @@ class BlockManagerSuite extends SparkFunSuite with Matchers with BeforeAndAfterE
     store.registerTask(0)
     val list = List.fill(2)(new Array[Byte](2000))
 
-    def getUpdatedBlocks(task: => Unit): Seq[(BlockId, BlockStatus)] = {
+    def getUpdatedBlocks(task: => Unit): coll.Seq[(BlockId, BlockStatus)] = {
       val context = TaskContext.empty()
       try {
         TaskContext.setTaskContext(context)
@@ -988,7 +989,7 @@ class BlockManagerSuite extends SparkFunSuite with Matchers with BeforeAndAfterE
     val list = List.fill(2)(new Array[Byte](2000))
     val bigList = List.fill(8)(new Array[Byte](2000))
 
-    def getUpdatedBlocks(task: => Unit): Seq[(BlockId, BlockStatus)] = {
+    def getUpdatedBlocks(task: => Unit): coll.Seq[(BlockId, BlockStatus)] = {
       val context = TaskContext.empty()
       try {
         TaskContext.setTaskContext(context)

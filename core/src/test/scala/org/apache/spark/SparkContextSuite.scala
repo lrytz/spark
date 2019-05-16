@@ -38,6 +38,7 @@ import org.apache.spark.internal.config.UI._
 import org.apache.spark.scheduler.{SparkListener, SparkListenerExecutorMetricsUpdate, SparkListenerJobStart, SparkListenerTaskEnd, SparkListenerTaskStart}
 import org.apache.spark.shuffle.FetchFailedException
 import org.apache.spark.util.{ThreadUtils, Utils}
+import scala.{collection => coll}
 
 
 class SparkContextSuite extends SparkFunSuite with LocalSparkContext with Eventually {
@@ -674,7 +675,7 @@ class SparkContextSuite extends SparkFunSuite with LocalSparkContext with Eventu
       .set("spark.executor.heartbeatInterval", "1s")
     sc = new SparkContext(conf)
     sc.setLocalProperty(SparkContext.SPARK_JOB_INTERRUPT_ON_CANCEL, "true")
-    @volatile var runningTaskIds: Seq[Long] = null
+    @volatile var runningTaskIds: coll.Seq[Long] = null
     val listener = new SparkListener {
       override def onExecutorMetricsUpdate(
           executorMetricsUpdate: SparkListenerExecutorMetricsUpdate): Unit = {

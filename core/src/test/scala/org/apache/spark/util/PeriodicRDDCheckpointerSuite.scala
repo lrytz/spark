@@ -23,6 +23,7 @@ import org.apache.spark.{SharedSparkContext, SparkContext, SparkFunSuite}
 import org.apache.spark.rdd.RDD
 import org.apache.spark.rdd.util.PeriodicRDDCheckpointer
 import org.apache.spark.storage.StorageLevel
+import scala.{collection => coll}
 
 
 class PeriodicRDDCheckpointerSuite extends SparkFunSuite with SharedSparkContext {
@@ -88,7 +89,7 @@ private object PeriodicRDDCheckpointerSuite {
     sc.parallelize(Seq(0.0, 1.0, 2.0, 3.0))
   }
 
-  def checkPersistence(rdds: Seq[RDDToCheck], iteration: Int): Unit = {
+  def checkPersistence(rdds: coll.Seq[RDDToCheck], iteration: Int): Unit = {
     rdds.foreach { g =>
       checkPersistence(g.rdd, g.gIndex, iteration)
     }
@@ -115,7 +116,7 @@ private object PeriodicRDDCheckpointerSuite {
     }
   }
 
-  def checkCheckpoint(rdds: Seq[RDDToCheck], iteration: Int, checkpointInterval: Int): Unit = {
+  def checkCheckpoint(rdds: coll.Seq[RDDToCheck], iteration: Int, checkpointInterval: Int): Unit = {
     rdds.reverse.foreach { g =>
       checkCheckpoint(g.rdd, g.gIndex, iteration, checkpointInterval)
     }

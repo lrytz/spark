@@ -23,6 +23,7 @@ import org.apache.spark.executor.TaskMetrics
 import org.apache.spark.scheduler.AccumulableInfo
 import org.apache.spark.shuffle.FetchFailedException
 import org.apache.spark.util.{AccumulatorContext, AccumulatorV2}
+import scala.{collection => coll}
 
 
 class InternalAccumulatorSuite extends SparkFunSuite with LocalSparkContext {
@@ -218,7 +219,7 @@ class InternalAccumulatorSuite extends SparkFunSuite with LocalSparkContext {
       super.registerAccumulatorForCleanup(a)
     }
 
-    def accumsRegisteredForCleanup: Seq[Long] = accumsRegistered.toArray
+    def accumsRegisteredForCleanup: coll.Seq[Long] = accumsRegistered.toArray
   }
 
 }

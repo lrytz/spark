@@ -35,6 +35,7 @@ import org.apache.spark.scheduler.cluster._
 import org.apache.spark.status.api.v1
 import org.apache.spark.storage._
 import org.apache.spark.util.Utils
+import scala.{collection => coll}
 
 class AppStatusListenerSuite extends SparkFunSuite with BeforeAndAfter {
 
@@ -1633,7 +1634,7 @@ class AppStatusListenerSuite extends SparkFunSuite with BeforeAndAfter {
       s"${orig.executorId}.example.com", TaskLocality.PROCESS_LOCAL, orig.speculative)
   }
 
-  private def createTasks(count: Int, execs: Array[String]): Seq[TaskInfo] = {
+  private def createTasks(count: Int, execs: Array[String]): coll.Seq[TaskInfo] = {
     (1 to count).map { id =>
       val exec = execs(id.toInt % execs.length)
       val taskId = nextTaskId()

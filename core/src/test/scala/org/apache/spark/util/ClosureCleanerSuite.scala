@@ -23,6 +23,7 @@ import org.apache.spark.{SparkContext, SparkException, SparkFunSuite, TaskContex
 import org.apache.spark.LocalSparkContext._
 import org.apache.spark.partial.CountEvaluator
 import org.apache.spark.rdd.RDD
+import scala.{collection => coll}
 
 class ClosureCleanerSuite extends SparkFunSuite {
   test("closures inside an object") {
@@ -384,8 +385,8 @@ abstract class TestAbstractClass extends Serializable {
   val s1 = "aaa"
   protected val d1 = 1.0d
 
-  def run(): Seq[(Int, Int, String, String, Double, Double)]
-  def body(rdd: RDD[Int]): Seq[(Int, Int, String, String, Double, Double)]
+  def run(): coll.Seq[(Int, Int, String, String, Double, Double)]
+  def body(rdd: RDD[Int]): coll.Seq[(Int, Int, String, String, Double, Double)]
 }
 
 abstract class TestAbstractClass2 extends Serializable {

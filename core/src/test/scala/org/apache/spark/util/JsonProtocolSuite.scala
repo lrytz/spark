@@ -36,6 +36,7 @@ import org.apache.spark.scheduler._
 import org.apache.spark.scheduler.cluster.ExecutorInfo
 import org.apache.spark.shuffle.MetadataFetchFailedException
 import org.apache.spark.storage._
+import scala.{collection => coll}
 
 class JsonProtocolSuite extends SparkFunSuite {
   import JsonProtocolSuite._
@@ -63,7 +64,7 @@ class JsonProtocolSuite extends SparkFunSuite {
       SparkListenerJobStart(10, jobSubmissionTime, stageInfos, properties)
     }
     val jobEnd = SparkListenerJobEnd(20, jobCompletionTime, JobSucceeded)
-    val environmentUpdate = SparkListenerEnvironmentUpdate(Map[String, Seq[(String, String)]](
+    val environmentUpdate = SparkListenerEnvironmentUpdate(Map[String, coll.Seq[(String, String)]](
       "JVM Information" -> Seq(("GC speed", "9999 objects/s"), ("Java home", "Land of coffee")),
       "Spark Properties" -> Seq(("Job throughput", "80000 jobs/s, regardless of job type")),
       "Hadoop Properties" -> Seq(("hadoop.tmp.dir", "/usr/local/hadoop/tmp")),
@@ -589,7 +590,7 @@ private[spark] object JsonProtocolSuite extends Assertions {
         assert(e1.executorId === e1.executorId)
       case (e1: SparkListenerExecutorMetricsUpdate, e2: SparkListenerExecutorMetricsUpdate) =>
         assert(e1.execId === e2.execId)
-        assertSeqEquals[(Long, Int, Int, Seq[AccumulableInfo])](
+        assertSeqEquals[(Long, Int, Int, coll.Seq[AccumulableInfo])](
           e1.accumUpdates,
           e2.accumUpdates,
           (a, b) => {
@@ -740,10 +741,10 @@ private[spark] object JsonProtocolSuite extends Assertions {
   }
 
   private def assertEquals(
-      details1: Map[String, Seq[(String, String)]],
-      details2: Map[String, Seq[(String, String)]]) {
+      details1: Map[String, coll.Seq[(String, String)]],
+      details2: Map[String, coll.Seq[(String, String)]]) {
     details1.zip(details2).foreach {
-      case ((key1, values1: Seq[(String, String)]), (key2, values2: Seq[(String, String)])) =>
+      case ((key1, values1: coll.Seq[(String, String)]), (key2, values2: coll.Seq[(String, String)])) =>
         assert(key1 === key2)
         values1.zip(values2).foreach { case (v1, v2) => assert(v1 === v2) }
     }
@@ -776,7 +777,7 @@ private[spark] object JsonProtocolSuite extends Assertions {
     }
   }
 
-  private def assertSeqEquals[T](seq1: Seq[T], seq2: Seq[T], assertEquals: (T, T) => Unit) {
+  private def assertSeqEquals[T](seq1: coll.Seq[T], seq2: coll.Seq[T], assertEquals: (T, T) => Unit) {
     assert(seq1.length === seq2.length)
     seq1.zip(seq2).foreach { case (t1, t2) =>
       assertEquals(t1, t2)
@@ -800,8 +801,8 @@ private[spark] object JsonProtocolSuite extends Assertions {
    */
 
   private def assertBlocksEquals(
-      blocks1: Seq[(BlockId, BlockStatus)],
-      blocks2: Seq[(BlockId, BlockStatus)]) = {
+      blocks1: coll.Seq[(BlockId, BlockStatus)],
+      blocks2: coll.Seq[(BlockId, BlockStatus)]) = {
     assertSeqEquals(blocks1, blocks2, assertBlockEquals)
   }
 

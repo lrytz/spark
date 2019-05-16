@@ -44,6 +44,7 @@ import org.apache.spark.internal.config.Status._
 import org.apache.spark.internal.config.UI._
 import org.apache.spark.shuffle.FetchFailedException
 import org.apache.spark.status.api.v1.{JacksonMessageWriter, RDDDataDistribution, StageStatus}
+import scala.{collection => coll}
 
 private[spark] class SparkUICssErrorHandler extends DefaultCssErrorHandler {
 
@@ -163,7 +164,7 @@ class UISeleniumSuite extends SparkFunSuite with WebBrowser with Matchers with B
         StorageLevels.MEMORY_ONLY.description)
 
       val dataDistributions0 =
-        (updatedRddJson \ "dataDistribution").extract[Seq[RDDDataDistribution]]
+        (updatedRddJson \ "dataDistribution").extract[coll.Seq[RDDDataDistribution]]
       dataDistributions0.length should be (1)
       val dist0 = dataDistributions0.head
 
@@ -182,7 +183,7 @@ class UISeleniumSuite extends SparkFunSuite with WebBrowser with Matchers with B
       updatedStorageJson1.children.length should be (1)
       val updatedRddJson1 = getJson(ui, "storage/rdd/0")
       val dataDistributions1 =
-        (updatedRddJson1 \ "dataDistribution").extract[Seq[RDDDataDistribution]]
+        (updatedRddJson1 \ "dataDistribution").extract[coll.Seq[RDDDataDistribution]]
       dataDistributions1.length should be (1)
       val dist1 = dataDistributions1.head
 
@@ -470,7 +471,7 @@ class UISeleniumSuite extends SparkFunSuite with WebBrowser with Matchers with B
 
       val newTab = new WebUITab(sparkUI, "foo") {
         attachPage(new WebUIPage("") {
-          def render(request: HttpServletRequest): Seq[Node] = {
+          def render(request: HttpServletRequest): coll.Seq[Node] = {
             <b>"html magic"</b>
           }
         })

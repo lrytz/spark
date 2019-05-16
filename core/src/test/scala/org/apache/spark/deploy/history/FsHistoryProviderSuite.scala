@@ -50,6 +50,7 @@ import org.apache.spark.status.AppStatusStore
 import org.apache.spark.status.api.v1.{ApplicationAttemptInfo, ApplicationInfo}
 import org.apache.spark.util.{Clock, JsonProtocol, ManualClock, Utils}
 import org.apache.spark.util.logging.DriverLogger
+import scala.{collection => coll}
 
 class FsHistoryProviderSuite extends SparkFunSuite with Matchers with Logging {
 
@@ -1189,7 +1190,7 @@ class FsHistoryProviderSuite extends SparkFunSuite with Matchers with Logging {
    *     }
    */
   private def updateAndCheck(provider: FsHistoryProvider)
-      (checkFn: Seq[ApplicationInfo] => Unit): Unit = {
+      (checkFn: coll.Seq[ApplicationInfo] => Unit): Unit = {
     provider.checkForLogs()
     provider.cleanLogs()
     checkFn(provider.getListing().toSeq)

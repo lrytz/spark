@@ -32,6 +32,7 @@ import org.apache.spark.internal.config
 import org.apache.spark.serializer.SerializerInstance
 import org.apache.spark.storage.BlockManagerId
 import org.apache.spark.util.{AccumulatorV2, ManualClock}
+import scala.{collection => coll}
 
 class FakeDAGScheduler(sc: SparkContext, taskScheduler: FakeTaskScheduler)
   extends DAGScheduler(sc) {
@@ -44,7 +45,7 @@ class FakeDAGScheduler(sc: SparkContext, taskScheduler: FakeTaskScheduler)
       task: Task[_],
       reason: TaskEndReason,
       result: Any,
-      accumUpdates: Seq[AccumulatorV2[_, _]],
+      accumUpdates: coll.Seq[AccumulatorV2[_, _]],
       taskInfo: TaskInfo) {
     taskScheduler.endedTasks(taskInfo.index) = reason
   }
@@ -81,7 +82,7 @@ object FakeRackUtil {
     hostToRack(host) = rack
   }
 
-  def getRacksForHosts(hosts: Seq[String]): Seq[Option[String]] = {
+  def getRacksForHosts(hosts: coll.Seq[String]): coll.Seq[Option[String]] = {
     assert(hosts.toSet.size == hosts.size) // no dups in hosts
     if (hosts.nonEmpty && hosts.length != 1) {
       numBatchInvocation += 1
@@ -156,7 +157,7 @@ class FakeTaskScheduler(sc: SparkContext, liveExecutors: (String, String)* /* ex
     }
   }
 
-  override def getRacksForHosts(hosts: Seq[String]): Seq[Option[String]] = {
+  override def getRacksForHosts(hosts: coll.Seq[String]): coll.Seq[Option[String]] = {
     FakeRackUtil.getRacksForHosts(hosts)
   }
 }
@@ -171,7 +172,7 @@ class LargeTask(stageId: Int) extends Task[Array[Byte]](stageId, 0, 0) {
   random.nextBytes(randomBuffer)
 
   override def runTask(context: TaskContext): Array[Byte] = randomBuffer
-  override def preferredLocations: Seq[TaskLocation] = Seq[TaskLocation]()
+  override def preferredLocations: coll.Seq[TaskLocation] = Seq[TaskLocation]()
 }
 
 class TaskSetManagerSuite extends SparkFunSuite with LocalSparkContext with Logging {
@@ -225,7 +226,7 @@ class TaskSetManagerSuite extends SparkFunSuite with LocalSparkContext with Logg
     sched = new FakeTaskScheduler(sc, ("exec1", "host1"))
     val taskSet = FakeTask.createTaskSet(3)
     val manager = new TaskSetManager(sched, taskSet, MAX_TASK_FAILURES)
-    val accumUpdatesByTask: Array[Seq[AccumulatorV2[_, _]]] = taskSet.tasks.map { task =>
+    val accumUpdatesByTask: Array[coll.Seq[AccumulatorV2[_, _]]] = taskSet.tasks.map { task =>
       task.metrics.internalAccums
     }
 
@@ -713,7 +714,7 @@ class TaskSetManagerSuite extends SparkFunSuite with LocalSparkContext with Logg
           task: Task[_],
           reason: TaskEndReason,
           result: Any,
-          accumUpdates: Seq[AccumulatorV2[_, _]],
+          accumUpdates: coll.Seq[AccumulatorV2[_, _]],
           taskInfo: TaskInfo): Unit = {
         super.taskEnded(task, reason, result, accumUpdates, taskInfo)
         reason match {
@@ -794,7 +795,7 @@ class TaskSetManagerSuite extends SparkFunSuite with LocalSparkContext with Logg
           task: Task[_],
           reason: TaskEndReason,
           result: Any,
-          accumUpdates: Seq[AccumulatorV2[_, _]],
+          accumUpdates: coll.Seq[AccumulatorV2[_, _]],
           taskInfo: TaskInfo): Unit = {
         super.taskEnded(task, reason, result, accumUpdates, taskInfo)
         reason match {
@@ -814,7 +815,7 @@ class TaskSetManagerSuite extends SparkFunSuite with LocalSparkContext with Logg
 
     val clock = new ManualClock()
     val manager = new TaskSetManager(sched, taskSet, MAX_TASK_FAILURES, clock = clock)
-    val accumUpdatesByTask: Array[Seq[AccumulatorV2[_, _]]] = taskSet.tasks.map { task =>
+    val accumUpdatesByTask: Array[coll.Seq[AccumulatorV2[_, _]]] = taskSet.tasks.map { task =>
       task.metrics.internalAccums
     }
     // Offer resources for 4 tasks to start
@@ -1030,7 +1031,7 @@ class TaskSetManagerSuite extends SparkFunSuite with LocalSparkContext with Logg
     sc.conf.set(config.SPECULATION_ENABLED, true)
     val clock = new ManualClock()
     val manager = new TaskSetManager(sched, taskSet, MAX_TASK_FAILURES, clock = clock)
-    val accumUpdatesByTask: Array[Seq[AccumulatorV2[_, _]]] = taskSet.tasks.map { task =>
+    val accumUpdatesByTask: Array[coll.Seq[AccumulatorV2[_, _]]] = taskSet.tasks.map { task =>
       task.metrics.internalAccums
     }
     // Offer resources for 4 tasks to start
@@ -1088,7 +1089,7 @@ class TaskSetManagerSuite extends SparkFunSuite with LocalSparkContext with Logg
     sc.conf.set(config.SPECULATION_ENABLED, true)
     val clock = new ManualClock()
     val manager = new TaskSetManager(sched, taskSet, MAX_TASK_FAILURES, clock = clock)
-    val accumUpdatesByTask: Array[Seq[AccumulatorV2[_, _]]] = taskSet.tasks.map { task =>
+    val accumUpdatesByTask: Array[coll.Seq[AccumulatorV2[_, _]]] = taskSet.tasks.map { task =>
       task.metrics.internalAccums
     }
     // Offer resources for 5 tasks to start
@@ -1436,7 +1437,7 @@ class TaskSetManagerSuite extends SparkFunSuite with LocalSparkContext with Logg
           task: Task[_],
           reason: TaskEndReason,
           result: Any,
-          accumUpdates: Seq[AccumulatorV2[_, _]],
+          accumUpdates: coll.Seq[AccumulatorV2[_, _]],
           taskInfo: TaskInfo): Unit = {
         super.taskEnded(task, reason, result, accumUpdates, taskInfo)
         reason match {
@@ -1456,7 +1457,7 @@ class TaskSetManagerSuite extends SparkFunSuite with LocalSparkContext with Logg
 
     val clock = new ManualClock()
     val manager = new TaskSetManager(sched, taskSet, MAX_TASK_FAILURES, clock = clock)
-    val accumUpdatesByTask: Array[Seq[AccumulatorV2[_, _]]] = taskSet.tasks.map { task =>
+    val accumUpdatesByTask: Array[coll.Seq[AccumulatorV2[_, _]]] = taskSet.tasks.map { task =>
       task.metrics.internalAccums
     }
     // Offer resources for 4 tasks to start
@@ -1513,7 +1514,7 @@ class TaskSetManagerSuite extends SparkFunSuite with LocalSparkContext with Logg
 
   private def createTaskResult(
       id: Int,
-      accumUpdates: Seq[AccumulatorV2[_, _]] = Seq.empty): DirectTaskResult[Int] = {
+      accumUpdates: coll.Seq[AccumulatorV2[_, _]] = Seq.empty): DirectTaskResult[Int] = {
     val valueSer = SparkEnv.get.serializer.newInstance()
     new DirectTaskResult[Int](valueSer.serialize(id), accumUpdates)
   }
@@ -1527,7 +1528,7 @@ class TaskSetManagerSuite extends SparkFunSuite with LocalSparkContext with Logg
     sc.conf.set(config.SPECULATION_ENABLED, true)
     val clock = new ManualClock()
     val manager = new TaskSetManager(sched, taskSet, MAX_TASK_FAILURES, clock = clock)
-    val accumUpdatesByTask: Array[Seq[AccumulatorV2[_, _]]] = taskSet.tasks.map { task =>
+    val accumUpdatesByTask: Array[coll.Seq[AccumulatorV2[_, _]]] = taskSet.tasks.map { task =>
       task.metrics.internalAccums
     }
     // Offer resources for 4 tasks to start
@@ -1600,7 +1601,7 @@ class TaskSetManagerSuite extends SparkFunSuite with LocalSparkContext with Logg
     }
     sched = new FakeTaskScheduler(sc, execAndHost: _*)
     // make a taskset with preferred locations on the first 100 hosts in our cluster
-    val locations = new ArrayBuffer[Seq[TaskLocation]]()
+    val locations = new ArrayBuffer[coll.Seq[TaskLocation]]()
     for (i <- 0 to 99) {
       locations += Seq(TaskLocation("host" + i))
     }

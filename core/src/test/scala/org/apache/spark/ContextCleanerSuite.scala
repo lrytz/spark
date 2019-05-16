@@ -33,6 +33,7 @@ import org.apache.spark.internal.config._
 import org.apache.spark.rdd.{RDD, ReliableRDDCheckpointData}
 import org.apache.spark.shuffle.sort.SortShuffleManager
 import org.apache.spark.storage._
+import scala.{collection => coll}
 
 /**
  * An abstract base class for context cleaner tests, which sets up a context with a config
@@ -70,8 +71,8 @@ abstract class ContextCleanerSuiteBase(val shuffleManager: Class[_] = classOf[So
   protected def newBroadcast() = sc.broadcast(1 to 100)
 
   protected def newRDDWithShuffleDependencies():
-      (RDD[(Int, Int)], Seq[ShuffleDependency[Int, Int, Int]]) = {
-    def getAllDependencies(rdd: RDD[(Int, Int)]): Seq[Dependency[_]] = {
+      (RDD[(Int, Int)], coll.Seq[ShuffleDependency[Int, Int, Int]]) = {
+    def getAllDependencies(rdd: RDD[(Int, Int)]): coll.Seq[Dependency[_]] = {
       rdd.dependencies ++ rdd.dependencies.flatMap { dep =>
         getAllDependencies(dep.rdd.asInstanceOf[RDD[(Int, Int)]])
       }
@@ -360,10 +361,10 @@ class ContextCleanerSuite extends ContextCleanerSuiteBase {
  */
 class CleanerTester(
     sc: SparkContext,
-    rddIds: Seq[Int] = Seq.empty,
-    shuffleIds: Seq[Int] = Seq.empty,
-    broadcastIds: Seq[Long] = Seq.empty,
-    checkpointIds: Seq[Long] = Seq.empty)
+    rddIds: coll.Seq[Int] = Seq.empty,
+    shuffleIds: coll.Seq[Int] = Seq.empty,
+    broadcastIds: coll.Seq[Long] = Seq.empty,
+    checkpointIds: coll.Seq[Long] = Seq.empty)
   extends Logging {
 
   val toBeCleanedRDDIds = new HashSet[Int] ++= rddIds
@@ -524,14 +525,14 @@ class CleanerTester(
     toBeCleanedBroadcstIds.synchronized { toBeCleanedBroadcstIds.isEmpty } &&
     toBeCheckpointIds.synchronized { toBeCheckpointIds.isEmpty }
 
-  private def getRDDBlocks(rddId: Int): Seq[BlockId] = {
+  private def getRDDBlocks(rddId: Int): coll.Seq[BlockId] = {
     blockManager.master.getMatchingBlockIds( _ match {
       case RDDBlockId(`rddId`, _) => true
       case _ => false
     }, askSlaves = true)
   }
 
-  private def getShuffleBlocks(shuffleId: Int): Seq[BlockId] = {
+  private def getShuffleBlocks(shuffleId: Int): coll.Seq[BlockId] = {
     blockManager.master.getMatchingBlockIds( _ match {
       case ShuffleBlockId(`shuffleId`, _, _) => true
       case ShuffleIndexBlockId(`shuffleId`, _, _) => true
@@ -539,7 +540,7 @@ class CleanerTester(
     }, askSlaves = true)
   }
 
-  private def getBroadcastBlocks(broadcastId: Long): Seq[BlockId] = {
+  private def getBroadcastBlocks(broadcastId: Long): coll.Seq[BlockId] = {
     blockManager.master.getMatchingBlockIds( _ match {
       case BroadcastBlockId(`broadcastId`, _) => true
       case _ => false

@@ -32,6 +32,7 @@ import org.apache.spark.internal.config._
 import org.apache.spark.internal.config.Network.RPC_MESSAGE_MAX_SIZE
 import org.apache.spark.metrics.MetricsSystem
 import org.apache.spark.util.{ResetSystemProperties, RpcUtils}
+import scala.{collection => coll}
 
 class SparkListenerSuite extends SparkFunSuite with LocalSparkContext with Matchers
   with ResetSystemProperties {
@@ -231,8 +232,8 @@ class SparkListenerSuite extends SparkFunSuite with LocalSparkContext with Match
     stageInfo.rddInfos.forall(_.numPartitions == 4) should be {true}
     stageInfo.rddInfos.exists(_.name == "Target RDD") should be {true}
     stageInfo.numTasks should be {4}
-    stageInfo.submissionTime should be ('defined)
-    stageInfo.completionTime should be ('defined)
+    stageInfo.submissionTime should be (Symbol("defined"))
+    stageInfo.completionTime should be (Symbol("defined"))
     taskInfoMetrics.length should be {4}
   }
 
@@ -543,7 +544,7 @@ class SparkListenerSuite extends SparkFunSuite with LocalSparkContext with Match
    * A simple listener that saves all task infos and task metrics.
    */
   private class SaveStageAndTaskInfo extends SparkListener {
-    val stageInfos = mutable.Map[StageInfo, Seq[(TaskInfo, TaskMetrics)]]()
+    val stageInfos = mutable.Map[StageInfo, coll.Seq[(TaskInfo, TaskMetrics)]]()
     var taskInfoMetrics = mutable.Buffer[(TaskInfo, TaskMetrics)]()
 
     override def onTaskEnd(task: SparkListenerTaskEnd) {

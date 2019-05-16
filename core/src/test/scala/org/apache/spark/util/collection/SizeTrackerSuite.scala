@@ -24,6 +24,7 @@ import scala.util.Random
 
 import org.apache.spark.SparkFunSuite
 import org.apache.spark.util.SizeEstimator
+import scala.{collection => coll}
 
 class SizeTrackerSuite extends SparkFunSuite {
   val NORMAL_ERROR = 0.20
@@ -181,9 +182,9 @@ private object SizeTrackerSuite {
 
   def printSpeedTestResult(
       testName: String,
-      baseTimes: Seq[Long],
-      sampledTimes: Seq[Long],
-      unsampledTimes: Seq[Long]): Unit = {
+      baseTimes: coll.Seq[Long],
+      sampledTimes: coll.Seq[Long],
+      unsampledTimes: coll.Seq[Long]): Unit = {
     // scalastyle:off println
     println(s"Average times for $testName (ms):")
     println("  Base - " + averageTime(baseTimes))
@@ -199,7 +200,7 @@ private object SizeTrackerSuite {
     TimeUnit.NANOSECONDS.toMillis(System.nanoTime() - startNs)
   }
 
-  def averageTime(v: Seq[Long]): Long = {
+  def averageTime(v: coll.Seq[Long]): Long = {
     v.sum / v.size
   }
 

@@ -24,6 +24,7 @@ import scala.util.Random
 import org.scalatest.{BeforeAndAfter, Matchers}
 
 import org.apache.spark.{LocalSparkContext, SparkFunSuite}
+import scala.{collection => coll}
 
 class RandomBlockReplicationPolicyBehavior extends SparkFunSuite
   with Matchers
@@ -76,8 +77,8 @@ class RandomBlockReplicationPolicyBehavior extends SparkFunSuite
    * Note that, each rack will be picked at least once from `racks`, if `count` is greater or equal
    * to the number of `racks`.
    */
-  protected def generateBlockManagerIds(count: Int, racks: Seq[String]): Seq[BlockManagerId] = {
-    val randomizedRacks: Seq[String] = Random.shuffle(
+  protected def generateBlockManagerIds(count: Int, racks: coll.Seq[String]): coll.Seq[BlockManagerId] = {
+    val randomizedRacks: coll.Seq[String] = Random.shuffle(
       racks ++ racks.length.until(count).map(_ => racks(Random.nextInt(racks.length)))
     )
 

@@ -32,6 +32,7 @@ import org.apache.spark.serializer.{JavaSerializer, SerializationStream, Seriali
 import org.apache.spark.storage.memory.{MemoryStore, PartiallySerializedBlock, RedirectableOutputStream}
 import org.apache.spark.util.{ByteBufferInputStream, ByteBufferOutputStream}
 import org.apache.spark.util.io.{ChunkedByteBuffer, ChunkedByteBufferOutputStream}
+import scala.{collection => coll}
 
 class PartiallySerializedBlockSuite
     extends SparkFunSuite
@@ -43,9 +44,9 @@ class PartiallySerializedBlockSuite
   private val memoryStore = Mockito.mock(classOf[MemoryStore], Mockito.RETURNS_SMART_NULLS)
   private val serializerManager = new SerializerManager(new JavaSerializer(conf), conf)
 
-  private val getSerializationStream = PrivateMethod[SerializationStream]('serializationStream)
+  private val getSerializationStream = PrivateMethod[SerializationStream](Symbol("serializationStream"))
   private val getRedirectableOutputStream =
-    PrivateMethod[RedirectableOutputStream]('redirectableOutputStream)
+    PrivateMethod[RedirectableOutputStream](Symbol("redirectableOutputStream"))
 
   override protected def beforeEach(): Unit = {
     super.beforeEach()
@@ -152,7 +153,7 @@ class PartiallySerializedBlockSuite
 
   private def testUnroll[T: ClassTag](
       testCaseName: String,
-      items: Seq[T],
+      items: coll.Seq[T],
       numItemsToBuffer: Int): Unit = {
 
     test(s"$testCaseName with discard() and numBuffered = $numItemsToBuffer") {

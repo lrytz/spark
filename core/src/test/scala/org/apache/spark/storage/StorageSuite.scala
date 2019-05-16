@@ -18,6 +18,7 @@
 package org.apache.spark.storage
 
 import org.apache.spark.SparkFunSuite
+import scala.{collection => coll}
 
 /**
  * Test various functionalities in StorageUtils and StorageStatus.
@@ -106,7 +107,7 @@ class StorageSuite extends SparkFunSuite {
   }
 
   // For testing StorageUtils.updateRddInfo and StorageUtils.getRddBlockLocations
-  private def stockStorageStatuses: Seq[StorageStatus] = {
+  private def stockStorageStatuses: coll.Seq[StorageStatus] = {
     val status1 = new StorageStatus(BlockManagerId("big", "dog", 1), 1000L, Some(1000L), Some(0L))
     val status2 = new StorageStatus(BlockManagerId("fat", "duck", 2), 2000L, Some(2000L), Some(0L))
     val status3 = new StorageStatus(BlockManagerId("fat", "cat", 3), 3000L, Some(3000L), Some(0L))
@@ -122,7 +123,7 @@ class StorageSuite extends SparkFunSuite {
   }
 
   // For testing StorageUtils.updateRddInfo
-  private def stockRDDInfos: Seq[RDDInfo] = {
+  private def stockRDDInfos: coll.Seq[RDDInfo] = {
     val info0 = new RDDInfo(0, "0", 10, memAndDisk, Seq(3))
     val info1 = new RDDInfo(1, "1", 3, memAndDisk, Seq(4))
     Seq(info0, info1)

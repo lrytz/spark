@@ -20,6 +20,7 @@ package org.apache.spark.scheduler
 import java.io.{IOException, ObjectInputStream, ObjectOutputStream}
 
 import org.apache.spark.TaskContext
+import scala.{collection => coll}
 
 /**
  * A Task implementation that fails to serialize.
@@ -28,7 +29,7 @@ private[spark] class NotSerializableFakeTask(myId: Int, stageId: Int)
   extends Task[Array[Byte]](stageId, 0, 0) {
 
   override def runTask(context: TaskContext): Array[Byte] = Array.empty[Byte]
-  override def preferredLocations: Seq[TaskLocation] = Seq[TaskLocation]()
+  override def preferredLocations: coll.Seq[TaskLocation] = Seq[TaskLocation]()
 
   @throws(classOf[IOException])
   private def writeObject(out: ObjectOutputStream): Unit = {

@@ -30,6 +30,7 @@ import org.apache.spark.internal.config.Tests.TEST_MEMORY
 import org.apache.spark.io.CompressionCodec
 import org.apache.spark.memory.MemoryTestingUtils
 import org.apache.spark.util.CompletionIterator
+import scala.{collection => coll}
 
 class ExternalAppendOnlyMapSuite extends SparkFunSuite
   with LocalSparkContext
@@ -170,7 +171,7 @@ class ExternalAppendOnlyMapSuite extends SparkFunSuite
     map.insert(nullInt, 8)
     map.insert(nullInt, nullInt)
       val result = map.iterator.toSet[(Int, ArrayBuffer[Int])].map(kv => (kv._1, kv._2.sorted))
-    assert(result === Set[(Int, Seq[Int])](
+    assert(result === Set[(Int, coll.Seq[Int])](
       (1, Seq[Int](5)),
       (2, Seq[Int](6)),
       (3, Seq[Int](7)),
@@ -192,7 +193,7 @@ class ExternalAppendOnlyMapSuite extends SparkFunSuite
 
     // groupByKey
     val result2 = rdd.groupByKey().collect().map(x => (x._1, x._2.toList)).toSet
-    assert(result2.toSet === Set[(Int, Seq[Int])]
+    assert(result2.toSet === Set[(Int, coll.Seq[Int])]
       ((0, List[Int](1, 1, 1, 1, 1)), (1, List[Int](1, 1, 1, 1, 1))))
     sc.stop()
   }
