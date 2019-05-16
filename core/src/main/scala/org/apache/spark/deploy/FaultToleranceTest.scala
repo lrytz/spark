@@ -280,7 +280,7 @@ private object FaultToleranceTest extends App with Logging {
     var liveWorkerIPs: coll.Seq[String] = List()
 
     def stateValid(): Boolean = {
-      (workers.map(_.ip) -- liveWorkerIPs).isEmpty &&
+      (workers.map(_.ip).clone() --= liveWorkerIPs).isEmpty &&
         numAlive == 1 && numStandby == masters.size - 1 && numLiveApps >= 1
     }
 

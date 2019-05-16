@@ -382,7 +382,7 @@ private class LiveStage extends LiveEntity {
 
   val activeTasksPerExecutor = new HashMap[String, Int]().withDefaultValue(0)
 
-  var blackListedExecutors = new HashSet[String]()
+  var blackListedExecutors = HashSet.empty[String]
 
   // Used for cleanup of tasks after they reach the configured limit. Not written to the store.
   @volatile var cleaning = false

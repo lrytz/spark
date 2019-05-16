@@ -136,7 +136,7 @@ private object ParallelCollectionRDD {
             new Range.Inclusive(r.start + start * r.step, r.end, r.step)
           }
           else {
-            new Range(r.start + start * r.step, r.start + end * r.step, r.step)
+            new Range.Exclusive(r.start + start * r.step, r.start + end * r.step, r.step)
           }
         }.toSeq.asInstanceOf[coll.Seq[coll.Seq[T]]]
       case nr: NumericRange[_] =>

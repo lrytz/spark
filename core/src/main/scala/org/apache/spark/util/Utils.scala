@@ -1210,7 +1210,7 @@ private[spark] object Utils extends Logging {
       workingDir: File = new File("."),
       extraEnvironment: Map[String, String] = Map.empty,
       redirectStderr: Boolean = true): Process = {
-    val builder = new ProcessBuilder(command: _*).directory(workingDir)
+    val builder = new ProcessBuilder(command.toList: _*).directory(workingDir)
     val environment = builder.environment()
     for ((key, value) <- extraEnvironment) {
       environment.put(key, value)
@@ -1812,14 +1812,15 @@ private[spark] object Utils extends Logging {
    * Generate a zipWithIndex iterator, avoid index value overflowing problem
    * in scala's zipWithIndex
    */
-  def getIteratorZipWithIndex[T](iterator: Iterator[T], startIndex: Long): Iterator[(T, Long)] = {
+  def getIteratorZipWithIndex[T](iteratorParam: Iterator[T],
+      startIndex: Long): Iterator[(T, Long)] = {
     new Iterator[(T, Long)] {
       require(startIndex >= 0, "startIndex should be >= 0.")
       var index: Long = startIndex - 1L
       def hasNext: Boolean = iterator.hasNext
       def next(): (T, Long) = {
         index += 1L
-        (iterator.next(), index)
+        (iteratorParam.next(), index)
       }
     }
   }
@@ -2619,7 +2620,8 @@ private[spark] object Utils extends Logging {
     }
   }
 
-  private def redact(redactionPattern: Regex, kvs: coll.Seq[(String, String)]): coll.Seq[(String, String)] = {
+  private def redact(
+      redactionPattern: Regex, kvs: coll.Seq[(String, String)]): coll.Seq[(String, String)] = {
     // If the sensitive information regex matches with either the key or the value, redact the value
     // While the original intent was to only redact the value if the key matched with the regex,
     // we've found that especially in verbose mode, the value of the property may contain sensitive
@@ -2652,7 +2654,8 @@ private[spark] object Utils extends Logging {
       SECRET_REDACTION_PATTERN.key,
       SECRET_REDACTION_PATTERN.defaultValueString
     ).r
-    redact(redactionPattern, kvs.toArray)
+    val a = kvs.toArray // https://github.com/scala/bug/issues/11537
+    redact(redactionPattern, a)
   }
 
   def redactCommandLineArgs(conf: SparkConf, commands: coll.Seq[String]): coll.Seq[String] = {

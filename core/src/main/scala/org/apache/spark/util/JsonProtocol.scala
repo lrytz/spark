@@ -1068,7 +1068,7 @@ private[spark] object JsonProtocol {
     val logUrls = mapFromJson(json \ "Log Urls").toMap
     val attributes = jsonOption(json \ "Attributes") match {
       case Some(attr) => mapFromJson(attr).toMap
-      case None => Map.empty[String, String]
+      case None => scala.collection.immutable.Map.empty[String, String] // NOT SURE WHY IT WORKS IN 2.12
     }
     new ExecutorInfo(executorHost, totalCores, logUrls, attributes)
   }

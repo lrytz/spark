@@ -19,7 +19,6 @@ package org.apache.spark.util
 
 import java.util.concurrent._
 
-import scala.collection.TraversableLike
 import scala.collection.generic.CanBuildFrom
 import scala.language.higherKinds
 
@@ -272,7 +271,7 @@ private[spark] object ThreadUtils {
    * @return new collection in which each element was given from the input collection `in` by
    *         applying the lambda function `f`.
    */
-  def parmap[I, O, Col[X] <: TraversableLike[X, Col[X]]]
+  def parmap[I, O, Col[X] <: scala.collection.IterableOps[X, Col, Col[X]]]
       (in: Col[I], prefix: String, maxThreads: Int)
       (f: I => O)
       (implicit

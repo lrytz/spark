@@ -30,6 +30,7 @@ import scala.collection.generic.Growable
  */
 private[spark] class BoundedPriorityQueue[A](maxSize: Int)(implicit ord: Ordering[A])
   extends Iterable[A] with Growable[A] with Serializable {
+  override def knownSize: Int = size
 
   private val underlying = new JPriorityQueue[A](maxSize, ord)
 
@@ -37,12 +38,12 @@ private[spark] class BoundedPriorityQueue[A](maxSize: Int)(implicit ord: Orderin
 
   override def size: Int = underlying.size
 
-  override def ++=(xs: TraversableOnce[A]): this.type = {
+  override def addAll(xs: TraversableOnce[A]): this.type = {
     xs.foreach { this += _ }
     this
   }
 
-  override def +=(elem: A): this.type = {
+  override def addOne(elem: A): this.type = {
     if (size < maxSize) {
       underlying.offer(elem)
     } else {
@@ -53,10 +54,6 @@ private[spark] class BoundedPriorityQueue[A](maxSize: Int)(implicit ord: Orderin
 
   def poll(): A = {
     underlying.poll()
-  }
-
-  override def +=(elem1: A, elem2: A, elems: A*): this.type = {
-    this += elem1 += elem2 ++= elems
   }
 
   override def clear() { underlying.clear() }

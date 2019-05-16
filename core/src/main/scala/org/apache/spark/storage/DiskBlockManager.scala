@@ -88,14 +88,14 @@ private[spark] class DiskBlockManager(conf: SparkConf, deleteFilesOnStop: Boolea
   /** List all the files currently stored on disk by the disk manager. */
   def getAllFiles(): coll.Seq[File] = {
     // Get all the files inside the array of array of directories
-    subDirs.flatMap { dir =>
+    subDirs.flatMap { dir: Array[File] =>
       dir.synchronized {
         // Copy the content of dir because it may be modified in other threads
         dir.clone()
       }
-    }.filter(_ != null).flatMap { dir =>
+    }.filter(_ != null).flatMap { dir: File =>
       val files = dir.listFiles()
-      if (files != null) files else Seq.empty
+      if (files != null) files.toList else Seq.empty
     }
   }
 

@@ -113,8 +113,6 @@ private[spark] class CompactBuffer[T: ClassTag] extends coll.Seq[T] with Seriali
 
   override def length: Int = curSize
 
-  override def size: Int = curSize
-
   override def iterator: Iterator[T] = new Iterator[T] {
     private var pos = 0
     override def hasNext: Boolean = pos < curSize

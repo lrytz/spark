@@ -149,7 +149,7 @@ private[spark] class AppStatusListener(
   override def onEnvironmentUpdate(event: SparkListenerEnvironmentUpdate): Unit = {
     val details = event.environmentDetails
 
-    val jvmInfo = Map(details("JVM Information"): _*)
+    val jvmInfo = Map(details("JVM Information").toList: _*)
     val runtime = new v1.RuntimeInfo(
       jvmInfo.get("Java Version").orNull,
       jvmInfo.get("Java Home").orNull,

@@ -64,19 +64,19 @@ private[spark] class TimeStampedHashMap[A, B](updateTimeStampOnGet: Boolean = fa
     newMap
   }
 
-  override def - (key: A): mutable.Map[A, B] = {
-    val newMap = new TimeStampedHashMap[A, B]
-    newMap.internalMap.putAll(this.internalMap)
-    newMap.internalMap.remove(key)
-    newMap
-  }
+//  override def - (key: A): mutable.Map[A, B] = {
+//    val newMap = new TimeStampedHashMap[A, B]
+//    newMap.internalMap.putAll(this.internalMap)
+//    newMap.internalMap.remove(key)
+//    newMap
+//  }
 
-  override def += (kv: (A, B)): this.type = {
+  override def addOne(kv: (A, B)): this.type = {
     kv match { case (a, b) => internalMap.put(a, TimeStampedValue(b, currentTime)) }
     this
   }
 
-  override def -= (key: A): this.type = {
+  override def subtractOne(key: A): this.type = {
     internalMap.remove(key)
     this
   }
